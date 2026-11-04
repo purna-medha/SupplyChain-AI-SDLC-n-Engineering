@@ -1,0 +1,3 @@
+vessel_identifier,vessel_name,carrier_identifier,carrier_name,default_free_days_allowed,contact_email_address,berth_terminal_name,vessel_arrival_timestamp
+IMO9784753,MAERSK JEBEL ALI,MAEU,Maersk Line,5,ops@maersk.com,Jebel Ali Terminal T1,2026-09-08T06:00:00
+IMO9834211,MSC HARMONY,MSCU,Mediterranean Shipping Company,5,ops@msc.com,Jebel Ali Terminal T2,2026-09-12T14:30:00

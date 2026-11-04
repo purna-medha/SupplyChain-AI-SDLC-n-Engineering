@@ -1,0 +1,3 @@
+exception_log_identifier,berth_terminal_name,exception_category_type,exception_start_timestamp,exception_end_timestamp,excused_penalty_days_count
+EXC-2026-001,Jebel Ali Terminal T1,CRANE_BREAKDOWN,2026-09-11T08:00:00,2026-09-13T18:00:00,3
+EXC-2026-002,Jebel Ali Terminal T1,CUSTOMS_SERVER_OUTAGE,2026-09-15T10:00:00,2026-09-15T16:00:00,1

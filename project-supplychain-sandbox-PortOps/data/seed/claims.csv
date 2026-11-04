@@ -1,0 +1,2 @@
+dispute_claim_identifier,container_identifier,importer_identifier,disputed_amount_usd,dispute_reason_category,claim_decision_status,approved_waiver_amount_usd
+1,HLCU5566778,IMP-GULF-003,450.00,WEATHER_HOLD,REJECTED,0.00

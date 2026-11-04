@@ -1,0 +1,5 @@
+container_identifier,bill_of_lading_number,container_size_type,cargo_classification_type,vessel_discharge_date,free_days_allowed,gate_out_date,tier_1_daily_penalty_rate_usd,tier_2_daily_penalty_rate_usd
+MSKU1234567,BOL-2026-09100,40HC,DRY,2026-09-09,5,,150.00,250.00
+MSCU7654321,BOL-2026-09100,20GP,DRY,2026-09-09,5,2026-09-14,150.00,250.00
+TCLU9876543,BOL-2026-09101,40HC,REEFER,2026-09-10,5,,200.00,300.00
+HLCU5566778,BOL-2026-09102,40HC,HAZMAT,2026-09-13,5,,175.00,325.00

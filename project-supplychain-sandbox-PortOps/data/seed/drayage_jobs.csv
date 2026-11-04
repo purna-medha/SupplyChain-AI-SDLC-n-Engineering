@@ -1,0 +1,4 @@
+drayage_job_identifier,container_identifier,assigned_truck_driver_name,delivery_warehouse_name,agreed_service_level_agreement_hours,actual_transit_hours,job_completion_status
+DRY-001,MSKU1234567,Ahmed Al Maktoum,Dubai South Warehouse,24,,PENDING
+DRY-002,TCLU9876543,Fatima Hassan,Jebel Ali Free Zone,18,,IN_TRANSIT
+DRY-003,HLCU5566778,Omar Rashid,Al Quoz Industrial,12,8.5,DELIVERED

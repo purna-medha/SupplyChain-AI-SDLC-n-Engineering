@@ -1,0 +1,4 @@
+importer_identifier,importer_company_name,commercial_tier_level,tier_discount_percentage
+IMP-GULF-001,Gulf Trading LLC,STANDARD,0.00
+IMP-GULF-002,Emirates Import Company,GOLD,0.10
+IMP-GULF-003,Dubai Premium Logistics,PLATINUM,0.20

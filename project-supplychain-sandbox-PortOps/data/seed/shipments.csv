@@ -1,0 +1,4 @@
+bill_of_lading_number,importer_identifier,vessel_identifier,origin_port_code,destination_port_code,total_container_count
+BOL-2026-09100,IMP-GULF-001,IMO9784753,CN SHA,AE JEA,2
+BOL-2026-09101,IMP-GULF-002,IMO9784753,SG SIN,AE JEA,1
+BOL-2026-09102,IMP-GULF-003,IMO9834211,IN MUN,AE JEA,1
