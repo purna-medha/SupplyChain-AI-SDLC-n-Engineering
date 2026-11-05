@@ -1,0 +1,2 @@
+# Matches the source courseware's MCP major version; core examples need stdlib only.
+mcp[cli]>=2.0,<3

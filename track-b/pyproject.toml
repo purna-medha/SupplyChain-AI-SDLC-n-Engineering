@@ -1,0 +1,22 @@
+[project]
+name = "maersk-track-b-snippets"
+version = "0.1.0"
+description = "Shared teaching environment for the B1–B3 Python snippets"
+requires-python = ">=3.11"
+dependencies = [
+    "litellm==1.108.0",
+    "python-dotenv==1.2.4",
+    "tiktoken==0.14.0",
+    "pydantic==2.14.2",
+    "openai==2.54.0",
+    "openai-agents==0.20.0",
+    "llama-index-core==0.14.25",
+    "llama-index-llms-openai==0.8.3",
+    "llama-index-tools-mcp==0.6.0",
+    "mcp==2.3.0",
+    # Used by the preserved B3 framework reference.
+    "llama-index-llms-openai-like>=0.8,<0.9",
+]
+
+[tool.uv]
+package = false

@@ -1,0 +1,10 @@
+# Same model, SDK and MCP versions used in the snippets/application labs.
+litellm>=1.97,<2
+openai==2.54.0
+openai-agents==0.20.0
+mcp==2.3.0
+python-dotenv==1.2.4
+tiktoken>=0.7,<1
+jupyterlab>=4,<5
+ipykernel>=6,<8
+

@@ -1,0 +1,9 @@
+# Standalone alternative; shared B1–B3 setup uses root pyproject.toml and uv.lock.
+# Versions smoke-tested together in the standalone B2 examples.
+openai==2.54.0
+openai-agents==0.20.0
+llama-index-core==0.14.25
+llama-index-llms-openai==0.8.3
+llama-index-tools-mcp==0.6.0
+mcp==2.3.0
+python-dotenv==1.2.4

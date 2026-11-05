@@ -1,0 +1,6 @@
+# Standalone alternative; shared B1–B3 setup uses root pyproject.toml and uv.lock.
+# B1 examples and references; same version ranges as the shared teaching setup.
+litellm>=1.97,<2
+python-dotenv>=1,<2
+tiktoken>=0.7,<1
+pydantic>=2,<3

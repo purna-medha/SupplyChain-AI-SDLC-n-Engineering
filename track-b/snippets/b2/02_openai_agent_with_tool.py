@@ -1,0 +1,31 @@
+"""Give the same agent one real Python function to obtain a recorded status.
+
+Try: ask for C2, then C9. Watch the TOOL print before reading the answer.
+"""
+
+import os
+from dotenv import load_dotenv
+from agents import Agent, Runner, function_tool, set_default_openai_key, set_tracing_disabled
+
+load_dotenv()
+set_default_openai_key(os.environ["OPEN_AI_KEY"])
+set_tracing_disabled(True)
+
+
+@function_tool
+def get_container_status(container_id: str) -> str:
+    """Read a container's recorded status from the synthetic classroom records."""
+    print("TOOL get_container_status:", container_id)
+    records = {"C1": "delayed", "C2": "on_time"}
+    return records.get(container_id, "Unknown container")
+
+
+agent = Agent(
+    name="Port operations assistant",
+    instructions="Use get_container_status for recorded statuses. Never invent a status.",
+    model="gpt-4.1-mini",
+    tools=[get_container_status],
+)
+
+result = Runner.run_sync(agent, "What is C1's recorded status?", max_turns=4)
+print(result.final_output)

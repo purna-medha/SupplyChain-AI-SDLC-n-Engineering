@@ -1,0 +1,459 @@
+# B0 · Python for supply-chain applications
+
+Read, run and change the Python used in Track B
+
+Container records · Functions and objects · Application boundaries
+
+---
+
+# The Python behind an AI feature
+
+A container service desk may read a record, calculate a quote, call a model and return an answer.
+
+Python expresses the application steps and connects them to libraries.
+
+Track B uses this ordinary software around model calls: data structures, functions, objects and explicit decisions.
+
+---
+
+# The application owns the workflow
+
+```text
+Question → application code → permitted source or model
+                  ↓
+         inspect the returned value
+                  ↓
+           display or continue
+```
+
+The developer defines which component supplies each fact and what happens when that component fails.
+
+---
+
+# Run a small file first
+
+From `track-b`, run the first complete illustration:
+
+```bash
+python3 snippets/b0/01_values_and_arithmetic.py
+```
+
+Python executes the file's statements in order. Read the output, change one input and run the file again.
+
+All numbered B0 snippets use the Python standard library.
+
+---
+
+# Scripts and notebooks hold state differently
+
+A fresh script process starts again with the values defined in the file.
+
+A notebook kernel retains variables between cells. Editing an earlier cell does not automatically rerun its dependents.
+
+Use a clean run when comparing results: rerun the script, or restart the notebook kernel and Run All.
+
+---
+
+# Values have names and types
+
+A synthetic pickup quote needs a count, a rate and a budget:
+
+```python
+container_count = 3
+usd_per_container = 120.0
+budget_usd = 500.0
+```
+
+These values are an integer and two floating-point numbers. A name lets later code refer to the value.
+
+---
+
+# Expressions produce a new value
+
+The quote is count multiplied by rate. Remaining budget is budget minus quote.
+
+```python
+quote_usd = container_count * usd_per_container
+budget_left_usd = budget_usd - quote_usd
+print("Transport quote (USD):", quote_usd)
+```
+
+---
+
+# Strings and formatted output
+
+```python
+quote_usd = 360.0
+print(f"Transport quote: USD {quote_usd:.2f}")
+```
+
+The `f` prefix allows expressions inside braces. `:.2f` displays this number with two decimal places.
+
+Formatting produces readable text; it does not change the stored value.
+
+---
+
+# A dictionary names the fields of a record
+
+```python
+container = {"container_id": "C1", "status": "delayed"}
+print(container["container_id"])
+```
+
+The strings on the left are keys. Looking up a key retrieves its value.
+
+The dictionary is supplied classroom data. Creating it does not query an operational system.
+
+---
+
+# Missing fields need an explicit interpretation
+
+```python
+departure = container.get("scheduled_departure")
+print(departure)
+```
+
+`get` returns `None` when this key is absent and no default is supplied. `None` represents the absence of a value here.
+
+An absent departure is not evidence that a container has departed.
+
+---
+
+# A list retains an ordered collection
+
+```python
+containers = [container, {"container_id": "C2", "status": "on_time"}]
+print(containers[0])
+print(len(containers))
+```
+
+Index zero selects the first element. `len` reports how many elements are present.
+
+The list's order will also matter when it holds conversation messages.
+
+---
+
+# Conditions choose a path
+
+A delayed container needs investigation. An on-time record can finish this small status check.
+
+```python
+if container["status"] == "delayed":
+    next_step = "investigate"
+elif container["status"] == "on_time":
+    next_step = "finish"
+else:
+    next_step = "clarify"
+```
+
+---
+
+# A loop applies the decision to each record
+
+```python
+for container in containers:
+    # Select the next step from this container's status.
+    ...
+```
+
+Each iteration assigns the next list element to `container` and runs the indented body.
+
+---
+
+# A function names one reusable operation
+
+A quote calculation can be called from a terminal, an API or a later tool.
+
+Its parameters describe the inputs. Its return value supplies the result to the caller.
+
+Defining a function does not run its body; a call supplies the arguments and executes it.
+
+---
+
+# A readable function states its contract
+
+```python
+def quote_transport(container_count: int, usd_per_container: float) -> float:
+    """Return a synthetic flat transport quote for positive inputs."""
+    if container_count <= 0 or usd_per_container <= 0:
+        raise ValueError("Count and rate must be positive.")
+    return container_count * usd_per_container
+```
+
+---
+
+# Positional and named arguments call the same operation
+
+```python
+quote_transport(3, 120.0)
+quote_transport(container_count=3, usd_per_container=120.0)
+```
+
+The first call matches by position. The second matches by parameter name.
+
+B1's model calls use named arguments such as `model`, `messages` and `max_tokens` to make configuration readable.
+
+---
+
+# Type hints and runtime checks do different work
+
+`container_count: int` tells readers and analysis tools the intended type.
+
+The `if` statement executes and rejects nonpositive values. Python does not enforce ordinary annotations by itself.
+
+For example, `quote_transport(1.5, 120.0)` passes the supplied positivity check even though it conflicts with the intended integer count.
+
+---
+
+# An expected error needs a caller decision
+
+```python
+try:
+    quote_usd = quote_transport(count, 120.0)
+    print("Quoted:", count, "containers for USD", quote_usd)
+except ValueError as error:
+    print("Booking needs correction:", error)
+```
+
+---
+
+# A class gives related data a name
+
+A transport quote has a count and a rate. A `TransportQuote` instance keeps those values together.
+
+```python
+@dataclass
+class TransportQuote:
+    container_count: int
+    usd_per_container: float
+```
+
+The standard-library `dataclass` decorator generates common object setup code.
+
+---
+
+# Attributes and methods belong to an instance
+
+```python
+quote = TransportQuote(container_count=3, usd_per_container=120.0)
+print(quote.container_count)
+print(quote.total_usd())
+```
+
+An attribute holds data. A method is a function accessed through the object; `self` refers to that instance in its method definition.
+
+---
+
+# Imports reuse another module's definitions
+
+```python
+from datetime import date
+discharge_date = date(2026, 11, 1)
+```
+
+`datetime` is a standard-library module. `date` is one definition imported from it.
+
+An import makes the definition available. The following call constructs a date value.
+
+---
+
+# Date objects support a clear calculation
+
+```python
+dwell_days = max(0, (calculation_date - discharge_date).days)
+overdue_days = max(0, dwell_days - free_days)
+```
+
+Subtracting dates produces a duration. `.days` reads its day count. `max` keeps these example counts at least zero.
+
+---
+
+# JSON text and Python objects are different representations
+
+```python
+request_text = json.dumps(messages)
+restored_messages = json.loads(request_text)
+```
+
+`dumps` encodes supported Python data as JSON text. `loads` parses JSON text back into Python values.
+
+---
+
+# Configuration comes from the process environment
+
+```python
+portops_url = os.environ.get("PORTOPS_URL", "http://127.0.0.1:8002")
+has_model_key = bool(os.environ.get("OPEN_AI_KEY"))
+```
+
+The first lookup has a default. The second checks presence without displaying a credential.
+
+---
+
+# Packages belong to a Python environment
+
+Standard-library examples run with Python itself. B1 adds installed packages such as LiteLLM and python-dotenv.
+
+From `track-b`, prepare the existing course environment once:
+
+```bash
+uv sync --locked
+uv run python snippets/b1/01_openai_call.py
+```
+
+`uv run` uses this project's environment. The lockfile records its resolved dependency versions.
+
+---
+
+# Application bridge · Python used after B1
+
+Storage · Function wrappers · HTTP routes · Async calls · Logs and tests
+
+Use the following illustrations when those mechanisms are new to the learner.
+
+---
+
+# SQLite stores rows that a function can read
+
+The supplied illustration creates two container records in a temporary, in-memory database.
+
+```python
+connection = sqlite3.connect(":memory:")
+connection.execute(
+    "CREATE TABLE containers (container_id TEXT PRIMARY KEY, status TEXT)"
+)
+```
+
+---
+
+# Keep a query's values separate from its SQL
+
+```python
+row = connection.execute(
+    "SELECT status FROM containers WHERE container_id = ?", (container_id,)
+).fetchone()
+```
+
+The placeholder receives the lookup value. The trailing comma makes a one-element tuple.
+
+`fetchone` returns a row or `None`. A missing row is not a known status.
+
+---
+
+# A decorator transforms or registers a callable
+
+```python
+@announce
+def get_status(container_id: str) -> str:
+    ...
+```
+
+Here, `@announce` applies `announce` to the defined function. The returned wrapper prints when the function is called.
+
+---
+
+# An API route connects a URL to a function
+
+```python
+app = FastAPI()
+
+@app.get("/containers/{container_id}")
+def get_container(container_id: str) -> dict[str, str]:
+    records = {"C1": "delayed", "C2": "on_time"}
+    return {"container_id": container_id,
+            "status": records.get(container_id, "unknown")}
+```
+
+---
+
+# Run the optional service in another terminal
+
+From `track-b`:
+
+```bash
+uv run --with fastapi --with uvicorn uvicorn server:app \
+  --app-dir snippets/b0/extensions --port 8003
+```
+
+Open `http://127.0.0.1:8003/docs` and request C1, then C9.
+
+`--with` supplies this example's additional packages without editing the course dependency declaration. Stop the server with Ctrl+C.
+
+---
+
+# Async code separates defining work from awaiting it
+
+`async def` defines an async function. Calling it creates a coroutine; `await` obtains its result while allowing supported waiting work to yield control.
+
+```python
+async def main():
+    status = await get_status("C1")
+    print("Awaited observation:", status)
+```
+
+---
+
+# The execution environment owns the event loop
+
+A standalone script can start its event loop:
+
+```python
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+A Jupyter kernel already runs an event loop. In a notebook cell, use `await main()` instead of starting a nested loop.
+
+---
+
+# Logs retain the operation's context
+
+```python
+logger.info("Read %s status=%s", container_id, status)
+logger.warning("No recorded status for %s", container_id)
+```
+
+The complete illustration logs a known read and an expected missing record. The identifier helps explain which case produced the message.
+
+---
+
+# A test compares behavior with an independent expectation
+
+```python
+self.assertEqual(quote_transport(3, 120.0), 360.0)
+
+with self.assertRaises(ValueError):
+    quote_transport(0, 120.0)
+```
+
+One test checks the quoted total. The other checks that an invalid booking is rejected.
+
+---
+
+# Debug from a concrete failure
+
+Remove the quote function's input check in the test illustration and rerun it.
+
+The zero-count test should fail. Read its test name, expected exception and actual behavior, then restore the missing decision.
+
+For unexpected errors, read the traceback's final exception and locate the failing source line. Use `breakpoint()` when inspecting values would answer the next question.
+
+---
+
+# Readable code makes later changes inspectable
+
+Use names that expose the business meaning, such as `container_count` and `quote_transport`.
+
+Keep functions small enough to explain their inputs, result and failure path. Use comments for assumptions that are not evident from the code.
+
+When a learner or coding assistant changes the file, rerun the relevant example and inspect what changed.
+
+---
+
+# B0 · Ready to read the first model call
+
+B1 uses imports, named arguments, message lists and dictionaries, object attributes and printed results.
+
+You can now follow those Python operations and distinguish the application code from the model service it calls.
+
+**Practice:** run a core snippet, change one input and explain the output before moving to B1.

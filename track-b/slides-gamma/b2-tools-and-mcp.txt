@@ -1,0 +1,409 @@
+# B2 · Tools, agents and MCP
+
+An operations assistant that obtains a recorded fact
+
+Application functions · Agent runtimes · Shared capabilities
+
+---
+
+# The chatbot's missing capability
+
+B1's chatbot can explain general shipping terminology.
+
+It cannot establish C1's current recorded status because it has no connection to that record.
+
+The new requirement is to obtain a fact from an application-owned source, then explain the result to the user.
+
+---
+
+# The source of the recorded status
+
+> What is C1's recorded status?
+
+For the classroom example, the application owns:
+
+```text
+C1 → delayed
+C2 → on_time
+```
+
+These synthetic records live in a Python dictionary. Their contents must come from executing a read, not from model knowledge.
+
+---
+
+# An application function obtains the fact
+
+The operation has a clear contract:
+
+```text
+Input:  a container identifier
+Work:   read the matching classroom record
+Output: its status, or an unknown-container result
+```
+
+Ordinary Python can perform this read. A model adds value by interpreting the user's request and deciding whether this operation is useful.
+
+---
+
+# The read already works in Python
+
+The application can execute the operation directly, before any model is involved.
+
+```python
+def get_container_status(container_id: str) -> str:
+    records = {"C1": "delayed", "C2": "on_time"}
+    return records.get(container_id, "Unknown container")
+
+print(get_container_status("C1"))
+```
+
+---
+
+# A model-facing description of the function
+
+To make the function selectable, the application describes its contract:
+
+| Contract field | Our status operation |
+| --- | --- |
+| Name | `get_container_status` |
+| Purpose | Read a recorded container status |
+| Argument schema | `container_id`, a required string |
+| Result | A status or an unknown-container result |
+
+The runtime retains the executable function. Its description helps the model decide when and how to request it.
+
+---
+
+# A requested operation and an observed result
+
+**Tool request:** read the status of C1.
+
+```text
+name: get_container_status
+arguments: {"container_id": "C1"}
+```
+
+**Observation after execution:** `delayed`.
+
+The request describes work to do. Only the executed function supplies its result.
+
+---
+
+# The tool interaction
+
+```text
+User asks about C1
+        ↓
+Model requests get_container_status("C1")
+        ↓
+Application runtime executes the function
+        ↓
+Tool returns the recorded status
+        ↓
+Model receives the result and answers the user
+```
+
+---
+
+# The agent's decision and feedback loop
+
+```text
+Question + available tools
+           |
+           v
+      Model decides <-------------------+
+       |         |                      |
+    answer   tool request                |
+       |         v                      |
+    finish   Runtime executes            |
+                 |                      |
+                 +---- observation -----+
+```
+
+After an observation, the model decides again. The runtime bounds the loop.
+
+---
+
+# The question determines whether a tool is needed
+
+| User question | Evidence needed | Suitable path |
+| --- | --- | --- |
+| What is container dwell time? | General shipping knowledge | The model may answer directly |
+| What is C1's recorded status? | The application's current record | Request the status tool, then answer |
+
+The same agent can take either path. Providing a tool makes an operation available; it does not require every question to use it.
+
+---
+
+# Agent definition and runtime
+
+An agent definition specifies instructions, a model and the tools it may request.
+
+The runtime sends requests, executes selected tools, returns observations and continues until the run finishes or reaches a limit.
+
+The OpenAI Agents SDK expresses these responsibilities through `Agent`, tool definitions and `Runner`.
+
+---
+
+# A Python function exposed as a tool
+
+The decorator derives the model-facing contract from a typed function and its description.
+
+```python
+@function_tool
+def get_container_status(container_id: str) -> str:
+    """Read a status from the synthetic classroom records."""
+    print("TOOL get_container_status:", container_id)
+    records = {"C1": "delayed", "C2": "on_time"}
+    return records.get(container_id, "Unknown container")
+```
+
+---
+
+# The runtime manages the round trip
+
+```python
+agent = Agent(
+    name="Port operations assistant",
+    instructions="Use the tool for recorded statuses.",
+    model="gpt-4.1-mini",
+    tools=[get_container_status],
+)
+result = Runner.run_sync(agent, "What is C1's recorded status?",
+                         max_turns=4)
+print(result.final_output)
+```
+
+---
+
+# Evidence in a tool-assisted answer
+
+Inspect the execution print and returned answer together.
+
+For C1, did the function execute with the intended identifier? Does the answer preserve the returned status?
+
+For unknown C9, the function returns “Unknown container.” The application has obtained no evidence for a real status.
+
+---
+
+# Limits and unsuccessful runs
+
+An agent may choose the wrong tool, supply an unsuitable argument or repeat an unhelpful request.
+
+Use bounded runs and inspect errors and observations. A limit being reached does not mean the task succeeded.
+
+The executing application remains responsible for argument checks, permitted access and actual side effects.
+
+---
+
+# The same runtime responsibilities
+
+| Responsibility | OpenAI Agents SDK | LlamaIndex |
+| --- | --- | --- |
+| Describe a callable | `@function_tool` | `FunctionTool` |
+| Configure the agent | `Agent` | `FunctionAgent` |
+| Run decisions and tool feedback | `Runner.run_sync(...)` | `await agent.run(...)` |
+
+Keep the model, function and question fixed. The next example changes how the application packages the same loop.
+
+---
+
+# The same capability in LlamaIndex
+
+```python
+agent = FunctionAgent(
+    llm=OpenAI(model="gpt-4.1-mini",
+               api_key=os.environ["OPEN_AI_KEY"]),
+    tools=[FunctionTool.from_defaults(fn=get_container_status)],
+    system_prompt="Use the tool for recorded statuses.",
+    streaming=False,
+)
+result = await agent.run(user_msg="What is C1's recorded status?",
+                         max_iterations=4)
+```
+
+---
+
+# A second application needs the capability
+
+An operations assistant and a support assistant both need recorded container statuses.
+
+Copying the function and records gives each application a separate implementation to maintain.
+
+We want the capability's owner to publish one implementation that several applications can use.
+
+---
+
+# One shared implementation
+
+```text
+Operations assistant ──┐
+                      ├── status capability ── records
+Support assistant ────┘
+```
+
+The capability's owner maintains its implementation and source data.
+
+Each application retains its own user interaction, model and agent loop.
+
+---
+
+# MCP standardises the capability exchange
+
+Model Context Protocol provides an interface through which an application can discover capabilities and invoke offered tools.
+
+For our tool path, the client learns a name, description and input schema, then sends arguments and receives a result.
+
+MCP does not supply the agent's reasoning loop or automatically grant access to records.
+
+---
+
+# Host, client and server
+
+```text
+Agent application (host)
+    ├── model and agent runtime
+    └── MCP client → MCP server → status function → records
+```
+
+The **host** uses the model and coordinates the work.
+
+The **client** connects to the server. The **server** exposes and executes the capability.
+
+---
+
+# Discovery and invocation
+
+| Exchange | What it establishes |
+| --- | --- |
+| Discover tools | The server offers a status-reading operation |
+| Read its contract | The operation accepts a container identifier |
+| Invoke it with C1 | The server executes the requested read |
+| Receive the result | The application obtains the observation |
+
+Discovering a tool does not execute it or obtain the record.
+
+---
+
+# What moved to the server
+
+| Responsibility | Before MCP | Shared-server version |
+| --- | --- | --- |
+| Model and agent loop | Agent application | Agent application |
+| Status function | Agent application | MCP server |
+| Classroom records | Agent application | MCP server |
+| Tool connection | In-process callable | Discovered MCP interface |
+
+The tool's purpose is unchanged. Ownership and the invocation path have changed.
+
+---
+
+# Local processes and shared HTTP servers
+
+| Transport arrangement | Typical classroom shape |
+| --- | --- |
+| stdio | A client launches and communicates with a child process |
+| Streamable HTTP | Clients connect to an independently running server |
+
+We use one local HTTP server so two agent applications can reuse the same running capability.
+
+Endpoint: `http://127.0.0.1:8765/mcp`
+
+---
+
+# The familiar function on the server
+
+The implementation remains ordinary Python. The decorator publishes its tool contract.
+
+```python
+@server.tool()
+def get_container_status(container_id: str) -> str:
+    """Read a status from the synthetic classroom records."""
+    records = {"C1": "delayed", "C2": "on_time"}
+    return records.get(container_id, "Unknown container")
+
+server.run(transport="streamable-http", host="127.0.0.1", port=8765)
+```
+
+---
+
+# An agent connected to the shared capability
+
+The runtime discovers the server's tools and routes selected calls through the MCP client.
+
+```python
+async with MCPServerStreamableHttp(
+    name="Port operations tools",
+    params={"url": "http://127.0.0.1:8765/mcp"},
+) as server:
+    agent = Agent(
+        name="Port operations assistant",
+        model="gpt-4.1-mini",
+        instructions="Use the tool for recorded statuses.",
+        mcp_servers=[server],
+    )
+    result = await Runner.run(agent, "What is C1's recorded status?",
+                              max_turns=4)
+```
+
+---
+
+# Another application can reuse the server
+
+The OpenAI agent and a LlamaIndex agent can connect to the same MCP endpoint.
+
+Each retains its own model interaction and agent loop. Both obtain statuses through the server's existing function and records.
+
+**Lab extension:** connect the second client and inspect both applications' requests in the server terminal.
+
+---
+
+# Results and access remain application concerns
+
+An unknown container is a result to handle, not a reason to invent a status.
+
+The server owns checks on its records and operations. A discoverable tool does not imply that every caller may use every record.
+
+The classroom server demonstrates read-only synthetic data. Production identity and authorisation require additional implementation.
+
+---
+
+# The complete tool-assisted application
+
+```text
+User question → agent runtime <-> model
+                    ↓ selected tool request
+                MCP client
+                    ↓
+                MCP server → status function → records
+                    ↓ observation
+                agent runtime <-> model → user-facing answer
+```
+
+The agent decides what to request. The executing capability supplies the observation.
+
+---
+
+# Lab · A tool-using assistant and a shared server
+
+| Time | Extend the understood application |
+| --- | --- |
+| 0–10 min | Call the function directly, then through the SDK agent |
+| 10–25 min | Compare general/status questions; run LlamaIndex |
+| 25–40 min | Start the MCP server and connect the OpenAI agent |
+| 40–55 min | Add C3 on the server; test the client and unknown C9 |
+| 55–60 min | Explain who decides, executes and owns the records |
+
+Extension: connect the supplied second MCP client.
+
+Use the B2 snippets and setup.
+
+---
+
+# B2 · What the application now does
+
+It can obtain a recorded fact through a tool and use the result in an answer.
+
+An agent runtime manages model decisions and observation feedback. MCP lets different applications discover and invoke the shared capability.
+
+**Explain:** how does the application now answer C1's status question, and which component owns that fact?

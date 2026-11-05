@@ -1,0 +1,7 @@
+# Same model libraries and SDK/protocol versions used in the B1–B3 snippets.
+litellm>=1.97,<2
+openai==2.54.0
+openai-agents==0.20.0
+mcp==2.3.0
+python-dotenv==1.2.4
+

@@ -1,0 +1,7 @@
+# Shared dependencies for older examples; B1–B3 have module requirements files.
+# Add requirements-rag.txt for B6 and the preserved B3 framework reference.
+litellm>=1.97,<2
+pydantic>=2,<3
+mcp[cli]>=2,<3
+python-dotenv>=1,<2
+tiktoken>=0.7,<1

@@ -1,0 +1,4 @@
+# Install alongside requirements-teaching.txt for B6 and the preserved B3 framework reference.
+llama-index-core>=0.14.3,<0.15
+llama-index-llms-openai-like>=0.8,<0.9
+llama-index-embeddings-openai-like>=0.4,<0.5

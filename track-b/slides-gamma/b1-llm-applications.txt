@@ -1,0 +1,409 @@
+# B1 · LLMs in a simple application
+
+A shipping-terminology chatbot
+
+Hosted and local models · Conversations · Tokens, cost and latency
+
+---
+
+# A language feature in an application
+
+An operations trainee asks:
+
+> What is container dwell time?
+
+A useful feature accepts the question and returns a readable explanation.
+
+The language model supplies the generated explanation. Ordinary application code connects it to the user.
+
+---
+
+# The model's role
+
+```text
+User question → application → language model
+                    ↑              ↓
+               display reply ← generated text
+```
+
+The application collects input, sends a request and handles the response.
+
+The model generates language. It has no connection to the organisation's systems unless the application provides one.
+
+---
+
+# Learned capability and inference
+
+**Pretraining:** learning patterns from training data by adjusting model weights.
+
+**Inference:** using learned weights to generate an output for a new input.
+
+A question can use learned knowledge. It does not automatically trigger a search or a read of current company data.
+
+---
+
+# Useful language, imperfect answers
+
+Models can explain terms, rewrite text and answer general questions.
+
+They can also misunderstand a term, invent a detail or vary their wording across repeated calls.
+
+Check the explanation against the intended shipping meaning. A successful API call establishes access; answer quality needs a separate check.
+
+---
+
+# Proprietary and open-weight models
+
+| Model access | What the developer receives |
+| --- | --- |
+| Proprietary model | Inference access through a provider's service |
+| Open-weight model | Downloadable parameters under the model's licence |
+
+Open weights can run locally or be hosted by another provider.
+
+Available weights do not establish that training data, training code or every use is unrestricted.
+
+---
+
+# Where inference runs
+
+```text
+Hosted: Python → provider API → model on provider hardware
+
+Local:  Python → Ollama API   → model on this machine
+```
+
+Both paths send a request and receive generated text.
+
+They differ in where computation happens, who operates the model and how that computation is paid for.
+
+---
+
+# Choosing an access path
+
+| Consideration | Hosted API | Local open weights |
+| --- | --- | --- |
+| Initial access | Account, key and model access | Runtime, download and hardware |
+| Inference operation | Provider operates the service | You operate the runtime |
+| Cost | Applicable API usage charges | Hardware and operating effort |
+| Request processing | Provider service boundary | Local runtime boundary |
+
+Choose a model and deployment that meet the task's quality and operating requirements.
+
+---
+
+# A hosted model in Python
+
+The request implements the application/model boundary we have described.
+
+```python
+load_dotenv()
+question = "Briefly explain container dwell time in shipping."
+response = completion(
+    model="openai/gpt-4.1-mini",
+    api_key=os.environ["OPEN_AI_KEY"],
+    messages=[{"role": "user", "content": question}],
+)
+print(response.choices[0].message.content)
+```
+
+---
+
+# The response and the application
+
+Generated text is one part of the response. Usage metadata can describe the tokens consumed.
+
+The application extracts the reply and displays it in a terminal, page or chat interface.
+
+A chatbot screen wraps this boundary. It does not add company knowledge to the model.
+
+---
+
+# The local model and its runtime
+
+**SmolLM2-135M-Instruct:** the selected open-weight model.
+
+**GGUF:** the file format used by the selected distribution.
+
+**Ollama:** loads and runs the model locally, exposing an API.
+
+**LiteLLM:** provides our Python code with a common request/response interface across hosted and local examples.
+
+---
+
+# A local model through the same interface
+
+The selected `model` runs on this machine's Ollama service.
+
+```python
+response = completion(
+    model=model,
+    api_base="http://localhost:11434",
+    messages=[{"role": "user", "content": question}],
+    max_tokens=100,
+    temperature=0,
+)
+```
+
+---
+
+# Instructions shape requested behavior
+
+The user asks about dwell time. The application wants a concise explanation suitable for a trainee.
+
+An instruction such as “Answer in one short sentence” describes that desired behavior.
+
+Changing it can change the presentation of an answer. It does not supply new operational facts or guarantee correctness.
+
+---
+
+# Conversation roles
+
+| Role in these examples | Meaning |
+| --- | --- |
+| `system` | Application-supplied behavioral instruction |
+| `user` | A question or message from the user |
+| `assistant` | An earlier generated model reply |
+
+The provider or runtime formats the messages for its model.
+
+---
+
+# Instructions and question in one request
+
+The roles express the distinction already established in words.
+
+```python
+messages=[
+    {"role": "system", "content": "Answer in one short sentence."},
+    {"role": "user", "content": question},
+],
+```
+
+Keep the question fixed. Compare one sentence with three numbered points.
+
+---
+
+# A follow-up depends on the conversation
+
+First question:
+
+> What is container dwell time?
+
+Follow-up:
+
+> How does that differ from detention?
+
+“That” refers to the earlier topic. A fresh request containing only the follow-up does not establish that reference.
+
+---
+
+# The application maintains history
+
+In this stateless call pattern, each request contains the conversation the model should use now.
+
+The application retains earlier user messages and actual assistant replies, then adds the new question.
+
+This is conversation state supplied as input. It does not update the model's learned weights.
+
+---
+
+# History in the next request
+
+Retain the first call's actual reply before asking the follow-up.
+
+```python
+messages.append({
+    "role": "assistant",
+    "content": first.choices[0].message.content,
+})
+messages.append({
+    "role": "user", "content": "How does that differ from detention?",
+})
+```
+
+---
+
+# Tokens represent text
+
+A tokenizer divides text into model-specific units and assigns vocabulary IDs.
+
+A token may represent a word, part of a word, punctuation or other bytes. Character and word counts are not reliable token counts.
+
+The model's request contains tokens for the formatted messages as well as their text.
+
+---
+
+# Text and token IDs
+
+Encoding exposes the tokenizer's units; decoding reconstructs the text.
+
+```python
+encoder = tiktoken.encoding_for_model("gpt-4.1-mini")
+text = "Container dwell time at a port."
+token_ids = encoder.encode(text)
+print(token_ids)
+print(encoder.decode(token_ids))
+```
+
+---
+
+# The generation pipeline
+
+```text
+Formatted input → token IDs → token embedding vectors
+                                     ↓
+                          transformer layers
+                                     ↓
+                    scores over vocabulary tokens
+                                     ↓
+                           next token selection
+```
+
+Token IDs index the vocabulary. Embedding vectors are numerical representations used inside the model.
+
+---
+
+# Generation continues one token at a time
+
+The selected token joins the sequence. The model predicts another token using the extended context.
+
+Generation stops at a stopping condition or the configured limit.
+
+The tokenizer decodes generated IDs into readable text. Longer answers generally require more generation work.
+
+---
+
+# Variability and output length
+
+Repeated requests can produce different wording.
+
+Where supported, **temperature** changes how randomly the next token is selected. Lower temperature guarantees neither correctness nor identical results.
+
+An **output-token limit** bounds generation length. Reaching the limit can leave an answer unfinished.
+
+---
+
+# The context window is a bounded budget
+
+Instructions, retained history and the current question consume input capacity.
+
+Generation also needs room within the model's supported limits. Input, output and reasoning limits depend on the model/API.
+
+A conversation cannot grow indefinitely. The application must eventually choose what context to retain.
+
+---
+
+# History grows the input to later calls
+
+```text
+Turn 1: instruction + question 1
+Turn 2: instruction + question 1 + reply 1 + question 2
+Turn 3: instruction + earlier exchanges + question 3
+```
+
+Keeping more history usually increases later input counts.
+
+Total session input is the sum across requests, not just the final request's size.
+
+---
+
+# Lab extension · Usage across a conversation
+
+The loop retains actual replies and reports each request separately.
+
+```python
+messages.append({"role": "user", "content": question})
+response = completion(model=model, messages=messages,
+                      api_base="http://localhost:11434", max_tokens=64)
+reply = response.choices[0].message.content
+messages.append({"role": "assistant", "content": reply})
+print("Input tokens:", response.usage.prompt_tokens)
+```
+
+---
+
+# Token usage and API cost
+
+For a simple uncached text request:
+
+```text
+Estimated cost = input tokens × input rate
+               + output tokens × output rate
+```
+
+Use matching units for counts and rates. Cached input and reasoning tokens may have additional billing rules.
+
+Local inference has no provider per-call charge in our setup; hardware and electricity still cost money.
+
+---
+
+# Response time has several causes
+
+A measured call can include network time, queueing, input processing and output generation.
+
+A local first call may also include model loading. A later warm call can behave differently.
+
+Compare repeated runs on the same task. Model size or one fast reply does not establish the best application choice.
+
+---
+
+# Measuring an actual call
+
+Timing and pricing make the operating questions observable.
+
+```python
+started = perf_counter()
+response = completion(model=model, messages=messages,
+                      api_key=os.environ["OPEN_AI_KEY"])
+elapsed = perf_counter() - started
+cost_usd = completion_cost(completion_response=response, model=model)
+print("Seconds:", elapsed, "Usage:", response.usage)
+print(f"Estimated cost (USD): ${cost_usd:.8f}")
+```
+
+---
+
+# Choosing a model for the feature
+
+Keep the question and expected answer requirements fixed.
+
+Check that each explanation is correct and useful. Then compare elapsed time and estimated total request cost across repeated runs.
+
+Choose a sufficient model for the task. A tiny local model demonstrates deployment mechanics without establishing suitable answer quality.
+
+---
+
+# The boundary of this chatbot
+
+The application explains general terminology and maintains a conversation about it.
+
+Now a user asks:
+
+> What is C1's current recorded status?
+
+That answer needs an operational source. Model knowledge and chat history do not establish the current record.
+
+---
+
+# Lab · A shipping-terminology chatbot
+
+| Time | Extend the understood application |
+| --- | --- |
+| 0–5 min | Confirm the prepared environment and local model |
+| 5–20 min | Run hosted/local calls; change question and instruction |
+| 20–35 min | Add a follow-up; compare with and without history |
+| 35–50 min | Record tokens, elapsed time and estimated API cost |
+| 50–60 min | Compare answers and explain one quality/cost trade-off |
+
+Use the B1 snippets and setup.
+
+---
+
+# B1 · What the application now does
+
+It calls a hosted or local model, provides instructions and retains conversation history.
+
+We can inspect how text becomes tokens and how requests consume time and resources.
+
+**Explain:** why does a useful dwell-time definition give us no evidence about C1's current status?

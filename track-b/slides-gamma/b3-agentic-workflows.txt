@@ -1,0 +1,469 @@
+# B3 · Agents that manage a task
+
+Investigate a shipment delay and prepare an update for review
+
+Adaptive execution · Specialist coordination · State and human decisions
+
+---
+
+# A larger request for the assistant
+
+B2's assistant can obtain a recorded status through a tool.
+
+Now the user asks:
+
+> Investigate C1's delay, assess its implications, and prepare a customer update for review.
+
+The task needs several observations and decisions about what to do next.
+
+---
+
+# Evidence for the investigation
+
+| Required information | Synthetic classroom source |
+| --- | --- |
+| Current status | Shipment record |
+| Cause of the delay | Tracking events |
+| Scheduled onward movement | Departure record |
+
+A useful update preserves the source facts and identifies what remains unknown.
+
+---
+
+# A prescribed sequence
+
+When every case needs the same information, the application can specify the order:
+
+```text
+Read status → read events → assemble a report
+```
+
+Each step supplies input to the next. Ordinary application code owns the sequence.
+
+---
+
+# A branch avoids unnecessary work
+
+```text
+Read status
+  ├── delayed → inspect events
+  ├── on_time → report the status
+  └── unknown → request a corrected identifier
+```
+
+The developer defines these conditions and their next steps.
+
+This is a conditional workflow, even if a model later writes the answer.
+
+---
+
+# Routing in application code
+
+The code implements the conditions already described.
+
+```python
+if status is None:
+    route = "clarify"
+elif status == "delayed":
+    route = "investigate"
+    print("Evidence:", get_tracking_events(container_id))
+elif status == "on_time":
+    route = "finish"
+```
+
+---
+
+# Decisions delegated to the agent
+
+For a less predictable investigation, the model can choose:
+
+- Which available capability answers the next information need.
+- Which arguments to request using evidence already obtained.
+- Whether another observation is needed before drafting.
+
+The application still selects the available capabilities and enforces execution limits.
+
+---
+
+# Capabilities available to one investigator
+
+| Tool | Observation it can supply |
+| --- | --- |
+| `get_shipment_status(id)` | Recorded status or unknown |
+| `get_tracking_events(id)` | Recorded events |
+| `get_next_departure(id)` | Scheduled departure or missing value |
+
+Each tool supplies an observation. The agent chooses the next lookup from the evidence.
+
+---
+
+# An observation changes the next step
+
+Possible paths through the same investigator:
+
+```text
+C1: delayed → inspect events and implications → draft update
+C2: on_time → explain the observed status
+C9: unknown → ask for a corrected ID
+```
+
+The next choice uses the returned observation. These are intended paths to inspect in an actual run.
+
+---
+
+# A task plan can change
+
+A short plan names intended work, such as checking the delay and collecting evidence for an update.
+
+After an observation, the agent may revise that plan or finish earlier.
+
+The plan is a proposal. Tool observations establish the operational facts; the execution record shows which steps actually happened.
+
+---
+
+# One agent with several capabilities
+
+The familiar SDK objects now support the larger task.
+
+```python
+agent = Agent(
+    name="Shipment investigator", model="gpt-4.1-mini",
+    instructions=instructions,
+    tools=[get_shipment_status, get_tracking_events, get_next_departure],
+)
+result = Runner.run_sync(agent, task, max_turns=6)
+```
+
+---
+
+# Read the execution before trusting the update
+
+Did the investigator obtain C1's status, cause and scheduled departure?
+
+Does its draft preserve those observations and describe the departure as scheduled?
+
+For C2 and C9, did it avoid inventing a delay investigation?
+
+A fluent final answer and a completed runtime call are different evidence from a supported investigation.
+
+---
+
+# Completion, interruption and limits
+
+| Outcome | Meaning for the application |
+| --- | --- |
+| Supported draft | Review the result against the required facts |
+| Missing information | Clarify, obtain evidence or report the gap |
+| Turn limit reached | Retain an incomplete outcome |
+
+A turn can contain several tool calls. Its limit is not a total tool-call, token or spending limit.
+
+---
+
+# When a specialist helps
+
+An operations investigation and a charge assessment may need different instructions, context and tools.
+
+A specialist gives one responsibility a clear boundary.
+
+Start with one agent. Add a specialist when that separation improves the task enough to justify additional calls and coordination.
+
+---
+
+# A coordinator retains the final answer
+
+```text
+User → Coordinator
+         ├── Operations specialist → operational evidence
+         └── Charges specialist    → illustrative exposure
+              ↓ results return to coordinator
+         Coordinator → combined customer update
+```
+
+The coordinator decides which specialist to call and combines the returned results.
+
+---
+
+# The delegation contract
+
+| Define before delegating | Example |
+| --- | --- |
+| Task and identifier | Assess C1's charge exposure |
+| Available evidence and tools | Synthetic charge calculator |
+| Expected result | Amount, units and limitations |
+| Missing or failed evidence | Return the gap to the coordinator |
+
+The coordinator must preserve uncertainty when assembling the result.
+
+---
+
+# A specialist exposed as a tool
+
+The SDK packages a specialist run as a capability of the coordinator.
+
+```python
+coordinator = Agent(
+    name="Coordinator", model="gpt-4.1-mini",
+    instructions=instructions,
+    tools=[operations.as_tool(
+        "investigate_operations", "Obtain operational evidence.",
+        max_turns=4,
+    )],
+)
+```
+
+---
+
+# A handoff transfers the conversation
+
+Suppose the user asks specifically about charge exposure.
+
+```text
+User → Triage → Charges specialist → user-facing answer
+```
+
+The specialist becomes the active agent for that branch.
+
+A handoff fits when the specialist should own the response. Calling a specialist as a tool fits when a coordinator should combine its result.
+
+---
+
+# Route to the agent that should answer
+
+```python
+triage = Agent(
+    name="Triage", model="gpt-4.1-mini",
+    instructions="Hand the request to the appropriate specialist.",
+    handoffs=[operations, charges],
+)
+result = Runner.run_sync(triage, question, max_turns=6)
+print("FINAL OWNER:", result.last_agent.name)
+```
+
+---
+
+# The same responsibilities in LlamaIndex
+
+| Responsibility | OpenAI Agents SDK | LlamaIndex |
+| --- | --- | --- |
+| Specialist definition | `Agent` | `FunctionAgent` |
+| Permitted handoff targets | `handoffs` | `can_handoff_to` |
+| Starting agent and execution | `Runner` | `AgentWorkflow` |
+
+The architecture is the responsibility transfer. Framework objects implement that transfer.
+
+---
+
+# A compact LlamaIndex handoff
+
+The permitted target and starting agent express the same arrangement.
+
+```python
+triage = FunctionAgent(
+    name="Triage", llm=llm,
+    system_prompt="Hand charge questions to Charges.",
+    can_handoff_to=["Charges"], streaming=False,
+)
+workflow = AgentWorkflow(agents=[triage, charges],
+                         root_agent="Triage", timeout=60)
+```
+
+---
+
+# Dependencies determine what can overlap
+
+A tracking lookup that needs an identifier from a previous observation must wait for that result.
+
+Once the required inputs are available, independent operations and charge assessments can overlap.
+
+Parallel execution can reduce waiting. It does not reduce the number of requests or guarantee a cheaper or more accurate result.
+
+---
+
+# Aggregate every outcome
+
+```python
+results = await asyncio.gather(
+    run_specialist("operations", operations, operational_facts),
+    run_specialist("charges", charges, charge_facts),
+    return_exceptions=True,
+)
+```
+
+Associate each result with its source. A failed branch makes the aggregate partial.
+
+---
+
+# Choose control from the task
+
+| Need | Useful arrangement |
+| --- | --- |
+| Known order or conditions | Prescribed sequence or routing |
+| Next information need varies | One agent with several tools |
+| Separate bounded expertise | Coordinator calling specialists |
+| Specialist should own the response | Handoff |
+| Independent work can overlap | Parallel execution and aggregation |
+
+Keep the simplest arrangement that meets the requirement.
+
+---
+
+# Retaining context and progress
+
+The investigator produces evidence and a draft. A user may return later or ask a follow-up.
+
+| What must survive? | Example |
+| --- | --- |
+| Conversation context | What “that shipment” refers to |
+| Application task state | Findings, draft and review status |
+| An interrupted run | A pending tool call awaiting approval |
+
+These related stores serve different purposes.
+
+---
+
+# A follow-up uses earlier conversation
+
+First request:
+
+> Investigate C1 and draft one sentence.
+
+Follow-up:
+
+> Which shipment were we discussing?
+
+A session can retain the earlier messages for the next request. This supplies context without changing the model's learned weights.
+
+---
+
+# A session carries conversation history
+
+```python
+session = SQLiteSession("shipment-C1")
+first = Runner.run_sync(agent, "Investigate C1 and draft one sentence.",
+                        session=session, max_turns=4)
+second = Runner.run_sync(agent, follow_up,
+                         session=session, max_turns=4)
+```
+
+The same session supplies earlier messages to the second call.
+
+---
+
+# Task state records what the application knows
+
+```text
+shipment_id: C1
+findings:    observed shipment facts
+draft:       actual generated update
+review:      pending
+```
+
+Tool execution can record findings. Application code stores the draft and maintains its review status.
+
+Generated prose saying “approved” does not change that status.
+
+---
+
+# Task data stays in the application
+
+```python
+state["draft"] = first.final_output
+print("FINDINGS:", state["findings"])
+print("REVIEW:", state["review"])
+```
+
+The session retains conversation messages. The dictionary retains findings, the actual draft and its pending review status.
+
+---
+
+# A checkpoint needs the right information
+
+Saving a draft lets the application recover that draft.
+
+Resuming a paused tool call also needs its pending arguments and the runtime's execution state.
+
+After a restart, agent definitions, tools and external application state must be available again. Repeating a request can repeat an action.
+
+Follow-ons: persist task data · save a pending approval
+
+---
+
+# A proposed action needs a human decision
+
+The assistant has prepared a customer update. The next capability would place that message in a demonstration outbox.
+
+Before execution, the reviewer sees the intended shipment, exact text and operation.
+
+Approval authorizes that proposal. Rejection leaves the action unexecuted; a changed proposal needs another review.
+
+---
+
+# Pause before executing the tool
+
+```text
+Model requests an outbox action
+             ↓
+Runtime returns a pending approval
+             ↓
+Application presents the exact proposed payload
+             ↓
+Human approves or rejects → resume the same run
+```
+
+The tool body waits for the decision.
+
+---
+
+# Mark the action for approval
+
+```python
+@function_tool(needs_approval=True)
+def queue_customer_update(container_id: str, text: str) -> str:
+    outbox.append({"container_id": container_id, "text": text})
+    return "Recorded in the local demo outbox."
+```
+
+The application inspects `result.interruptions` before continuing.
+
+---
+
+# Apply the decision and resume
+
+```python
+state = result.to_state()
+for item in state.get_interruptions():
+    if decision == "approve":
+        state.approve(item)
+    else:
+        state.reject(item)
+resumed = Runner.run_sync(agent, state, max_turns=4)
+```
+
+---
+
+# The investigation and its control points
+
+```text
+User task → plan → observed facts → further decisions
+                         ↓
+             optional specialist work
+                         ↓
+                draft + task state
+                         ↓
+              pending action + run state
+                         ↓
+             human decision → continuation
+```
+
+The model selects work. The application retains evidence and controls execution.
+
+---
+
+# B3 · What the application now manages
+
+It can investigate through several observations, coordinate specialist work, retain progress and pause for a human decision.
+
+**Explain:** what changes between a specialist called as a tool and a handoff?
+
+**Next:** connect these familiar capabilities to business APIs, databases and controlled actions.

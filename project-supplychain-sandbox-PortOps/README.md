@@ -5,6 +5,10 @@ Deterministic supply-chain digital twin for Jebel Ali container terminal operati
 **Codebase guide:** [CODEBASE_GUIDE.md](CODEBASE_GUIDE.md) explains the current
 workflows, files, seed stories, contracts, tests, and implementation limits.
 
+**Track B labs:** [AI container help desk](labs/ai_container_help_desk/README.md)
+adds B1–B3 learner TODO starters over the existing read APIs, with a separate
+AI environment and a reviewed local draft outbox.
+
 **Monorepo siblings:** [omnicommerceops/](../omnicommerceops/) (retail) · [bfsihub/](../bfsihub/) (banking & wealth)
 
 ## Quick Start
