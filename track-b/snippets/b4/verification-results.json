@@ -1,0 +1,269 @@
+{
+  "verified_date": "2026-11-06",
+  "scope": "Six revised B4 SQLAlchemy/LlamaIndex query examples; historical integrations verified separately.",
+  "environment": {
+    "python": "3.12.2",
+    "sqlite": "3.51.1",
+    "packages": {
+      "SQLAlchemy": "2.1.8",
+      "pydantic": "2.14.2",
+      "openai-agents": "0.20.0",
+      "llama-index-core": "0.14.25",
+      "llama-index-llms-openai": "0.8.3",
+      "openai": "2.54.0"
+    }
+  },
+  "environment_check": {
+    "command": "uv sync --locked",
+    "exit_code": 0,
+    "output": "Resolved 114 packages in 5ms\nAudited 108 packages in 0.05ms\n"
+  },
+  "current_sources": {
+    "B4-OUTLINE.md": {
+      "sha256": "495a465977389b4c98084a60894c7b76db92cdfb590d3e26e1c34db5f18a9079",
+      "lines": 65
+    },
+    "slides-md/b4-enterprise-data.md": {
+      "sha256": "78aa3c6570f7722ef8e3a3b753c0982f2b194d050ec690efedd278b09d5ac7ed",
+      "lines": 627
+    },
+    "snippets/b4/README.md": {
+      "sha256": "6c53866798476ee4139242899bb4edaf984488e3327241b7fe885eab2a19a1ed",
+      "lines": 137
+    },
+    "snippets/b4/01_inspect_schema.py": {
+      "sha256": "d6a789e5783d6f4dec29dc757e443369ddc720f6097c9ade953b7797637b58fb",
+      "lines": 22
+    },
+    "snippets/b4/02_scoped_read.py": {
+      "sha256": "e99c3c12d2efead97b8b48f88d0c35742454a3060e92c00dd4d89a9bcbf15338",
+      "lines": 43
+    },
+    "snippets/b4/03_question_to_sql.py": {
+      "sha256": "db55104faf1ddd684104ed4b6a8d85e938b41f642750cd580d4acfd2fd4abc5a",
+      "lines": 58
+    },
+    "snippets/b4/04_check_business_meaning.py": {
+      "sha256": "7d41edd607632c92b1e6f52ca95b8645d8f43e39dda0bace7027203acd8368f4",
+      "lines": 37
+    },
+    "snippets/b4/05_enforce_query_boundaries.py": {
+      "sha256": "97eee3e3a834729e7cbd5c9cbb398ffa157f7aae7503af31ef307d56a873409b",
+      "lines": 39
+    },
+    "snippets/b4/06_agent_queries_database.py": {
+      "sha256": "0f96386fe6ce1fa50da77eb731cda862a14ceea54b62543f5a1aa3c118411dec",
+      "lines": 81
+    }
+  },
+  "final_default_runs": [
+    {
+      "file": "01_inspect_schema.py",
+      "command": "uv run python snippets/b4/01_inspect_schema.py",
+      "exit_code": 0,
+      "output": "\nTABLE: containers\nCOLUMNS: [('id', 'TEXT'), ('owner', 'TEXT'), ('status', 'TEXT')]\nPRIMARY KEY: ['id']\nFOREIGN KEYS: []\n\nTABLE: fees\nCOLUMNS: [('container_id', 'TEXT'), ('fee', 'INTEGER'), ('currency', 'TEXT')]\nPRIMARY KEY: ['container_id']\nFOREIGN KEYS: [{'name': None, 'constrained_columns': ['container_id'], 'referred_schema': None, 'referred_table': 'containers', 'referred_columns': ['id'], 'options': {}}]\n"
+    },
+    {
+      "file": "02_scoped_read.py",
+      "command": "uv run python snippets/b4/02_scoped_read.py",
+      "exit_code": 0,
+      "output": "RESULT: {'container_id': 'C1', 'fee': 100, 'currency': 'USD', 'as_of': '2026-11-06T00:00:00Z', 'source': 'training-db'}\n"
+    },
+    {
+      "file": "03_question_to_sql.py",
+      "command": "uv run python snippets/b4/03_question_to_sql.py",
+      "exit_code": 0,
+      "output": "Embeddings have been explicitly disabled. Using MockEmbedding.\nSQL: SELECT SUM(container_fees.fee) FROM container_fees WHERE container_fees.status = 'delayed' AND container_fees.currency = 'USD';\nROWS: [(150,)]\nINDEPENDENT EXPECTATION: [(150,)]\n"
+    },
+    {
+      "file": "04_check_business_meaning.py",
+      "command": "uv run python snippets/b4/04_check_business_meaning.py",
+      "exit_code": 0,
+      "output": "WRONG JOIN expected: 150 actual: 250 FAIL\nRIGHT GRAIN expected: 150 actual: 150 PASS\nDISTINCT AMOUNTS expected: 150 actual: 150 PASS\n"
+    },
+    {
+      "file": "05_enforce_query_boundaries.py",
+      "command": "uv run python snippets/b4/05_enforce_query_boundaries.py",
+      "exit_code": 0,
+      "output": "SQL: SELECT * FROM container_fees ORDER BY container_id\nVISIBLE: [('C1', 100), ('C4', 50)] TRUNCATED: True\nSQL: SELECT * FROM private_contacts\nREJECTED by database policy\nSQL: DELETE FROM container_fees\nREJECTED by database policy\n"
+    },
+    {
+      "file": "06_agent_queries_database.py",
+      "command": "uv run python snippets/b4/06_agent_queries_database.py",
+      "exit_code": 0,
+      "output": "Embeddings have been explicitly disabled. Using MockEmbedding.\nTOOL QUESTION: Which delayed container has the highest recorded USD fee?\nSQL: SELECT container_id, fee FROM container_fees WHERE status = 'delayed' AND currency = 'USD' ORDER BY fee DESC LIMIT 1;\nROWS: [('C1', 100)]\nANSWER: The delayed container with the highest recorded USD fee is container C1 with a fee of 100 USD. This information is from source \"approved-fee-snapshot/A\" as of 2026-11-06T00:00:00Z.\n"
+    }
+  ],
+  "variations": [
+    {
+      "name": "scope_denied",
+      "file": "02_scoped_read.py",
+      "source_replacements": {
+        "container_id = \"C1\"": "container_id = \"C2\""
+      },
+      "exit_code": 0,
+      "observation": "unavailable",
+      "output": "RESULT: unavailable\n"
+    },
+    {
+      "name": "scope_missing",
+      "file": "02_scoped_read.py",
+      "source_replacements": {
+        "container_id = \"C1\"": "container_id = \"C9\""
+      },
+      "exit_code": 0,
+      "observation": "unavailable",
+      "output": "RESULT: unavailable\n"
+    },
+    {
+      "name": "scope_sql_value",
+      "file": "02_scoped_read.py",
+      "source_replacements": {
+        "container_id = \"C1\"": "container_id = \"C1' OR 1=1 --\""
+      },
+      "exit_code": 0,
+      "observation": "unavailable",
+      "output": "RESULT: unavailable\n"
+    },
+    {
+      "name": "equal_fees",
+      "file": "04_check_business_meaning.py",
+      "source_replacements": {
+        "('C4','delayed',50)": "('C4','delayed',100)",
+        "expected = 150": "expected = 200"
+      },
+      "exit_code": 0,
+      "observation": "300 FAIL / 200 PASS / 100 FAIL",
+      "output": "WRONG JOIN expected: 200 actual: 300 FAIL\nRIGHT GRAIN expected: 200 actual: 200 PASS\nDISTINCT AMOUNTS expected: 200 actual: 100 FAIL\n"
+    },
+    {
+      "name": "sql_maximum",
+      "file": "03_question_to_sql.py",
+      "source_replacements": {
+        "What is the total recorded USD fee for delayed containers?": "What is the maximum recorded USD fee for delayed containers?",
+        "expected = [(150,)]": "expected = [(100,)]"
+      },
+      "exit_code": 0,
+      "observation": "[(100,)]",
+      "output": "Embeddings have been explicitly disabled. Using MockEmbedding.\nSQL: SELECT MAX(container_fees.fee) FROM container_fees WHERE container_fees.status = 'delayed' AND container_fees.currency = 'USD';\nROWS: [(100,)]\nINDEPENDENT EXPECTATION: [(100,)]\n"
+    },
+    {
+      "name": "sql_missing",
+      "file": "03_question_to_sql.py",
+      "source_replacements": {
+        "What is the total recorded USD fee for delayed containers?": "What is the recorded USD fee for container C2?",
+        "expected = [(150,)]": "expected = []"
+      },
+      "exit_code": 0,
+      "observation": "[]",
+      "output": "Embeddings have been explicitly disabled. Using MockEmbedding.\nSQL: SELECT container_fees.fee FROM container_fees WHERE container_fees.container_id = 'C2' AND container_fees.currency = 'USD';\nROWS: []\nINDEPENDENT EXPECTATION: []\n"
+    },
+    {
+      "name": "agent_missing",
+      "file": "06_agent_queries_database.py",
+      "source_replacements": {
+        "Which delayed container has the highest recorded USD fee? Cite source/time.": "What is the recorded USD fee for container C2? Cite source/time."
+      },
+      "exit_code": 0,
+      "observation": "empty rows, no invented fee",
+      "output": "Embeddings have been explicitly disabled. Using MockEmbedding.\nSQL: SELECT container_fees.fee FROM container_fees WHERE container_fees.container_id = 'C2' AND container_fees.currency = 'USD';\nROWS: []\nANSWER: The recorded USD fee for container C2 is not available (empty) in the approved fee snapshot for caller A. The source of this data is \"approved-fee-snapshot/A\" as of 2026-11-06T00:00:00Z.\n"
+    },
+    {
+      "name": "agent_limit",
+      "file": "06_agent_queries_database.py",
+      "source_replacements": {
+        "max_turns=4": "max_turns=1"
+      },
+      "exit_code": 1,
+      "observation": "INCOMPLETE and MaxTurnsExceeded",
+      "output": "Embeddings have been explicitly disabled. Using MockEmbedding.\nSQL: SELECT container_fees.container_id, container_fees.fee, container_fees.currency, container_fees.as_of FROM container_fees WHERE container_fees.status = 'delayed' AND container_fees.currency = 'USD' ORDER BY container_fees.fee DESC LIMIT 1;\nROWS: [('C1', 100, 'USD', '2026-11-06T00:00:00Z')]\nINCOMPLETE: turn limit reached.\nTraceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/snippets/b4/06_agent_queries_database.py\", line 66, in <module>\n    result = Runner.run_sync(agent, \"Which delayed container has the highest recorded USD fee? Cite source/time.\", max_turns=4)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/agents/run.py\", line 393, in run_sync\n    return runner.run_sync(\n           ^^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/agents/run.py\", line 1943, in run_sync\n    return default_loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/anaconda3/lib/python3.12/asyncio/base_events.py\", line 685, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/agents/run.py\", line 1279, in run\n    raise max_turns_error\nagents.exceptions.MaxTurnsExceeded: Max turns (1) exceeded\n"
+    }
+  ],
+  "variation_provenance": "Ran during this revision before display-only fixture formatting and added tool-question/failure prints; execution policy and query/agent behavior unchanged. All final default files rerun afterward. Traceback source lines can differ from final source.",
+  "controlled_probes": [
+    {
+      "name": "database_policy_checks",
+      "output": "SELECT * FROM private_contacts => rejected\nDELETE FROM container_fees => rejected\nATTACH DATABASE ':memory:' AS other => rejected\nPRAGMA query_only=OFF => rejected\nAllowed-table expensive read => interrupted by instruction budget\n"
+    },
+    {
+      "name": "typed_contract_checks",
+      "output": "Text and boolean amounts rejected by the actual FeeRecord model.\n"
+    },
+    {
+      "name": "supplied_unsafe_sql",
+      "output": "Embeddings have been explicitly disabled. Using MockEmbedding.\nSQL: DELETE FROM container_fees\nTraceback (most recent call last):\n  File \"<string>\", line 3, in <module>\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/snippets/b4/03_question_to_sql.py\", line 54, in <module>\n    raise RuntimeError(\"Query rejected or failed; no database result to answer from\")\nRuntimeError: Query rejected or failed; no database result to answer from\n"
+    }
+  ],
+  "probe_provenance": "Actual 05 policy and 02 validation model. Supplied unsafe SQL patches LlamaIndex OpenAI.predict to return DELETE; no model call in that failure test. The live agent failed-query explanation branch was not separately exercised.",
+  "verification_runners": {
+    "variations": "import ast,concurrent.futures,subprocess,sys\nfrom pathlib import Path\nfolder=Path.cwd()/'snippets/b4';logs=Path('/tmp/b4-query-review')\ncases=[\n ('scope_denied','02_scoped_read.py',{'container_id = \"C1\"':'container_id = \"C2\"'},0),\n ('scope_missing','02_scoped_read.py',{'container_id = \"C1\"':'container_id = \"C9\"'},0),\n ('scope_sql_value','02_scoped_read.py',{'container_id = \"C1\"':'container_id = \"C1\\' OR 1=1 --\"'},0),\n ('equal_fees','04_check_business_meaning.py',{\"('C4','delayed',50)\":\"('C4','delayed',100)\",'expected = 150':'expected = 200'},0),\n ('sql_maximum','03_question_to_sql.py',{'What is the total recorded USD fee for delayed containers?':'What is the maximum recorded USD fee for delayed containers?','expected = [(150,)]':'expected = [(100,)]'},0),\n ('sql_missing','03_question_to_sql.py',{'What is the total recorded USD fee for delayed containers?':'What is the recorded USD fee for container C2?','expected = [(150,)]':'expected = []'},0),\n ('agent_missing','06_agent_queries_database.py',{'Which delayed container has the highest recorded USD fee? Cite source/time.':'What is the recorded USD fee for container C2? Cite source/time.'},0),\n ('agent_limit','06_agent_queries_database.py',{'max_turns=4':'max_turns=1'},1),\n]\ndef run(case):\n    name,filename,changes,expected_exit=case\n    path=folder/filename;source=path.read_text()\n    for old,new in changes.items():\n        assert old in source,(name,old)\n        source=source.replace(old,new)\n    code='exec(compile('+repr(source)+','+repr(str(path))+',\"exec\"),{\"__name__\":\"__main__\",\"__file__\":'+repr(str(path))+'})'\n    result=subprocess.run([sys.executable,'-c',code],capture_output=True,text=True,timeout=120)\n    out=result.stdout+result.stderr;(logs/(name+'.log')).write_text(out)\n    assert (result.returncode==0)==(expected_exit==0),(name,out[-1500:])\n    if name.startswith('scope_'): assert 'RESULT: unavailable' in out\n    if name=='equal_fees': assert 'actual: 300 FAIL' in out and 'actual: 200 PASS' in out and 'actual: 100 FAIL' in out\n    if name=='sql_maximum': assert 'ROWS: [(100,)]' in out\n    if name in ['sql_missing','agent_missing']: assert 'ROWS: []' in out,out\n    if name=='agent_limit': assert 'INCOMPLETE: turn limit reached.' in out and 'MaxTurnsExceeded' in out\n    print(name,'verified',flush=True)\nwith concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool: list(pool.map(run,cases))\nprint('ALL EIGHT INPUT/SEMANTIC/STOPPING VARIATIONS PASSED',flush=True)\n",
+    "controlled_probes": "import ast,contextlib,io,json,subprocess,sys\nfrom pathlib import Path\nfrom sqlalchemy import text\nfrom sqlalchemy.exc import DatabaseError\nfrom pydantic import ValidationError\n\nfolder=Path.cwd()/'snippets/b4';logs=Path('/tmp/b4-query-review')\nsource=(folder/'05_enforce_query_boundaries.py').read_text().replace('engine.dispose()','')\nspace={'__name__':'probe'}\nwith contextlib.redirect_stdout(io.StringIO()): exec(compile(source,str(folder/'05_enforce_query_boundaries.py'),'exec'),space)\nengine=space['engine'];out=[]\nwith engine.connect() as connection:\n    for sql in ['SELECT * FROM private_contacts','DELETE FROM container_fees',\"ATTACH DATABASE ':memory:' AS other\",'PRAGMA query_only=OFF']:\n        try: connection.execute(text(sql)).fetchall()\n        except DatabaseError as error:\n            assert 'authorized' in str(error).lower() or 'prohibited' in str(error).lower(),error\n            out.append(sql+' => rejected')\n        else: raise AssertionError('unexpectedly allowed: '+sql)\n    assert connection.execute(text('SELECT * FROM container_fees')).fetchall()==[('C1',100),('C4',50),('C5',75)]\n    names=list('abcdefghijkl')\n    heavy='SELECT a.container_id FROM '+' CROSS JOIN '.join('container_fees '+n for n in names)+' ORDER BY '+' + '.join(n+'.fee' for n in names)\n    try: connection.execute(text(heavy)).fetchmany(3)\n    except DatabaseError as error:\n        assert 'interrupted' in str(error).lower(),error\n        out.append('Allowed-table expensive read => interrupted by instruction budget')\n    else: raise AssertionError('expected instruction interruption')\nengine.dispose()\n(logs/'database_policy_checks.log').write_text('\\n'.join(out)+'\\n')\nsource=(folder/'02_scoped_read.py').read_text();space={'__name__':'probe'}\nwith contextlib.redirect_stdout(io.StringIO()): exec(compile(source,str(folder/'02_scoped_read.py'),'exec'),space)\nfor value in ['100',True]:\n    try: space['FeeRecord'].model_validate({'container_id':'C1','fee':value,'currency':'USD','as_of':'2026-11-06T00:00:00Z'})\n    except ValidationError: pass\n    else: raise AssertionError('expected strict amount rejection')\n(logs/'typed_contract_checks.log').write_text('Text and boolean amounts rejected by the actual FeeRecord model.\\n')\nsource=(folder/'03_question_to_sql.py').read_text()\ncode='from unittest.mock import patch\\nwith patch(\"llama_index.llms.openai.OpenAI.predict\",return_value=\"DELETE FROM container_fees\"):\\n    exec(compile('+repr(source)+','+repr(str(folder/'03_question_to_sql.py'))+',\"exec\"),{\"__name__\":\"__main__\",\"__file__\":'+repr(str(folder/'03_question_to_sql.py'))+'})'\nr=subprocess.run([sys.executable,'-c',code],capture_output=True,text=True,timeout=60)\n(logs/'supplied_unsafe_sql.log').write_text(r.stdout+r.stderr)\nassert r.returncode!=0 and 'Query rejected or failed; no database result' in r.stderr,(r.returncode,r.stdout,r.stderr)\nprint('Database table/write/ATTACH/PRAGMA, instruction budget, typed contract and failed-query checks passed.')\n"
+  },
+  "visual_check": {
+    "command": "npx @marp-team/marp-cli track-b/slides-md/b4-enterprise-data.md --images png --image-scale 1 -o /tmp/b4-query-review/slide.png",
+    "exit_code": 0,
+    "rendered_slides": 34,
+    "contact_sheets_inspected": 3
+  },
+  "review": "Fresh read-only reviewer found no critical or important issue. Independently ran four offline scripts and checked source/framework paths, links, dependencies and existing model/control logs.",
+  "limits": [
+    "Approved caller-A snapshot is supplied input; upstream authentication/tenant projection not implemented.",
+    "SQLite authorizer and instruction budget are classroom controls, not a production sandbox certification.",
+    "include_tables supplies schema context, not authorization.",
+    "06 row cap applies after raw result fetch; it does not bound earlier work or host memory.",
+    "No embedding call; LlamaIndex unused MockEmbedding setup is not a model substitute.",
+    "Selected actual model observations are not guaranteed outputs or a reliability estimate.",
+    "Labs, assessments, notebooks, Gamma export, staging and commits deferred."
+  ],
+  "documentation_updates": [
+    {
+      "date": "2026-11-06",
+      "file": "snippets/b4/README.md",
+      "previous_capture": {
+        "sha256": "92877d69a15a553f5191624ab8969cc9387ef44f14ac3524b45d6ed4fe23bb1f",
+        "lines": 65
+      },
+      "change": "README rewritten as six guided lessons; executable sources, slide deck and captured run transcripts unchanged. Documentation links/anchors/lesson structure and five offline lesson variations checked."
+    },
+    {
+      "date": "2026-11-06",
+      "file": "B4-OUTLINE.md",
+      "previous_capture": {
+        "sha256": "4d89fb088c311f4a86712bafe2288aa19fa695449beb8b73d0dc4e64dd8735a8",
+        "lines": 63
+      },
+      "change": "Teaching sequence refined and Gamma copy added; executable snippets and captured run transcripts unchanged."
+    },
+    {
+      "date": "2026-11-06",
+      "file": "slides-md/b4-enterprise-data.md",
+      "previous_capture": {
+        "sha256": "8aa9ffdd6b75cd1d7a20c9835c11eee0fc21f425675b2f7e42afed5e61b5c838",
+        "lines": 583
+      },
+      "change": "Teaching sequence refined and Gamma copy added; executable snippets and captured run transcripts unchanged."
+    },
+    {
+      "date": "2026-11-06",
+      "file": "snippets/b4/README.md",
+      "previous_capture": {
+        "sha256": "d8dedc3f3a1d5bb5ab1257c6bd8c9f0a61c279d98883c1522e520bfa3c8446c8",
+        "lines": 137
+      },
+      "change": "Teaching sequence refined and Gamma copy added; executable snippets and captured run transcripts unchanged."
+    }
+  ],
+  "teaching_materials": {
+    "date": "2026-11-06",
+    "markdown": "slides-md/b4-enterprise-data.md",
+    "markdown_sha256": "78aa3c6570f7722ef8e3a3b753c0982f2b194d050ec690efedd278b09d5ac7ed",
+    "gamma": "slides-gamma/b4-enterprise-data.txt",
+    "gamma_sha256": "8c8dc06a358b390d2bfe2682abd8adf88775179f766bb3ec53e26a3e12502a08",
+    "slides": 34,
+    "fenced_blocks_preserved": 19,
+    "table_slides_preserved": 9,
+    "conversion": "Visible slide bodies match after removal of frontmatter, comments and standalone local navigation. Every fenced block and table preserved exactly.",
+    "layout": "Rendered with Marp; all slides visually inspected.",
+    "execution_evidence": "Teaching material only; executable snippets and recorded model runs unchanged."
+  }
+}

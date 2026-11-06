@@ -1,0 +1,1034 @@
+{
+  "verified_on": "2026-11-06",
+  "model": "gpt-4.1-mini",
+  "promptfoo_version": "0.125.1",
+  "deepeval_version": "4.3.3",
+  "sdk_version": "0.20.0",
+  "promptfoo": {
+    "01": {
+      "passed": 0,
+      "failed": 1,
+      "errors": 0,
+      "cases": [
+        {
+          "description": null,
+          "provider": "",
+          "variables": {
+            "draft": "{\"container_id\":\"C2\",\"fee\":999,\"source\":\"fees-v1\",\"text\":\"Your recorded fee is ready.\"}"
+          },
+          "passed": false,
+          "output": "{\"container_id\":\"C2\",\"fee\":999,\"source\":\"fees-v1\",\"text\":\"Your recorded fee is ready.\"}",
+          "score": 0.8,
+          "reason": "Python code returned false\n__import__('json').loads(output).get('fee') == 200",
+          "assertion_scores": {
+            "required fields": 1,
+            "correct container": 1,
+            "fee type": 1,
+            "correct amount": 0,
+            "source label": 1
+          }
+        }
+      ]
+    },
+    "02": {
+      "passed": 4,
+      "failed": 1,
+      "errors": 0,
+      "cases": [
+        {
+          "description": "missing",
+          "provider": "",
+          "variables": {
+            "caller": "A",
+            "container_id": "C9",
+            "unavailable": false,
+            "expected": [
+              null,
+              "unknown"
+            ]
+          },
+          "passed": true,
+          "output": "[null, \"unknown\"]",
+          "score": 1,
+          "reason": "All assertions passed"
+        },
+        {
+          "description": "below",
+          "provider": "",
+          "variables": {
+            "caller": "A",
+            "container_id": "C1",
+            "unavailable": false,
+            "expected": [
+              100,
+              "clear"
+            ]
+          },
+          "passed": true,
+          "output": "[100, \"clear\"]",
+          "score": 1,
+          "reason": "All assertions passed"
+        },
+        {
+          "description": "boundary",
+          "provider": "",
+          "variables": {
+            "caller": "A",
+            "container_id": "C2",
+            "unavailable": false,
+            "expected": [
+              200,
+              "review"
+            ]
+          },
+          "passed": false,
+          "output": "[200, \"clear\"]",
+          "score": 0,
+          "reason": "Python code returned false\n__import__('json').loads(output) == context['vars']['expected']"
+        },
+        {
+          "description": "denied",
+          "provider": "",
+          "variables": {
+            "caller": "B",
+            "container_id": "C2",
+            "unavailable": false,
+            "expected": [
+              null,
+              "denied"
+            ]
+          },
+          "passed": true,
+          "output": "[null, \"denied\"]",
+          "score": 1,
+          "reason": "All assertions passed"
+        },
+        {
+          "description": "dependency",
+          "provider": "",
+          "variables": {
+            "caller": "A",
+            "container_id": "C2",
+            "unavailable": true,
+            "expected": [
+              null,
+              "unavailable"
+            ]
+          },
+          "passed": true,
+          "output": "[null, \"unavailable\"]",
+          "score": 1,
+          "reason": "All assertions passed"
+        }
+      ]
+    },
+    "03": {
+      "passed": 5,
+      "failed": 0,
+      "errors": 0,
+      "cases": [
+        {
+          "description": "known correct",
+          "provider": "",
+          "variables": {
+            "answer": "{\"container_id\":\"C2\",\"fee\":200}",
+            "expected_acceptance": true
+          },
+          "passed": true,
+          "output": "{\"container_id\":\"C2\",\"fee\":200}",
+          "score": 1,
+          "reason": "All assertions passed"
+        },
+        {
+          "description": "wrong amount",
+          "provider": "",
+          "variables": {
+            "answer": "{\"container_id\":\"C2\",\"fee\":999}",
+            "expected_acceptance": false
+          },
+          "passed": true,
+          "output": "{\"container_id\":\"C2\",\"fee\":999}",
+          "score": 1,
+          "reason": "All assertions passed"
+        },
+        {
+          "description": "wrong container",
+          "provider": "",
+          "variables": {
+            "answer": "{\"container_id\":\"C1\",\"fee\":200}",
+            "expected_acceptance": false
+          },
+          "passed": true,
+          "output": "{\"container_id\":\"C1\",\"fee\":200}",
+          "score": 1,
+          "reason": "All assertions passed"
+        },
+        {
+          "description": "wrong type",
+          "provider": "",
+          "variables": {
+            "answer": "{\"container_id\":\"C2\",\"fee\":\"200\"}",
+            "expected_acceptance": false
+          },
+          "passed": true,
+          "output": "{\"container_id\":\"C2\",\"fee\":\"200\"}",
+          "score": 1,
+          "reason": "All assertions passed"
+        },
+        {
+          "description": "missing fee",
+          "provider": "",
+          "variables": {
+            "answer": "{\"container_id\":\"C2\"}",
+            "expected_acceptance": false
+          },
+          "passed": true,
+          "output": "{\"container_id\":\"C2\"}",
+          "score": 1,
+          "reason": "All assertions passed"
+        }
+      ]
+    },
+    "07": {
+      "passed": 3,
+      "failed": 0,
+      "errors": 0,
+      "cases": [
+        {
+          "description": "clear wording - expect acceptance",
+          "provider": "",
+          "variables": {
+            "draft": "C2 has a recorded fee of USD 200 and requires review."
+          },
+          "passed": true,
+          "output": "C2 has a recorded fee of USD 200 and requires review.",
+          "score": 1,
+          "reason": "All assertions passed"
+        },
+        {
+          "description": "paraphrase - expect acceptance",
+          "provider": "",
+          "variables": {
+            "draft": "The charge for C2 is 200 USD. A reviewer must check it."
+          },
+          "passed": true,
+          "output": "The charge for C2 is 200 USD. A reviewer must check it.",
+          "score": 1,
+          "reason": "All assertions passed"
+        },
+        {
+          "description": "jargon - expect rejection",
+          "provider": "",
+          "variables": {
+            "draft": "C2 F200 R1 XFLAG-A7."
+          },
+          "passed": true,
+          "output": "C2 F200 R1 XFLAG-A7.",
+          "score": 1,
+          "reason": "All assertions passed"
+        }
+      ]
+    },
+    "08": {
+      "passed": 5,
+      "failed": 1,
+      "errors": 0,
+      "cases": [
+        {
+          "description": "below",
+          "provider": "baseline",
+          "variables": {
+            "fee": 100,
+            "expected": "clear"
+          },
+          "passed": true,
+          "output": "clear",
+          "score": 1,
+          "reason": "All assertions passed"
+        },
+        {
+          "description": "below",
+          "provider": "candidate",
+          "variables": {
+            "fee": 100,
+            "expected": "clear"
+          },
+          "passed": true,
+          "output": "clear",
+          "score": 1,
+          "reason": "All assertions passed"
+        },
+        {
+          "description": "boundary",
+          "provider": "baseline",
+          "variables": {
+            "fee": 200,
+            "expected": "review"
+          },
+          "passed": false,
+          "output": "clear",
+          "score": 0,
+          "reason": "Expected output \"clear\" to equal \"review\""
+        },
+        {
+          "description": "additional held-out variation",
+          "provider": "baseline",
+          "variables": {
+            "fee": 201,
+            "expected": "review"
+          },
+          "passed": true,
+          "output": "review",
+          "score": 1,
+          "reason": "All assertions passed"
+        },
+        {
+          "description": "boundary",
+          "provider": "candidate",
+          "variables": {
+            "fee": 200,
+            "expected": "review"
+          },
+          "passed": true,
+          "output": "review",
+          "score": 1,
+          "reason": "All assertions passed"
+        },
+        {
+          "description": "additional held-out variation",
+          "provider": "candidate",
+          "variables": {
+            "fee": 201,
+            "expected": "review"
+          },
+          "passed": true,
+          "output": "review",
+          "score": 1,
+          "reason": "All assertions passed"
+        }
+      ]
+    },
+    "09": {
+      "passed": 10,
+      "failed": 2,
+      "errors": 0,
+      "cases": [
+        {
+          "description": "below",
+          "provider": "baseline",
+          "variables": {
+            "container_id": "C1",
+            "expected": "clear"
+          },
+          "passed": true,
+          "output": "{\"status\": \"complete\", \"decision\": \"clear\", \"calls\": [\"C1\"]}",
+          "score": 1,
+          "reason": "All assertions passed"
+        },
+        {
+          "description": "below",
+          "provider": "candidate",
+          "variables": {
+            "container_id": "C1",
+            "expected": "clear"
+          },
+          "passed": true,
+          "output": "{\"status\": \"complete\", \"decision\": \"clear\", \"calls\": [\"C1\"]}",
+          "score": 1,
+          "reason": "All assertions passed"
+        },
+        {
+          "description": "below",
+          "provider": "baseline",
+          "variables": {
+            "container_id": "C1",
+            "expected": "clear"
+          },
+          "passed": true,
+          "output": "{\"status\": \"complete\", \"decision\": \"clear\", \"calls\": [\"C1\"]}",
+          "score": 1,
+          "reason": "All assertions passed"
+        },
+        {
+          "description": "below",
+          "provider": "candidate",
+          "variables": {
+            "container_id": "C1",
+            "expected": "clear"
+          },
+          "passed": true,
+          "output": "{\"status\": \"complete\", \"decision\": \"clear\", \"calls\": [\"C1\"]}",
+          "score": 1,
+          "reason": "All assertions passed"
+        },
+        {
+          "description": "boundary",
+          "provider": "baseline",
+          "variables": {
+            "container_id": "C2",
+            "expected": "review"
+          },
+          "passed": false,
+          "output": "{\"status\": \"complete\", \"decision\": \"clear\", \"calls\": [\"C2\"]}",
+          "score": 0,
+          "reason": "{\"status\": \"complete\", \"decision\": \"clear\", \"calls\": [\"C2\"]}"
+        },
+        {
+          "description": "boundary",
+          "provider": "candidate",
+          "variables": {
+            "container_id": "C2",
+            "expected": "review"
+          },
+          "passed": true,
+          "output": "{\"status\": \"complete\", \"decision\": \"review\", \"calls\": [\"C2\"]}",
+          "score": 1,
+          "reason": "All assertions passed"
+        },
+        {
+          "description": "boundary",
+          "provider": "baseline",
+          "variables": {
+            "container_id": "C2",
+            "expected": "review"
+          },
+          "passed": false,
+          "output": "{\"status\": \"complete\", \"decision\": \"clear\", \"calls\": [\"C2\"]}",
+          "score": 0,
+          "reason": "{\"status\": \"complete\", \"decision\": \"clear\", \"calls\": [\"C2\"]}"
+        },
+        {
+          "description": "boundary",
+          "provider": "candidate",
+          "variables": {
+            "container_id": "C2",
+            "expected": "review"
+          },
+          "passed": true,
+          "output": "{\"status\": \"complete\", \"decision\": \"review\", \"calls\": [\"C2\"]}",
+          "score": 1,
+          "reason": "All assertions passed"
+        },
+        {
+          "description": "missing",
+          "provider": "baseline",
+          "variables": {
+            "container_id": "C9",
+            "expected": "unknown"
+          },
+          "passed": true,
+          "output": "{\"status\": \"complete\", \"decision\": \"unknown\", \"calls\": [\"C9\"]}",
+          "score": 1,
+          "reason": "All assertions passed"
+        },
+        {
+          "description": "missing",
+          "provider": "candidate",
+          "variables": {
+            "container_id": "C9",
+            "expected": "unknown"
+          },
+          "passed": true,
+          "output": "{\"status\": \"complete\", \"decision\": \"unknown\", \"calls\": [\"C9\"]}",
+          "score": 1,
+          "reason": "All assertions passed"
+        },
+        {
+          "description": "missing",
+          "provider": "baseline",
+          "variables": {
+            "container_id": "C9",
+            "expected": "unknown"
+          },
+          "passed": true,
+          "output": "{\"status\": \"complete\", \"decision\": \"unknown\", \"calls\": [\"C9\"]}",
+          "score": 1,
+          "reason": "All assertions passed"
+        },
+        {
+          "description": "missing",
+          "provider": "candidate",
+          "variables": {
+            "container_id": "C9",
+            "expected": "unknown"
+          },
+          "passed": true,
+          "output": "{\"status\": \"complete\", \"decision\": \"unknown\", \"calls\": [\"C9\"]}",
+          "score": 1,
+          "reason": "All assertions passed"
+        }
+      ]
+    }
+  },
+  "deepeval": {
+    "01": {
+      "passed": 4,
+      "failed": 1,
+      "cases": [
+        {
+          "name": "required fields",
+          "output": "true",
+          "expected": "true",
+          "passed": true,
+          "metrics": [
+            {
+              "name": "Exact result",
+              "threshold": 1.0,
+              "success": true,
+              "score": 1.0,
+              "reason": "Expected true; actual true",
+              "strictMode": false,
+              "flaky": false
+            }
+          ]
+        },
+        {
+          "name": "fee type",
+          "output": "true",
+          "expected": "true",
+          "passed": true,
+          "metrics": [
+            {
+              "name": "Exact result",
+              "threshold": 1.0,
+              "success": true,
+              "score": 1.0,
+              "reason": "Expected true; actual true",
+              "strictMode": false,
+              "flaky": false
+            }
+          ]
+        },
+        {
+          "name": "correct container",
+          "output": "true",
+          "expected": "true",
+          "passed": true,
+          "metrics": [
+            {
+              "name": "Exact result",
+              "threshold": 1.0,
+              "success": true,
+              "score": 1.0,
+              "reason": "Expected true; actual true",
+              "strictMode": false,
+              "flaky": false
+            }
+          ]
+        },
+        {
+          "name": "correct amount",
+          "output": "false",
+          "expected": "true",
+          "passed": false,
+          "metrics": [
+            {
+              "name": "Exact result",
+              "threshold": 1.0,
+              "success": false,
+              "score": 0.0,
+              "reason": "Expected true; actual false",
+              "strictMode": false,
+              "flaky": false
+            }
+          ]
+        },
+        {
+          "name": "source label",
+          "output": "true",
+          "expected": "true",
+          "passed": true,
+          "metrics": [
+            {
+              "name": "Exact result",
+              "threshold": 1.0,
+              "success": true,
+              "score": 1.0,
+              "reason": "Expected true; actual true",
+              "strictMode": false,
+              "flaky": false
+            }
+          ]
+        }
+      ]
+    },
+    "02": {
+      "passed": 4,
+      "failed": 1,
+      "cases": [
+        {
+          "name": "below",
+          "output": "[100, \"clear\"]",
+          "expected": "[100, \"clear\"]",
+          "passed": true,
+          "metrics": [
+            {
+              "name": "Exact result",
+              "threshold": 1.0,
+              "success": true,
+              "score": 1.0,
+              "reason": "Expected [100, \"clear\"]; actual [100, \"clear\"]",
+              "strictMode": false,
+              "flaky": false
+            }
+          ]
+        },
+        {
+          "name": "boundary",
+          "output": "[200, \"clear\"]",
+          "expected": "[200, \"review\"]",
+          "passed": false,
+          "metrics": [
+            {
+              "name": "Exact result",
+              "threshold": 1.0,
+              "success": false,
+              "score": 0.0,
+              "reason": "Expected [200, \"review\"]; actual [200, \"clear\"]",
+              "strictMode": false,
+              "flaky": false
+            }
+          ]
+        },
+        {
+          "name": "missing",
+          "output": "[null, \"unknown\"]",
+          "expected": "[null, \"unknown\"]",
+          "passed": true,
+          "metrics": [
+            {
+              "name": "Exact result",
+              "threshold": 1.0,
+              "success": true,
+              "score": 1.0,
+              "reason": "Expected [null, \"unknown\"]; actual [null, \"unknown\"]",
+              "strictMode": false,
+              "flaky": false
+            }
+          ]
+        },
+        {
+          "name": "denied",
+          "output": "[null, \"denied\"]",
+          "expected": "[null, \"denied\"]",
+          "passed": true,
+          "metrics": [
+            {
+              "name": "Exact result",
+              "threshold": 1.0,
+              "success": true,
+              "score": 1.0,
+              "reason": "Expected [null, \"denied\"]; actual [null, \"denied\"]",
+              "strictMode": false,
+              "flaky": false
+            }
+          ]
+        },
+        {
+          "name": "dependency",
+          "output": "[null, \"unavailable\"]",
+          "expected": "[null, \"unavailable\"]",
+          "passed": true,
+          "metrics": [
+            {
+              "name": "Exact result",
+              "threshold": 1.0,
+              "success": true,
+              "score": 1.0,
+              "reason": "Expected [null, \"unavailable\"]; actual [null, \"unavailable\"]",
+              "strictMode": false,
+              "flaky": false
+            }
+          ]
+        }
+      ]
+    },
+    "03": {
+      "passed": 5,
+      "failed": 0,
+      "cases": [
+        {
+          "name": "known correct",
+          "output": "{\"container_id\": \"C2\", \"fee\": 200}",
+          "expected": "true",
+          "passed": true,
+          "metrics": [
+            {
+              "name": "Grader probe agreement",
+              "threshold": 1.0,
+              "success": true,
+              "score": 1.0,
+              "reason": "Expected acceptance: True; actual acceptance: True",
+              "strictMode": false,
+              "flaky": false
+            }
+          ]
+        },
+        {
+          "name": "wrong amount",
+          "output": "{\"container_id\": \"C2\", \"fee\": 999}",
+          "expected": "false",
+          "passed": true,
+          "metrics": [
+            {
+              "name": "Grader probe agreement",
+              "threshold": 1.0,
+              "success": true,
+              "score": 1.0,
+              "reason": "Expected acceptance: False; actual acceptance: False",
+              "strictMode": false,
+              "flaky": false
+            }
+          ]
+        },
+        {
+          "name": "wrong container",
+          "output": "{\"container_id\": \"C1\", \"fee\": 200}",
+          "expected": "false",
+          "passed": true,
+          "metrics": [
+            {
+              "name": "Grader probe agreement",
+              "threshold": 1.0,
+              "success": true,
+              "score": 1.0,
+              "reason": "Expected acceptance: False; actual acceptance: False",
+              "strictMode": false,
+              "flaky": false
+            }
+          ]
+        },
+        {
+          "name": "wrong type",
+          "output": "{\"container_id\": \"C2\", \"fee\": \"200\"}",
+          "expected": "false",
+          "passed": true,
+          "metrics": [
+            {
+              "name": "Grader probe agreement",
+              "threshold": 1.0,
+              "success": true,
+              "score": 1.0,
+              "reason": "Expected acceptance: False; actual acceptance: False",
+              "strictMode": false,
+              "flaky": false
+            }
+          ]
+        },
+        {
+          "name": "missing fee",
+          "output": "{\"container_id\": \"C2\"}",
+          "expected": "false",
+          "passed": true,
+          "metrics": [
+            {
+              "name": "Grader probe agreement",
+              "threshold": 1.0,
+              "success": true,
+              "score": 1.0,
+              "reason": "Expected acceptance: False; actual acceptance: False",
+              "strictMode": false,
+              "flaky": false
+            }
+          ]
+        }
+      ]
+    },
+    "08": {
+      "passed": 5,
+      "failed": 1,
+      "cases": [
+        {
+          "name": "baseline: 100 (repair case)",
+          "output": "clear",
+          "expected": "clear",
+          "passed": true,
+          "metrics": [
+            {
+              "name": "Exact result",
+              "threshold": 1.0,
+              "success": true,
+              "score": 1.0,
+              "reason": "Expected clear; actual clear",
+              "strictMode": false,
+              "flaky": false
+            }
+          ]
+        },
+        {
+          "name": "baseline: 200 (repair case)",
+          "output": "clear",
+          "expected": "review",
+          "passed": false,
+          "metrics": [
+            {
+              "name": "Exact result",
+              "threshold": 1.0,
+              "success": false,
+              "score": 0.0,
+              "reason": "Expected review; actual clear",
+              "strictMode": false,
+              "flaky": false
+            }
+          ]
+        },
+        {
+          "name": "baseline: 201 (additional)",
+          "output": "review",
+          "expected": "review",
+          "passed": true,
+          "metrics": [
+            {
+              "name": "Exact result",
+              "threshold": 1.0,
+              "success": true,
+              "score": 1.0,
+              "reason": "Expected review; actual review",
+              "strictMode": false,
+              "flaky": false
+            }
+          ]
+        },
+        {
+          "name": "candidate: 100 (repair case)",
+          "output": "clear",
+          "expected": "clear",
+          "passed": true,
+          "metrics": [
+            {
+              "name": "Exact result",
+              "threshold": 1.0,
+              "success": true,
+              "score": 1.0,
+              "reason": "Expected clear; actual clear",
+              "strictMode": false,
+              "flaky": false
+            }
+          ]
+        },
+        {
+          "name": "candidate: 200 (repair case)",
+          "output": "review",
+          "expected": "review",
+          "passed": true,
+          "metrics": [
+            {
+              "name": "Exact result",
+              "threshold": 1.0,
+              "success": true,
+              "score": 1.0,
+              "reason": "Expected review; actual review",
+              "strictMode": false,
+              "flaky": false
+            }
+          ]
+        },
+        {
+          "name": "candidate: 201 (additional)",
+          "output": "review",
+          "expected": "review",
+          "passed": true,
+          "metrics": [
+            {
+              "name": "Exact result",
+              "threshold": 1.0,
+              "success": true,
+              "score": 1.0,
+              "reason": "Expected review; actual review",
+              "strictMode": false,
+              "flaky": false
+            }
+          ]
+        }
+      ]
+    },
+    "07": {
+      "calibration_agreements": 3,
+      "cases": [
+        {
+          "draft": "C2 has a recorded fee of USD 200 and requires review.",
+          "reference_label": true,
+          "actual_label": true,
+          "score": 1.0,
+          "reason": "The Actual Output clearly states the fee as 'USD 200' and plainly explains that review is required, directly addressing the Input."
+        },
+        {
+          "draft": "The charge for C2 is 200 USD. A reviewer must check it.",
+          "reference_label": true,
+          "actual_label": true,
+          "score": 1.0,
+          "reason": "The Actual Output clearly states the fee as '200 USD' and plainly explains that a reviewer must check it, directly addressing the fee and review requirement from the Input."
+        },
+        {
+          "draft": "C2 F200 R1 XFLAG-A7.",
+          "reference_label": false,
+          "actual_label": false,
+          "score": 0.0,
+          "reason": "The Actual Output uses unexplained codes (F200, R1, XFLAG-A7) without clearly stating the fee as 'USD 200' or explaining the review decision, failing to provide a clear explanation related to the Input."
+        }
+      ]
+    },
+    "09": {
+      "passed": 10,
+      "failed": 2,
+      "cases": [
+        {
+          "name": "baseline:C1:1",
+          "outcome": {
+            "status": "complete",
+            "decision": "clear",
+            "calls": [
+              "C1"
+            ]
+          },
+          "expected": "clear",
+          "passed": true
+        },
+        {
+          "name": "baseline:C1:2",
+          "outcome": {
+            "status": "complete",
+            "decision": "clear",
+            "calls": [
+              "C1"
+            ]
+          },
+          "expected": "clear",
+          "passed": true
+        },
+        {
+          "name": "baseline:C2:1",
+          "outcome": {
+            "status": "complete",
+            "decision": "clear",
+            "calls": [
+              "C2"
+            ]
+          },
+          "expected": "review",
+          "passed": false
+        },
+        {
+          "name": "baseline:C2:2",
+          "outcome": {
+            "status": "complete",
+            "decision": "clear",
+            "calls": [
+              "C2"
+            ]
+          },
+          "expected": "review",
+          "passed": false
+        },
+        {
+          "name": "baseline:C9:1",
+          "outcome": {
+            "status": "complete",
+            "decision": "unknown",
+            "calls": [
+              "C9"
+            ]
+          },
+          "expected": "unknown",
+          "passed": true
+        },
+        {
+          "name": "baseline:C9:2",
+          "outcome": {
+            "status": "complete",
+            "decision": "unknown",
+            "calls": [
+              "C9"
+            ]
+          },
+          "expected": "unknown",
+          "passed": true
+        },
+        {
+          "name": "candidate:C1:1",
+          "outcome": {
+            "status": "complete",
+            "decision": "clear",
+            "calls": [
+              "C1"
+            ]
+          },
+          "expected": "clear",
+          "passed": true
+        },
+        {
+          "name": "candidate:C1:2",
+          "outcome": {
+            "status": "complete",
+            "decision": "clear",
+            "calls": [
+              "C1"
+            ]
+          },
+          "expected": "clear",
+          "passed": true
+        },
+        {
+          "name": "candidate:C2:1",
+          "outcome": {
+            "status": "complete",
+            "decision": "review",
+            "calls": [
+              "C2"
+            ]
+          },
+          "expected": "review",
+          "passed": true
+        },
+        {
+          "name": "candidate:C2:2",
+          "outcome": {
+            "status": "complete",
+            "decision": "review",
+            "calls": [
+              "C2"
+            ]
+          },
+          "expected": "review",
+          "passed": true
+        },
+        {
+          "name": "candidate:C9:1",
+          "outcome": {
+            "status": "complete",
+            "decision": "unknown",
+            "calls": [
+              "C9"
+            ]
+          },
+          "expected": "unknown",
+          "passed": true
+        },
+        {
+          "name": "candidate:C9:2",
+          "outcome": {
+            "status": "complete",
+            "decision": "unknown",
+            "calls": [
+              "C9"
+            ]
+          },
+          "expected": "unknown",
+          "passed": true
+        }
+      ]
+    }
+  },
+  "scripted_contract_checks": {
+    "passed": 7,
+    "total": 7,
+    "live_model_calls": false
+  },
+  "limits": [
+    "Synthetic data and classroom labels; two attempts per case.",
+    "Application usage/cost not measured by evaluation runners.",
+    "Promptfoo 01 counts answer cases; DeepEval 01 counts individual requirements.",
+    "DeepEval 09 reports grading duration after SDK generation.",
+    "Clarity judges use different algorithms; their numerical scores are not interchangeable."
+  ]
+}

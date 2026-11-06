@@ -1,0 +1,33 @@
+# Counterpart: ../../07_judge_clarity.py. Prepared drafts; real judge calls.
+description: B5 07 - Calibrate a narrow clarity judge
+prompts: ['{{draft}}']
+providers: [echo]
+defaultTest:
+  options:
+    provider:
+      id: openai:chat:gpt-4.1-mini
+      config:
+        apiKeyEnvar: OPEN_AI_KEY
+        temperature: 0
+tests:
+  - description: clear wording - expect acceptance
+    vars: {draft: 'C2 has a recorded fee of USD 200 and requires review.'}
+    assert:
+      - &clarity
+        type: llm-rubric
+        value: >-
+          For the request "Explain C2's recorded fee and whether review is required",
+          pass if the response plainly explains the fee and review decision.
+          Accept paraphrases and either USD 200 or 200 USD.
+          Fail unexplained codes or jargon-only responses. Judge clarity only.
+  - description: paraphrase - expect acceptance
+    vars: {draft: 'The charge for C2 is 200 USD. A reviewer must check it.'}
+    assert: [*clarity]
+  - description: jargon - expect rejection
+    vars: {draft: 'C2 F200 R1 XFLAG-A7.'}
+    assert:
+      - <<: *clarity
+        type: not-llm-rubric
+# Three passing calibration probes means agreement with three classroom labels.
+# The negative assertion passes when the judge rejects the jargon draft.
+# Clarity is not factual grounding or permission; judge scores differ by tool.

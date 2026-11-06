@@ -1,0 +1,21 @@
+# Counterpart: ../../03_check_the_grader.py. No model call.
+description: B5 03 - Check the checker
+prompts: ['{{answer}}']
+providers: [echo]
+defaultTest:
+  assert:
+    - type: python
+      value: file://03_check_the_grader.py
+tests:
+  - description: known correct
+    vars: {answer: '{"container_id":"C2","fee":200}', expected_acceptance: true}
+  - description: wrong amount
+    vars: {answer: '{"container_id":"C2","fee":999}', expected_acceptance: false}
+  - description: wrong container
+    vars: {answer: '{"container_id":"C1","fee":200}', expected_acceptance: false}
+  - description: wrong type
+    vars: {answer: '{"container_id":"C2","fee":"200"}', expected_acceptance: false}
+  - description: missing fee
+    vars: {answer: '{"container_id":"C2"}', expected_acceptance: false}
+# Expect 5/5 PROBES, including correct rejection of four invalid answers.
+# Try changing correct_fee to always return True.

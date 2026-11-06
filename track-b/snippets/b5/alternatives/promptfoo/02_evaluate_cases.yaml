@@ -1,0 +1,20 @@
+# Counterpart: ../../02_evaluate_cases.py. Promptfoo owns cases and reporting.
+description: B5 02 - Evaluate independent cases
+prompts: ['Check {{container_id}} for caller {{caller}}']
+providers: [file://02_evaluate_cases.py]
+defaultTest:
+  assert:
+    - type: python
+      value: __import__('json').loads(output) == context['vars']['expected']
+tests:
+  - description: below
+    vars: {caller: A, container_id: C1, unavailable: false, expected: [100, clear]}
+  - description: boundary
+    vars: {caller: A, container_id: C2, unavailable: false, expected: [200, review]}
+  - description: missing
+    vars: {caller: A, container_id: C9, unavailable: false, expected: [null, unknown]}
+  - description: denied
+    vars: {caller: B, container_id: C2, unavailable: false, expected: [null, denied]}
+  - description: dependency
+    vars: {caller: A, container_id: C2, unavailable: true, expected: [null, unavailable]}
+# Expect 4/5. unavailable is a fixture, not a real outage.

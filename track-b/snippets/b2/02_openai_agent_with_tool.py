@@ -19,13 +19,27 @@ def get_container_status(container_id: str) -> str:
     records = {"C1": "delayed", "C2": "on_time"}
     return records.get(container_id, "Unknown container")
 
+@function_tool
+def get_status(id: str) -> str:
+    print("TOOL get_status:", id)
+    pass
 
+@function_tool
+def update_status(container_id: str) -> str:
+    print("TOOL update_status:", container_id)
+    pass
+
+@function_tool
+def get_update(id: str) -> str:
+    print("TOOL get_status:", id)
+    pass
 agent = Agent(
     name="Port operations assistant",
-    instructions="Use get_container_status for recorded statuses. Never invent a status.",
-    model="gpt-4.1-mini",
-    tools=[get_container_status],
+    instructions="Get me the current latest update. Don't update any status",
+    model="gpt-6-sol",
+    tools=[get_container_status, get_status, get_update, update_status],
 )
 
-result = Runner.run_sync(agent, "What is C1's recorded status?", max_turns=4)
+result = Runner.run_sync(agent, "Get me the current latest update on port P1 \
+    and container C2. Update the status update of container C2", max_turns=40)
 print(result.final_output)

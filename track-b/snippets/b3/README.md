@@ -27,7 +27,7 @@ Core memory and approval state live in memory. Use the extensions to explore per
 
 ## Continue
 
-- [Slides](../../slides-md/b3-agentic-workflows.md) · [Lab](../../modules/b3/lab.md)
+- [Slides](../../slides-md/b3-agentic-workflows.md) · [Draft lab](../../labs/container_help_desk/B3.md)
 - [Exploration notebook](../../notebooks/b3_workflows_state_and_approval.ipynb) · [Notebook setup](../../notebooks/README.md)
 - [Extensions: parallel work, LlamaIndex handoff and persistence](extensions/README.md)
 - [Reference examples](reference/README.md) · [Verification record](VERIFICATION.md)

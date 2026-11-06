@@ -3,3 +3,5 @@ model-config
 .DS_Store
 .vscode/settings.json
 .env
+archive
+docs

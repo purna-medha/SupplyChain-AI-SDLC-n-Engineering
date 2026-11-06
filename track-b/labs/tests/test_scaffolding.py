@@ -1,7 +1,7 @@
 """Instructor checks for the supplied scaffolding, not learner TODO answers.
 
 Run from the repository root: python -m unittest discover -s track-b/labs/tests -v
-Dependencies: either lab's requirements.txt. No model key or network required.
+Dependencies: labs/container_help_desk/requirements.txt. No model key or network required.
 """
 
 import importlib.util
@@ -15,11 +15,9 @@ import tempfile
 import unittest
 from unittest.mock import patch
 from types import SimpleNamespace
-from urllib.error import HTTPError
 
 ROOT = Path(__file__).resolve().parents[3]
 STANDALONE = ROOT / "track-b/labs/container_help_desk"
-PORTOPS = ROOT / "project-supplychain-sandbox-PortOps/labs/ai_container_help_desk"
 
 
 def load_file(directory, name):
@@ -31,7 +29,7 @@ def load_file(directory, name):
 
 class StarterChecks(unittest.TestCase):
     def test_modules_show_help_from_another_directory(self):
-        for directory in (STANDALONE, PORTOPS):
+        for directory in (STANDALONE,):
             for name in ("b1", "b2", "b3"):
                 with self.subTest(lab=directory.name, module=name):
                     result = subprocess.run(
@@ -42,7 +40,7 @@ class StarterChecks(unittest.TestCase):
                     self.assertIn("usage:", result.stdout)
 
     def test_unfinished_model_call_names_the_todo_without_faking_a_reply(self):
-        for directory in (STANDALONE, PORTOPS):
+        for directory in (STANDALONE,):
             result = subprocess.run(
                 [sys.executable, str(directory / "b1.py"), "call"],
                 cwd=tempfile.gettempdir(), capture_output=True, text=True,
@@ -58,35 +56,9 @@ class StarterChecks(unittest.TestCase):
         self.assertEqual(records.get_container("C1")["container_status_label"], "OVERDUE")
         self.assertEqual(records.get_demurrage("C1")["net_payable_demurrage_fee_usd"], 100)
 
-    def test_portops_membership_precedes_fee_read(self):
-        records = load_file(PORTOPS, "records")
-        requested = []
-
-        def get_json(path):
-            requested.append(path)
-            if path.startswith("/containers?"):
-                return [{"container_identifier": "MSKU1234567", "container_status_label": "OVERDUE"}]
-            return {"net_payable_demurrage_fee_usd": 123.45}
-
-        with patch.object(records, "get_json", side_effect=get_json):
-            self.assertIsNone(records.get_demurrage("TCLU9876543"))
-            self.assertEqual(len(requested), 1)
-            self.assertIsNone(records.get_demurrage("../../importers"))
-            self.assertEqual(len(requested), 2)
-            result = records.get_demurrage("MSKU1234567")
-            self.assertEqual(result["net_payable_demurrage_fee_usd"], 123.45)
-            self.assertEqual(requested[-1], "/containers/MSKU1234567/demurrage-calculation")
-            self.assertIn("importer_identifier=IMP-GULF-001", requested[0])
-
-    def test_unavailable_api_is_not_reported_as_unknown_container(self):
-        records = load_file(PORTOPS, "records")
-        failure = HTTPError("http://localhost/containers", 500, "broken", {}, None)
-        with patch.object(records, "urlopen", side_effect=failure):
-            with self.assertRaises(RuntimeError):
-                records.get_container("MSKU1234567")
 
     def test_local_outbox_keeps_the_reviewed_payload(self):
-        for directory in (STANDALONE, PORTOPS):
+        for directory in (STANDALONE,):
             support = load_file(directory, "support")
             with tempfile.TemporaryDirectory() as temp:
                 with patch.object(support, "WORK", Path(temp)):
@@ -98,7 +70,7 @@ class StarterChecks(unittest.TestCase):
 
     def test_current_review_does_not_reuse_prior_outbox_membership(self):
         # Break caught: deriving this review from historical outbox membership.
-        for directory, (decision, expected) in product((STANDALONE, PORTOPS), [("reject", "rejected"), ("approve", "incomplete")]):
+        for directory, (decision, expected) in product((STANDALONE,), [("reject", "rejected"), ("approve", "incomplete")]):
             with self.subTest(lab=directory.name, decision=decision), tempfile.TemporaryDirectory() as temp:
                 sys.path.insert(0, str(directory))
                 try:

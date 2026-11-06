@@ -36,7 +36,7 @@ The client prints discovered tools; the server prints execution. Only the agent 
 
 ## Continue
 
-- [Slides](../../slides-md/b2-tools-and-mcp.md) · [Lab](../../modules/b2/lab.md)
+- [Slides](../../slides-md/b2-tools-and-mcp.md) · [Draft lab](../../labs/container_help_desk/B2.md)
 - [Exploration notebook](../../notebooks/b2_tools_contracts_and_mcp.ipynb) · [Notebook setup](../../notebooks/README.md)
 - [Extension: LlamaIndex client for the same MCP server](extensions/README.md)
 - [Reference: schemas, manual tool calls and stdio MCP](reference/README.md)

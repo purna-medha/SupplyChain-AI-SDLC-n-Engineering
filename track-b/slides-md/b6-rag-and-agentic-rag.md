@@ -13,7 +13,7 @@ style: |
 
 # B6 · From supplied context to retrieved evidence
 
-B1 placed facts in a request by hand.
+B1 showed how the application supplies conversation context.
 
 Now a document collection supplies the evidence. We will build a small RAG answer, open its parts, then improve it when a named failure appears.
 
@@ -60,16 +60,16 @@ Name RAG after its job is understandable. Ask learners what the model would lose
 # A small working RAG pipeline
 
 ```python
-index = VectorStoreIndex(nodes, embed_model=embed)
+index = VectorStoreIndex.from_documents(documents, embed_model=embed)
 engine = index.as_query_engine(llm=llm, similarity_top_k=2)
 ```
 
-Source: [04_basic_rag.py](../authoring/previous-codealongs-before-essential-selection/b6/04_basic_rag.py#L34)
+Source: [first RAG example](../snippets/b6/01_first_rag.py)
 
-`nodes` contains the supplied notes. `embed` and `llm` are the configured embedding and chat adapters.
+`documents` contains the notes. `embed` and `llm` are the embedding and chat adapters.
 
 <!--
-Open the complete file and run its question loop. Model setup is already supplied; keep attention on index and query engine. This is a first working shape, just as M4 uses a tiny framework example before unpacking the objects.
+The full example creates two documents with source metadata, invokes actual embeddings and chat, then prints returned evidence. Establish the useful whole before opening its components. Missing access is not replaced with prepared output.
 -->
 
 ---
@@ -78,19 +78,17 @@ Open the complete file and run its question loop. Model setup is already supplie
 
 ```python
 response = engine.query(
-    question + " Use only supplied notes; report missing evidence."
+    "When does Terminal A open? Use only notes; report absent evidence."
 )
-print("question:", question, "answer:", response)
+print("Answer:", response)
 for hit in response.source_nodes:
-    print("source:", hit.node.node_id, hit.score, hit.node.text)
+    print("Source:", hit.node.metadata, hit.node.text)
 ```
 
-Source: [04_basic_rag.py](../authoring/previous-codealongs-before-essential-selection/b6/04_basic_rag.py#L40)
-
-Compare the opening-time answer with the actual source text.
+Source: [answer and evidence](../snippets/b6/01_first_rag.py)
 
 <!--
-Read actual returned nodes rather than assume a citation is sufficient. The file also asks about crane capacity, which is absent from the corpus. Keep that result for a later failure discussion; first explain the pieces that produced the supported answer.
+Inspect actual metadata and text. This example prints neither a separate relevance score nor an invented source ID. Try absent crane capacity and check actual behavior without promising a generated sentence.
 -->
 
 ---
@@ -128,19 +126,18 @@ Introduce chunking as the unit of search. Learners already understand that conte
 
 ```python
 splitter = SentenceSplitter(
-    chunk_size=size,
-    chunk_overlap=0,
-    tokenizer=str.split,
-    chunking_tokenizer_fn=lambda text: text.split(". "),
+    chunk_size=40, chunk_overlap=0, tokenizer=str.split,
 )
+nodes = splitter.get_nodes_from_documents([document])
+for node in nodes:
+    print("Chunk:", node.text)
+    print("Metadata:", node.metadata)
 ```
 
-Source: [01_documents_chunks.py](../authoring/previous-codealongs-before-essential-selection/b6/01_documents_chunks.py#L20)
-
-The full example compares small and larger chunk budgets.
+Source: [chunks and metadata](../snippets/b6/02_chunks_and_metadata.py)
 
 <!--
-Explain size, overlap and sentence-aware splitting using the supplied document. The source deliberately counts words to avoid tokenizer downloads; its budget is not the chat model's token count. Run it and inspect each actual node's text.
+The source text has the 06:00 rule, Sunday 09:00 exception and Bring ID. Change 40 to 14 and inspect actual chunks. This tokenizer counts whitespace-separated words, not provider billing tokens. No separate custom sentence tokenizer is used.
 -->
 
 ---
@@ -173,20 +170,19 @@ This creates the need for embeddings through a wording mismatch. Keep exact-term
 
 ---
 
-# Compare actual embeddings
+# Inspect an actual embedding
 
 ```python
-query = embed.get_query_embedding("When can I enter Terminal A?")
-for text, vector in zip(texts, embed.get_text_embedding_batch(texts)):
-    dot = sum(a * b for a, b in zip(query, vector))
-    norm = sqrt(sum(a * a for a in query) * sum(b * b for b in vector))
-    print(text, "dimensions:", len(vector), "cosine:", round(dot / norm, 3))
+print("Query vector dimensions:",
+      len(embed.get_query_embedding(question)))
 ```
 
-Source: [02_embeddings.py](../authoring/previous-codealongs-before-essential-selection/b6/02_embeddings.py#L21)
+The embedding service returns a numeric vector. Retrieval uses compatible query and document representations.
+
+Source: [inspect retrieval](../snippets/b6/03_inspect_retrieval.py)
 
 <!--
-The complete file supplies the embedding adapter and two source texts. Run it and inspect vector dimensions and actual cosine scores. The same configured embedding model represents query and documents. A text-generation-only endpoint cannot perform this operation.
+The file prints vector length, then actual ranked nodes and scores. It does not calculate cosine similarity manually. Dimensions show representation size; they do not measure relevance.
 -->
 
 ---
@@ -210,18 +206,19 @@ Tie the representation back to the objects already printed. A persistent vector 
 # Retrieve before generating an answer
 
 ```python
-index = VectorStoreIndex(nodes, embed_model=embed)
-retriever = index.as_retriever(similarity_top_k=2)
-for hit in retriever.retrieve("When does Terminal A gate open?"):
-    print(hit.node.node_id, hit.score, hit.node.text)
+retriever = index.as_retriever(
+    similarity_top_k=2, filters=filters,
+)
+for hit in retriever.retrieve(question):
+    print(hit.node.node_id, hit.score, hit.node.metadata, hit.node.text)
 ```
 
-Source: [03_vector_retrieval.py](../authoring/previous-codealongs-before-essential-selection/b6/03_vector_retrieval.py#L27)
+Source: [ranked, scoped candidates](../snippets/b6/03_inspect_retrieval.py)
 
-Inspect IDs, scores and text. No answer has been generated by this retrieval call.
+This retrieval call generates no answer.
 
 <!--
-The code now exposes the stage the query engine hid. Ask whether the required opening-time passage appears. top_k controls how many candidates are selected; score values rank those candidates and are not universal confidence probabilities.
+The full file supplies the index, question and trusted terminal filter. Inspect IDs, scores and text first; the later scope section explains the filter. Actual embedding requests occur, but no chat generation.
 -->
 
 ---
@@ -313,7 +310,7 @@ recall@2    = 1 recovered / 2 required      = 1/2
 The generated answer still needs its own support check.
 
 <!--
-Use ../authoring/previous-codealongs-before-essential-selection/b6/10_retrieval_evaluation.py for the complete metric arithmetic, including reciprocal rank. This ranking is a fixture, not a live retrieval result. Keep those evidence types separate when comparing an actual pipeline change.
+This metric arithmetic uses prepared relevance labels and a prepared ranking. The current 03_inspect_retrieval.py prints actual retrieval, not these metrics. Keep prepared judgments distinct from observed results.
 -->
 
 ---
@@ -377,7 +374,7 @@ hybrid = QueryFusionRetriever(
 )
 ```
 
-Source: [06_hybrid_fusion.py](../authoring/previous-codealongs-before-essential-selection/b6/06_hybrid_fusion.py#L36)
+Source: [04_hybrid_retrieval.py](../snippets/b6/04_hybrid_retrieval.py)
 
 Rank fusion combines positions without treating raw lexical and vector scores as the same unit.
 
@@ -393,10 +390,12 @@ Retrieval returns the needed passage along with several plausible distractors.
 
 Keeping every candidate increases noise.
 
-A second scoring stage can examine the question and candidates more closely.
+**Predict:** if `gate-a` never entered the candidate pool, can even a perfect reranker recover it?
 
 <!--
 This is a ranking problem only if the needed passage is already in the candidate pool. Ask learners to distinguish it from the earlier recall failure. That distinction explains both the value and the limit of the next technique.
+
+Reasoning check: No. A reranker selects or reorders candidates already supplied; it cannot recover an absent source. Repair ingestion or candidate retrieval first. When gate-a is present among distractors, the next slide's second scoring stage may improve its position.
 -->
 
 ---
@@ -404,20 +403,17 @@ This is a ranking problem only if the needed passage is already in the candidate
 # Repair · Rerank the candidate pool
 
 ```python
+print("Before:", [hit.node.node_id for hit in candidates])
 reranker = LLMRerank(llm=llm, top_n=1)
-for pool in (candidates, [hit for hit in candidates if hit.node.node_id != "gate-a"]):
-    print("pool:", [hit.node.node_id for hit in pool])
-    reranked = reranker.postprocess_nodes(
-        pool, query_str="When does Terminal A gate open?"
-    )
-    for hit in reranked:
-        print("after:", hit.node.node_id, hit.score, hit.node.text)
+reranked = reranker.postprocess_nodes(candidates, query_str=question)
+for hit in reranked:
+    print("After:", hit.node.node_id, hit.score, hit.node.text)
 ```
 
-Source: [07_rerank.py](../authoring/previous-codealongs-before-essential-selection/b6/07_rerank.py#L33)
+Source: [rerank candidates](../snippets/b6/05_rerank_candidates.py)
 
 <!--
-The card uses prepared candidate order and actual model reranking. Run both pools: one includes gate-a and one omits it. A reranker can reorder supplied candidates but cannot return a missing source. Explain the added model-call cost after showing its role.
+The source retrieves three candidates, then reranks once. Removing gate-a is a learner variation, not an automatic second source run. Missing evidence requires repairing candidate retrieval first.
 -->
 
 ---
@@ -439,33 +435,33 @@ Use the same corpus to avoid changing the evidence problem. Rewriting can help c
 # Repair · Rewrite and compare
 
 ```python
-question = "For Terminal A, when can I get in through the gate?"
 rewrite = llm.complete(
-    "Return only a search query. Preserve subject, task and constraints: " + question
+    "Return only a search query; preserve terminal and intent: " + question
 ).text
-print("original:", question, "rewrite to review:", rewrite)
-for query in (question, rewrite):
-    print(query, [(hit.node.node_id, hit.score) for hit in retriever.retrieve(query)])
+print("Original:", question, "Rewrite:", rewrite)
+for query in [question, rewrite]:
+    print(query, [(hit.node.node_id, hit.score)
+                  for hit in retriever.retrieve(query)])
 ```
 
-Source: [08_query_rewrite.py](../authoring/previous-codealongs-before-essential-selection/b6/08_query_rewrite.py#L35)
+Source: [rewrite and compare](../snippets/b6/06_rewrite_query.py)
 
 <!--
-Run the actual rewrite, inspect its meaning and compare both retrieved rankings. A fluent rewrite does not guarantee better retrieval. Preserve independently enforced scope; a rewrite must not choose which private terminal records the caller is permitted to see.
+Inspect both actual rankings and the generated rewrite. A changed terminal or intent is a failure even if wording is fluent. The extra model call does not guarantee improved retrieval.
 -->
 
 ---
 
 # Failure · Similar evidence is outside scope
 
-A request scoped to Terminal A retrieves Terminal B's note.
+The retriever sends Terminal B's text to the model for a request scoped to Terminal A.
 
-An instruction to ignore B does not undo disclosure if B's text already entered the model request.
-
-Eligibility must be decided before synthesis.
+**Predict:** does adding “use only Terminal A” to the prompt prevent disclosure? Where should scope be enforced?
 
 <!--
 Connect directly to B4's trusted-owner predicate. The new application is document eligibility rather than row eligibility. This example earns a metadata filter without introducing another authentication system.
+
+Reasoning check: No. Terminal B text has already crossed the disclosure boundary. Enforce trusted eligibility during retrieval before sending evidence to synthesis, then preserve scope through later stages. The next slide implements the metadata-filter mechanism.
 -->
 
 ---
@@ -482,7 +478,7 @@ for hit in retriever.retrieve("When does the gate open?"):
     print(hit.node.node_id, hit.node.metadata, hit.node.text)
 ```
 
-Source: [05_metadata_scope.py](../authoring/previous-codealongs-before-essential-selection/b6/05_metadata_scope.py#L32)
+Source: [03_inspect_retrieval.py](../snippets/b6/03_inspect_retrieval.py)
 
 <!--
 The trusted terminal value is application context in the card. Run it and inspect returned metadata. Carry this scope through hybrid search, reranking and retrieval tools. The filter demonstrates eligibility mechanics, not complete production identity.
@@ -528,7 +524,7 @@ tool = QueryEngineTool.from_defaults(
 )
 ```
 
-Source: [09_agentic_rag.py](../authoring/previous-codealongs-before-essential-selection/b6/09_agentic_rag.py#L37)
+Source: [07_agentic_rag.py](../snippets/b6/07_agentic_rag.py)
 
 The description tells the model what evidence this capability can search.
 
@@ -542,24 +538,18 @@ The full source builds the scoped classroom corpus and engine first. QueryEngine
 
 ```python
 agent = FunctionAgent(
-    tools=[tool],
-    llm=llm,
-    timeout=90,
-    streaming=False,
+    tools=[tool], llm=llm, timeout=90, streaming=False,
     system_prompt="Use notes for facts. Report missing evidence.",
+)
+handler = agent.run(
+    user_msg="When does Terminal A open?", max_iterations=3,
 )
 ```
 
-Source: [09_agentic_rag.py](../authoring/previous-codealongs-before-essential-selection/b6/09_agentic_rag.py#L42)
-
-```python
-handler = agent.run(user_msg="When does Terminal A open?", max_iterations=4)
-```
-
-Source: [09_agentic_rag.py](../authoring/previous-codealongs-before-essential-selection/b6/09_agentic_rag.py#L52)
+Source: [bounded retrieval agent](../snippets/b6/07_agentic_rag.py)
 
 <!--
-Show handler=agent.run in the full source. Iterations and timeout bound different resources, and neither is a separate exact tool-call count budget. The model must support native tool proposals. No tool events means the run has not demonstrated retrieval.
+The source configures a function-calling adapter, actual embeddings and a query-engine tool, then streams ToolCallResult events. Its iteration limit is three, not a global token or spending budget.
 -->
 
 ---
@@ -574,7 +564,7 @@ if isinstance(event, ToolCallResult):
         print("source:", hit.node.node_id, hit.node.text)
 ```
 
-Source: [09_agentic_rag.py](../authoring/previous-codealongs-before-essential-selection/b6/09_agentic_rag.py#L54)
+Source: [07_agentic_rag.py](../snippets/b6/07_agentic_rag.py)
 
 <!--
 Run the complete card and inspect tool arguments, returned evidence and sources. Compare them with the final answer. The card may use one tool call; do not claim it demonstrated an additional adaptive lookup unless the observed trace actually shows one.
@@ -603,14 +593,14 @@ Ask learners to justify the chosen path for the opening-time question versus a t
 
 # Practice · Baseline, repair, then adaptation
 
-Use the [B6 worked examples](../codealongs/b6/README.md).
+Use the [seven B6 worked examples](../snippets/b6/README.md).
 
-Build baseline RAG, diagnose scope and inspect bounded agent retrieval.
+Build baseline RAG, inspect evidence and compare a justified retrieval repair.
 
-Introduce a new corpus failure and justify one measured repair. Labs will follow separately.
+No separate B6 lab pack or formal assessment is currently available.
 
 <!--
-Separate real chat/embedding/tool runs from prepared metric and structural checks. A missing endpoint remains an unvalidated live boundary. Learners should preserve the same question and expected evidence when comparing before and after.
+The earlier module lab and assessment were removed. Surrounding-context repairs and metric arithmetic remain conceptual explanations. Review overall scope and timing before finalizing a lab.
 -->
 
 ---

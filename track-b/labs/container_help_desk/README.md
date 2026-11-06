@@ -1,10 +1,10 @@
-# Container help desk · standalone lab
+# Container help desk · standalone lab draft
 
 A port operations trainee needs help with shipping terminology. Later they
 need recorded status and fee information for a customer enquiry, followed by
 a factual update that a colleague can review.
 
-Use this one small application throughout B1–B3. The records are synthetic;
+This working draft uses one small application throughout B1–B3. The records are synthetic;
 the USD 100 fee is a supplied classroom value, not a recreated PortOps tariff.
 
 | Module | Instructions | Edit |
@@ -12,6 +12,11 @@ the USD 100 fee is a supplied classroom value, not a recreated PortOps tariff.
 | B1: explain terms and retain a conversation | [B1.md](B1.md) | [b1.py](b1.py), 3 TODO functions |
 | B2: connect tools and share them through MCP | [B2.md](B2.md) | [b2.py](b2.py), 4 TODO functions |
 | B3: investigate, save and review | [B3.md](B3.md) | [b3.py](b3.py), 5 core TODOs; 2 optional |
+
+Target 30–40 minutes per module with setup completed beforehand. Keep the
+implementation small, then choose two questions from that module's exploration
+bank. Use the [predict/change/inspect/explain method](../EXPLORATION.md) to record
+what the same lab demonstrates. Further questions and extensions are optional.
 
 ## Prepare once
 
@@ -78,6 +83,6 @@ B3 creates `work/conversation.db`, per-container task/pending JSON and
 by Git. The lab models classroom review and file storage, not enterprise
 identity, transactional recovery or customer messaging.
 
-The [PortOps version](../../../project-supplychain-sandbox-PortOps/labs/ai_container_help_desk/README.md)
-applies the same exercise to the existing capstone APIs.
+Only this standalone version is currently distributed. The timing target still
+needs an instructor dry run; see the [course map](../../README.md).
 

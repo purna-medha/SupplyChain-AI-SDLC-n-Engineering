@@ -1,0 +1,22 @@
+# Counterpart: ../../08_repair_and_compare.py. No model call.
+description: B5 08 - Compare the same cases before and after repair
+prompts: ['Check fee {{fee}}']
+providers:
+  - id: file://08_repair_and_compare.py
+    label: baseline
+    config: {repaired: false}
+  - id: file://08_repair_and_compare.py
+    label: candidate
+    config: {repaired: true}
+defaultTest:
+  assert:
+    - type: equals
+      value: '{{expected}}'
+tests:
+  - description: below
+    vars: {fee: 100, expected: clear}
+  - description: boundary
+    vars: {fee: 200, expected: review}
+  - description: additional held-out variation
+    vars: {fee: 201, expected: review}
+# Repair cases: baseline 1/2, candidate 2/2. Additional 201 passes for both.

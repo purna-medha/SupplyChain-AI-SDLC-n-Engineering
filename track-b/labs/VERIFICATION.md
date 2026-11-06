@@ -1,4 +1,23 @@
-# B1–B3 lab verification · 5 November 2026
+# Standalone lab verification · 5 November 2026
+
+Current distribution: only `container_help_desk/`. The PortOps copy has been
+removed. Its checks have been removed from the active scaffold suite.
+
+After that change, `.venv/bin/python -m unittest discover -s labs/tests -v`
+from `track-b` passed **5 tests**: CLI help from another directory, visible
+unfinished TODO behavior, known/unknown fixtures, exact outbox payloads and
+the repeat-review regression. These are supplied-scaffold checks, not a
+curriculum assessment or completed learner answers.
+
+No live model, local inference, MCP or backend call was repeated for this
+documentation reconciliation. The starter implementations remain unfinished.
+
+## Historical verification before removal of the PortOps copy
+
+The following record describes the earlier two-copy distribution. It is
+historical evidence, not a claim that both copies are available now.
+
+### Earlier check · 5 November 2026
 
 Both lab paths were checked with learner implementations applied only to
 disposable copies. The delivered starters retain all 14 empty TODO functions

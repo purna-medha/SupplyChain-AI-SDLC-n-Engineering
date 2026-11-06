@@ -30,7 +30,7 @@ Check answer quality: this tiny model can misunderstand shipping terms. Run the 
 
 ## Continue
 
-- [Slides](../../slides-md/b1-llm-applications.md) · [Lab](../../modules/b1/lab.md)
+- [Slides](../../slides-md/b1-llm-applications.md) · [Draft lab](../../labs/container_help_desk/B1.md)
 - [Exploration notebook](../../notebooks/b1_messages_tokens_and_generation.ipynb) · [Notebook setup](../../notebooks/README.md)
 - [Extension: context growth](extensions/README.md)
 - [Reference: grounding, JSON and schemas](reference/README.md)

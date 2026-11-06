@@ -1,0 +1,13 @@
+[project]
+name = "b5-deepeval-alternatives"
+version = "0.1.0"
+description = "Optional standalone DeepEval counterparts to the B5 Python examples"
+requires-python = ">=3.11"
+dependencies = [
+    "deepeval==4.3.3",
+    "openai-agents==0.20.0",
+    "python-dotenv==1.2.4",
+]
+
+[tool.uv]
+package = false

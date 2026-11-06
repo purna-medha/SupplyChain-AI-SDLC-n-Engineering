@@ -105,10 +105,12 @@ To make the function selectable, the application describes its contract:
 | Argument schema | `container_id`, a required string |
 | Result | A status or an unknown-container result |
 
-The runtime retains the executable function. Its description helps the model decide when and how to request it.
+**Predict:** after advertising this contract, how many status reads have occurred? What must happen before a record is obtained?
 
 <!--
 This is the added layer above the ordinary callable, not a second implementation of the lookup. A decorator can derive the description and schema from a docstring and type hints; show that syntax only after the tool interaction and agent loop are understood. The function body and source dictionary are not part of the advertised schema. A valid string also does not prove record existence or permission.
+
+Reasoning check: Advertising the contract executes zero status reads. The model can request the named operation; only runtime invocation executes its body and obtains the record. Ask learners to identify the execution print they would expect after invocation.
 -->
 
 ---
@@ -253,10 +255,12 @@ Inspect the execution print and returned answer together.
 
 For C1, did the function execute with the intended identifier? Does the answer preserve the returned status?
 
-For unknown C9, the function returns “Unknown container.” The application has obtained no evidence for a real status.
+**Predict:** C9 is a valid string. Does passing the argument schema establish that the container exists? What observation should the function return?
 
 <!--
 Run one variation after learners predict the expected evidence. Do not show a prepared final sentence as actual model output. The model may paraphrase on_time or delayed; judge meaning against the result. Knowing a container's name does not itself grant access to a production record. Production permissions are a later data-boundary concern.
+
+Reasoning check: A required string can satisfy the argument schema while naming no record. The actual fixture returns Unknown container for C9; it supplies no evidence of a delayed or on-time status. Run C9 after the prediction and inspect the tool print and final answer.
 -->
 
 ---
@@ -529,20 +533,19 @@ Ask learners to narrate the full path and identify who calls whom. The diagram i
 
 # Lab · A tool-using assistant and a shared server
 
-| Time | Extend the understood application |
+Working draft: [standalone B2 lab](../labs/container_help_desk/B2.md).
+
+| Step | Learner implementation |
 | --- | --- |
-| 0–10 min | Call the function directly, then through the SDK agent |
-| 10–25 min | Compare general/status questions; run LlamaIndex |
-| 25–40 min | Start the MCP server and connect the OpenAI agent |
-| 40–55 min | Add C3 on the server; test the client and unknown C9 |
-| 55–60 min | Explain who decides, executes and owns the records |
+| Direct reads | Return recorded status and supplied net fee |
+| Tool agent | Register the two read functions |
+| Shared tools | Connect to the supplied MCP server |
+| Observation | Inspect reads, discovery and unknown IDs |
 
-Extension: connect the supplied second MCP client.
-
-Use the [B2 snippets and setup](../snippets/b2/README.md).
+A second framework is optional. Scope and timing remain provisional.
 
 <!--
-This is the separate one-hour lab. The required deliverable is actual direct-function, agent-tool and MCP execution evidence, including an unknown-container result. Restart the server after adding C3. The LlamaIndex MCP client and a second read-only tool are extensions after the core works; do not make framework adaptation crowd out understanding the boundary. Prepare dependencies and key access before class. Stop the server with Ctrl+C afterward.
+The lab has four unfinished functions and supplied synthetic adapters. Its MCP port 8871 differs from the lecture server's 8765. No PortOps lab variant is distributed. Use the actual lab README for setup.
 -->
 
 ---

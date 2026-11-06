@@ -1,0 +1,24 @@
+# Counterpart: ../../01_check_one_answer.py. Prepared draft; no model call.
+description: B5 01 - Check one prepared answer
+prompts: ['{{draft}}']
+providers: [echo]
+tests:
+  - vars:
+      draft: '{"container_id":"C2","fee":999,"source":"fees-v1","text":"Your recorded fee is ready."}'
+    assert:
+      - type: python
+        metric: required fields
+        value: all(field in __import__('json').loads(output) for field in ['container_id', 'fee', 'source'])
+      - type: python
+        metric: fee type
+        value: type(__import__('json').loads(output).get('fee')) is int
+      - type: python
+        metric: correct container
+        value: __import__('json').loads(output).get('container_id') == 'C2'
+      - type: python
+        metric: correct amount
+        value: __import__('json').loads(output).get('fee') == 200
+      - type: python
+        metric: source label
+        value: __import__('json').loads(output).get('source') == 'fees-v1'
+# Expect one failed case: four of its five assertions pass. Try fee=200.

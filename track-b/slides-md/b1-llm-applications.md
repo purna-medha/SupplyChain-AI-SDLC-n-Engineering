@@ -255,10 +255,12 @@ messages=[
 
 Illustration: [instruction example](../snippets/b1/03_system_instruction.py)
 
-Keep the question fixed. Compare one sentence with three numbered points.
+**Predict:** keep the question fixed and request three numbered points. What should change? Would either instruction supply C1's current status?
 
 <!--
 This is the messages argument inside the complete call. question is the same shipping question as the first call, so adding the system instruction is the change being illustrated. Ask for a prediction before running a variation. If the model ignores the form, inspect that limit. An instruction influences generation; it does not execute a validation rule or establish a private fact.
+
+Reasoning check: The expected change is answer structure, not new operational knowledge. Neither instruction supplies C1's status or guarantees correct wording. Ask for a prediction before running the changed instruction; then compare actual replies.
 -->
 
 ---
@@ -273,10 +275,12 @@ Follow-up:
 
 > How does that differ from detention?
 
-“That” refers to the earlier topic. A fresh request containing only the follow-up does not establish that reference.
+**Predict:** send only the follow-up to the same model. What does “that” refer to, and what earlier information must the application supply?
 
 <!--
 Ask what information makes the follow-up understandable. A model without history might guess the topic; do not promise failure. Guessing is different from receiving the earlier exchange. Both questions concern general terminology, not an internal record.
+
+Reasoning check: The same model name does not restore a stateless request's earlier messages. Supply the earlier user message and actual assistant reply to establish the reference. A model might guess the topic, so distinguish a plausible guess from receiving the conversation.
 -->
 
 ---
@@ -539,18 +543,19 @@ This opens B2 rather than prompting a record-pasting exercise inside B1. Ask whe
 
 # Lab · A shipping-terminology chatbot
 
-| Time | Extend the understood application |
-| --- | --- |
-| 0–5 min | Confirm the prepared environment and local model |
-| 5–20 min | Run hosted/local calls; change question and instruction |
-| 20–35 min | Add a follow-up; compare with and without history |
-| 35–50 min | Record tokens, elapsed time and estimated API cost |
-| 50–60 min | Compare answers and explain one quality/cost trade-off |
+Working draft: [standalone B1 lab](../labs/container_help_desk/B1.md).
 
-Use the [B1 snippets and setup](../snippets/b1/README.md).
+| Step | Learner implementation |
+| --- | --- |
+| Model call | Return the actual response and usage |
+| Instructions | Build system and user messages |
+| History | Retain the actual reply before a follow-up |
+| Observation | Compare quality, tokens, time and estimated cost |
+
+Hosted/local comparison is optional. Scope and timing remain provisional.
 
 <!--
-This is the separate one-hour lab. Prepare credentials, dependencies, Ollama and downloads beforehand. Deliverable: a working conversation and a small table of actual observations. Record unavailable service access as a failure, never fake success. Record grounding, JSON schemas and permissions are outside the required B1 lab.
+The starter has three unfinished functions and supplied measurements/runner. Use its separate setup. This replaces the earlier snippet-only lab plan; it is not a finalized assessment or guaranteed one-hour schedule.
 -->
 
 ---

@@ -1,0 +1,7 @@
+.deepeval/
+.promptfoo/
+node_modules/
+.venv/
+__pycache__/
+.pytest_cache/
+results/

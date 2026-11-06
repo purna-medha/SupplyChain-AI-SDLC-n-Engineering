@@ -1,0 +1,1818 @@
+{
+  "date": "2026-11-05",
+  "model": "gpt-4.1-mini",
+  "temperature": 0,
+  "repeats_per_main_case": 2,
+  "purpose": "Classroom observations, not expected future scores.",
+  "sdk": [
+    {
+      "case": "below",
+      "version": "baseline",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": 499,
+      "output_tokens": 79,
+      "actual": {
+        "container_id": "C1",
+        "fee": 100,
+        "decision": "clear",
+        "source": "fees-v1",
+        "text": "The current permitted recorded fee for container C1 is 100, with a clear decision from the source fees-v1. This fee is ready for update preparation."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "model_requests": 2,
+      "seconds": 6.933,
+      "reads": [
+        "C1"
+      ],
+      "tool_observations": [
+        {
+          "arguments": {
+            "container_id": "C1"
+          },
+          "output": "{'container_id': 'C1', 'fee': 100, 'decision': 'clear', 'source': 'fees-v1'}"
+        }
+      ]
+    },
+    {
+      "case": "below",
+      "version": "baseline",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": 499,
+      "output_tokens": 81,
+      "actual": {
+        "container_id": "C1",
+        "fee": 100,
+        "decision": "clear",
+        "source": "fees-v1",
+        "text": "The current permitted recorded fee for container C1 is 100 with a clear decision from the source fees-v1. This information can be used to prepare the fee update."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "model_requests": 2,
+      "seconds": 5.965,
+      "reads": [
+        "C1"
+      ],
+      "tool_observations": [
+        {
+          "arguments": {
+            "container_id": "C1"
+          },
+          "output": "{'container_id': 'C1', 'fee': 100, 'decision': 'clear', 'source': 'fees-v1'}"
+        }
+      ]
+    },
+    {
+      "case": "boundary",
+      "version": "baseline",
+      "passed": false,
+      "status": "completed",
+      "input_tokens": 499,
+      "output_tokens": 83,
+      "actual": {
+        "container_id": "C2",
+        "fee": 200,
+        "decision": "clear",
+        "source": "fees-v1",
+        "text": "The current permitted recorded fee for container C2 is 200 with a clear decision from the source 'fees-v1'. This fee is ready for update as it has been cleared."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": false,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "model_requests": 2,
+      "seconds": 3.328,
+      "reads": [
+        "C2"
+      ],
+      "tool_observations": [
+        {
+          "arguments": {
+            "container_id": "C2"
+          },
+          "output": "{'container_id': 'C2', 'fee': 200, 'decision': 'clear', 'source': 'fees-v1'}"
+        }
+      ]
+    },
+    {
+      "case": "boundary",
+      "version": "baseline",
+      "passed": false,
+      "status": "completed",
+      "input_tokens": 499,
+      "output_tokens": 75,
+      "actual": {
+        "container_id": "C2",
+        "fee": 200,
+        "decision": "clear",
+        "source": "fees-v1",
+        "text": "The recorded fee for container C2 is 200 with a clear decision from the source fees-v1. This fee is ready for update."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": false,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "model_requests": 2,
+      "seconds": 3.227,
+      "reads": [
+        "C2"
+      ],
+      "tool_observations": [
+        {
+          "arguments": {
+            "container_id": "C2"
+          },
+          "output": "{'container_id': 'C2', 'fee': 200, 'decision': 'clear', 'source': 'fees-v1'}"
+        }
+      ]
+    },
+    {
+      "case": "missing",
+      "version": "baseline",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": 495,
+      "output_tokens": 65,
+      "actual": {
+        "container_id": "C9",
+        "fee": null,
+        "decision": "unknown",
+        "source": null,
+        "text": "The fee for container C9 is currently unknown, so no update can be prepared at this time."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "model_requests": 2,
+      "seconds": 4.964,
+      "reads": [],
+      "tool_observations": [
+        {
+          "arguments": {
+            "container_id": "C9"
+          },
+          "output": "{'container_id': 'C9', 'fee': None, 'decision': 'unknown', 'source': None}"
+        }
+      ]
+    },
+    {
+      "case": "missing",
+      "version": "baseline",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": 495,
+      "output_tokens": 62,
+      "actual": {
+        "container_id": "C9",
+        "fee": null,
+        "decision": "unknown",
+        "source": null,
+        "text": "The fee for container C9 is currently unknown, so no update can be prepared."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "model_requests": 2,
+      "seconds": 3.48,
+      "reads": [],
+      "tool_observations": [
+        {
+          "arguments": {
+            "container_id": "C9"
+          },
+          "output": "{'container_id': 'C9', 'fee': None, 'decision': 'unknown', 'source': None}"
+        }
+      ]
+    },
+    {
+      "case": "denied",
+      "version": "baseline",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": 496,
+      "output_tokens": 75,
+      "actual": {
+        "container_id": "C2",
+        "fee": null,
+        "decision": "denied",
+        "source": null,
+        "text": "The fee update for container C2 cannot be prepared because the fee decision is denied. There is no fee recorded or source available for this container."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "model_requests": 2,
+      "seconds": 5.445,
+      "reads": [],
+      "tool_observations": [
+        {
+          "arguments": {
+            "container_id": "C2"
+          },
+          "output": "{'container_id': 'C2', 'fee': None, 'decision': 'denied', 'source': None}"
+        }
+      ]
+    },
+    {
+      "case": "denied",
+      "version": "baseline",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": 496,
+      "output_tokens": 75,
+      "actual": {
+        "container_id": "C2",
+        "fee": null,
+        "decision": "denied",
+        "source": null,
+        "text": "The fee update for container C2 cannot be prepared because the fee decision is denied. There is no fee recorded or source available for this container."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "model_requests": 2,
+      "seconds": 3.252,
+      "reads": [],
+      "tool_observations": [
+        {
+          "arguments": {
+            "container_id": "C2"
+          },
+          "output": "{'container_id': 'C2', 'fee': None, 'decision': 'denied', 'source': None}"
+        }
+      ]
+    },
+    {
+      "case": "dependency",
+      "version": "baseline",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": 496,
+      "output_tokens": 63,
+      "actual": {
+        "container_id": "C2",
+        "fee": null,
+        "decision": "unavailable",
+        "source": null,
+        "text": "The fee information for container C2 is unavailable, so no update can be prepared."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "model_requests": 2,
+      "seconds": 3.883,
+      "reads": [],
+      "tool_observations": [
+        {
+          "arguments": {
+            "container_id": "C2"
+          },
+          "output": "{'container_id': 'C2', 'fee': None, 'decision': 'unavailable', 'source': None}"
+        }
+      ]
+    },
+    {
+      "case": "dependency",
+      "version": "baseline",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": 496,
+      "output_tokens": 63,
+      "actual": {
+        "container_id": "C2",
+        "fee": null,
+        "decision": "unavailable",
+        "source": null,
+        "text": "The fee information for container C2 is unavailable, so no update can be prepared."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "model_requests": 2,
+      "seconds": 2.986,
+      "reads": [],
+      "tool_observations": [
+        {
+          "arguments": {
+            "container_id": "C2"
+          },
+          "output": "{'container_id': 'C2', 'fee': None, 'decision': 'unavailable', 'source': None}"
+        }
+      ]
+    },
+    {
+      "case": "below",
+      "version": "candidate",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": 499,
+      "output_tokens": 79,
+      "actual": {
+        "container_id": "C1",
+        "fee": 100,
+        "decision": "clear",
+        "source": "fees-v1",
+        "text": "The current permitted recorded fee for container C1 is 100, with a clear decision status from the source fees-v1. This fee can be updated accordingly."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "model_requests": 2,
+      "seconds": 3.455,
+      "reads": [
+        "C1"
+      ],
+      "tool_observations": [
+        {
+          "arguments": {
+            "container_id": "C1"
+          },
+          "output": "{'container_id': 'C1', 'fee': 100, 'decision': 'clear', 'source': 'fees-v1'}"
+        }
+      ]
+    },
+    {
+      "case": "below",
+      "version": "candidate",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": 499,
+      "output_tokens": 80,
+      "actual": {
+        "container_id": "C1",
+        "fee": 100,
+        "decision": "clear",
+        "source": "fees-v1",
+        "text": "The current permitted recorded fee for container C1 is 100, with a clear decision from the source 'fees-v1'. This fee is ready for update preparation."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "model_requests": 2,
+      "seconds": 3.592,
+      "reads": [
+        "C1"
+      ],
+      "tool_observations": [
+        {
+          "arguments": {
+            "container_id": "C1"
+          },
+          "output": "{'container_id': 'C1', 'fee': 100, 'decision': 'clear', 'source': 'fees-v1'}"
+        }
+      ]
+    },
+    {
+      "case": "boundary",
+      "version": "candidate",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": 499,
+      "output_tokens": 96,
+      "actual": {
+        "container_id": "C2",
+        "fee": 200,
+        "decision": "review",
+        "source": "fees-v1",
+        "text": "The current recorded fee for container C2 is 200, and the decision status is 'review'. The source of this fee information is 'fees-v1'. Since the decision is 'review', the fee update preparation can proceed with this information."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "model_requests": 2,
+      "seconds": 3.675,
+      "reads": [
+        "C2"
+      ],
+      "tool_observations": [
+        {
+          "arguments": {
+            "container_id": "C2"
+          },
+          "output": "{'container_id': 'C2', 'fee': 200, 'decision': 'review', 'source': 'fees-v1'}"
+        }
+      ]
+    },
+    {
+      "case": "boundary",
+      "version": "candidate",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": 499,
+      "output_tokens": 103,
+      "actual": {
+        "container_id": "C2",
+        "fee": 200,
+        "decision": "review",
+        "source": "fees-v1",
+        "text": "The current recorded fee for container C2 is 200, with a decision status of 'review'. The source of this fee information is 'fees-v1'. Since the decision is 'review', the fee update preparation is noted but no further action is taken until review is complete."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "model_requests": 2,
+      "seconds": 3.58,
+      "reads": [
+        "C2"
+      ],
+      "tool_observations": [
+        {
+          "arguments": {
+            "container_id": "C2"
+          },
+          "output": "{'container_id': 'C2', 'fee': 200, 'decision': 'review', 'source': 'fees-v1'}"
+        }
+      ]
+    },
+    {
+      "case": "missing",
+      "version": "candidate",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": 495,
+      "output_tokens": 62,
+      "actual": {
+        "container_id": "C9",
+        "fee": null,
+        "decision": "unknown",
+        "source": null,
+        "text": "The fee information for container C9 is unknown, so no update can be prepared."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "model_requests": 2,
+      "seconds": 3.375,
+      "reads": [],
+      "tool_observations": [
+        {
+          "arguments": {
+            "container_id": "C9"
+          },
+          "output": "{'container_id': 'C9', 'fee': None, 'decision': 'unknown', 'source': None}"
+        }
+      ]
+    },
+    {
+      "case": "missing",
+      "version": "candidate",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": 495,
+      "output_tokens": 62,
+      "actual": {
+        "container_id": "C9",
+        "fee": null,
+        "decision": "unknown",
+        "source": null,
+        "text": "The fee for container C9 is currently unknown, so no update can be prepared."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "model_requests": 2,
+      "seconds": 3.562,
+      "reads": [],
+      "tool_observations": [
+        {
+          "arguments": {
+            "container_id": "C9"
+          },
+          "output": "{'container_id': 'C9', 'fee': None, 'decision': 'unknown', 'source': None}"
+        }
+      ]
+    },
+    {
+      "case": "denied",
+      "version": "candidate",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": 496,
+      "output_tokens": 71,
+      "actual": {
+        "container_id": "C2",
+        "fee": null,
+        "decision": "denied",
+        "source": null,
+        "text": "The fee update for container C2 cannot be prepared because the fee decision is 'denied' and no fee is recorded."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "model_requests": 2,
+      "seconds": 3.811,
+      "reads": [],
+      "tool_observations": [
+        {
+          "arguments": {
+            "container_id": "C2"
+          },
+          "output": "{'container_id': 'C2', 'fee': None, 'decision': 'denied', 'source': None}"
+        }
+      ]
+    },
+    {
+      "case": "denied",
+      "version": "candidate",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": 496,
+      "output_tokens": 74,
+      "actual": {
+        "container_id": "C2",
+        "fee": null,
+        "decision": "denied",
+        "source": null,
+        "text": "The fee update for container C2 cannot be prepared because the fee decision is 'denied' and no fee or source information is available."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "model_requests": 2,
+      "seconds": 3.37,
+      "reads": [],
+      "tool_observations": [
+        {
+          "arguments": {
+            "container_id": "C2"
+          },
+          "output": "{'container_id': 'C2', 'fee': None, 'decision': 'denied', 'source': None}"
+        }
+      ]
+    },
+    {
+      "case": "dependency",
+      "version": "candidate",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": 496,
+      "output_tokens": 63,
+      "actual": {
+        "container_id": "C2",
+        "fee": null,
+        "decision": "unavailable",
+        "source": null,
+        "text": "The fee information for container C2 is unavailable, so no update can be prepared."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "model_requests": 2,
+      "seconds": 3.603,
+      "reads": [],
+      "tool_observations": [
+        {
+          "arguments": {
+            "container_id": "C2"
+          },
+          "output": "{'container_id': 'C2', 'fee': None, 'decision': 'unavailable', 'source': None}"
+        }
+      ]
+    },
+    {
+      "case": "dependency",
+      "version": "candidate",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": 496,
+      "output_tokens": 63,
+      "actual": {
+        "container_id": "C2",
+        "fee": null,
+        "decision": "unavailable",
+        "source": null,
+        "text": "The fee information for container C2 is unavailable, so no update can be prepared."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "model_requests": 2,
+      "seconds": 3.32,
+      "reads": [],
+      "tool_observations": [
+        {
+          "arguments": {
+            "container_id": "C2"
+          },
+          "output": "{'container_id': 'C2', 'fee': None, 'decision': 'unavailable', 'source': None}"
+        }
+      ]
+    },
+    {
+      "case": "held-out above",
+      "version": "baseline",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": 499,
+      "output_tokens": 94,
+      "actual": {
+        "container_id": "C3",
+        "fee": 201,
+        "decision": "review",
+        "source": "fees-v1",
+        "text": "The current recorded fee for container C3 is 201, with a decision status of 'review'. The source of this fee information is 'fees-v1'. Since the decision is 'review', the fee update can be prepared accordingly."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "model_requests": 2,
+      "seconds": 4.19,
+      "reads": [
+        "C3"
+      ],
+      "tool_observations": [
+        {
+          "arguments": {
+            "container_id": "C3"
+          },
+          "output": "{'container_id': 'C3', 'fee': 201, 'decision': 'review', 'source': 'fees-v1'}"
+        }
+      ]
+    },
+    {
+      "case": "held-out above",
+      "version": "candidate",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": 499,
+      "output_tokens": 94,
+      "actual": {
+        "container_id": "C3",
+        "fee": 201,
+        "decision": "review",
+        "source": "fees-v1",
+        "text": "The current recorded fee for container C3 is 201, with a decision status of 'review'. The source of this fee information is 'fees-v1'. Since the decision is 'review', the fee update can be prepared accordingly."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "model_requests": 2,
+      "seconds": 3.666,
+      "reads": [
+        "C3"
+      ],
+      "tool_observations": [
+        {
+          "arguments": {
+            "container_id": "C3"
+          },
+          "output": "{'container_id': 'C3', 'fee': 201, 'decision': 'review', 'source': 'fees-v1'}"
+        }
+      ]
+    }
+  ],
+  "llama": [
+    {
+      "case": "below",
+      "version": "baseline",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": null,
+      "output_tokens": null,
+      "actual": {
+        "container_id": "C1",
+        "fee": 100,
+        "decision": "clear",
+        "source": "fees-v1",
+        "text": "The recorded fee for container C1 is 100, with a clear decision from the source fees-v1. Since the decision is clear, the fee update can proceed based on this information."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "seconds": 4.888,
+      "reads": [
+        "C1"
+      ],
+      "tool_observations": [
+        {
+          "tool": "read_fee",
+          "arguments": {
+            "container_id": "C1"
+          },
+          "output": "{'container_id': 'C1', 'fee': 100, 'decision': 'clear', 'source': 'fees-v1'}",
+          "error": false
+        }
+      ]
+    },
+    {
+      "case": "below",
+      "version": "baseline",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": null,
+      "output_tokens": null,
+      "actual": {
+        "container_id": "C1",
+        "fee": 100,
+        "decision": "clear",
+        "source": "fees-v1",
+        "text": "The recorded fee for container C1 is 100, with a clear decision from the source fees-v1. Since the decision is clear, the fee update can proceed based on this information."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "seconds": 3.657,
+      "reads": [
+        "C1"
+      ],
+      "tool_observations": [
+        {
+          "tool": "read_fee",
+          "arguments": {
+            "container_id": "C1"
+          },
+          "output": "{'container_id': 'C1', 'fee': 100, 'decision': 'clear', 'source': 'fees-v1'}",
+          "error": false
+        }
+      ]
+    },
+    {
+      "case": "boundary",
+      "version": "baseline",
+      "passed": false,
+      "status": "completed",
+      "input_tokens": null,
+      "output_tokens": null,
+      "actual": {
+        "container_id": "C2",
+        "fee": 200,
+        "decision": "clear",
+        "source": "fees-v1",
+        "text": "The recorded fee for container C2 is 200 with a decision marked as clear, sourced from fees-v1. Since the decision is clear, the fee update can be prepared accordingly."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": false,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "seconds": 3.4,
+      "reads": [
+        "C2"
+      ],
+      "tool_observations": [
+        {
+          "tool": "read_fee",
+          "arguments": {
+            "container_id": "C2"
+          },
+          "output": "{'container_id': 'C2', 'fee': 200, 'decision': 'clear', 'source': 'fees-v1'}",
+          "error": false
+        }
+      ]
+    },
+    {
+      "case": "boundary",
+      "version": "baseline",
+      "passed": false,
+      "status": "completed",
+      "input_tokens": null,
+      "output_tokens": null,
+      "actual": {
+        "container_id": "C2",
+        "fee": 200,
+        "decision": "clear",
+        "source": "fees-v1",
+        "text": "The recorded fee for container C2 is 200 with a decision marked as clear, sourced from fees-v1. Since the decision is clear, the fee update can be prepared based on this information."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": false,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "seconds": 3.53,
+      "reads": [
+        "C2"
+      ],
+      "tool_observations": [
+        {
+          "tool": "read_fee",
+          "arguments": {
+            "container_id": "C2"
+          },
+          "output": "{'container_id': 'C2', 'fee': 200, 'decision': 'clear', 'source': 'fees-v1'}",
+          "error": false
+        }
+      ]
+    },
+    {
+      "case": "missing",
+      "version": "baseline",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": null,
+      "output_tokens": null,
+      "actual": {
+        "container_id": "C9",
+        "fee": null,
+        "decision": "unknown",
+        "source": null,
+        "text": "The fee status for container C9 is unknown. Since the decision is unknown, I will stop and not prepare a fee update."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "seconds": 3.419,
+      "reads": [],
+      "tool_observations": [
+        {
+          "tool": "read_fee",
+          "arguments": {
+            "container_id": "C9"
+          },
+          "output": "{'container_id': 'C9', 'fee': None, 'decision': 'unknown', 'source': None}",
+          "error": false
+        }
+      ]
+    },
+    {
+      "case": "missing",
+      "version": "baseline",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": null,
+      "output_tokens": null,
+      "actual": {
+        "container_id": "C9",
+        "fee": null,
+        "decision": "unknown",
+        "source": null,
+        "text": "The fee status for container C9 is unknown. Since the decision is unknown, I cannot proceed with a fee update."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "seconds": 3.613,
+      "reads": [],
+      "tool_observations": [
+        {
+          "tool": "read_fee",
+          "arguments": {
+            "container_id": "C9"
+          },
+          "output": "{'container_id': 'C9', 'fee': None, 'decision': 'unknown', 'source': None}",
+          "error": false
+        }
+      ]
+    },
+    {
+      "case": "denied",
+      "version": "baseline",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": null,
+      "output_tokens": null,
+      "actual": {
+        "container_id": "C2",
+        "fee": null,
+        "decision": "denied",
+        "source": null,
+        "text": "The fee update for container C2 cannot be prepared because the decision on the fee is \"denied.\" Therefore, no fee information is available or permitted for this container."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "seconds": 3.56,
+      "reads": [],
+      "tool_observations": [
+        {
+          "tool": "read_fee",
+          "arguments": {
+            "container_id": "C2"
+          },
+          "output": "{'container_id': 'C2', 'fee': None, 'decision': 'denied', 'source': None}",
+          "error": false
+        }
+      ]
+    },
+    {
+      "case": "denied",
+      "version": "baseline",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": null,
+      "output_tokens": null,
+      "actual": {
+        "container_id": "C2",
+        "fee": null,
+        "decision": "denied",
+        "source": null,
+        "text": "The fee update for container C2 cannot be prepared because the decision on the fee is \"denied.\" Therefore, no fee information is available or permitted for this container."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "seconds": 3.218,
+      "reads": [],
+      "tool_observations": [
+        {
+          "tool": "read_fee",
+          "arguments": {
+            "container_id": "C2"
+          },
+          "output": "{'container_id': 'C2', 'fee': None, 'decision': 'denied', 'source': None}",
+          "error": false
+        }
+      ]
+    },
+    {
+      "case": "dependency",
+      "version": "baseline",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": null,
+      "output_tokens": null,
+      "actual": {
+        "container_id": "C2",
+        "fee": null,
+        "decision": "unavailable",
+        "source": null,
+        "text": "The fee information for container C2 is unavailable. Therefore, I cannot prepare a fee update for it."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "seconds": 3.667,
+      "reads": [],
+      "tool_observations": [
+        {
+          "tool": "read_fee",
+          "arguments": {
+            "container_id": "C2"
+          },
+          "output": "{'container_id': 'C2', 'fee': None, 'decision': 'unavailable', 'source': None}",
+          "error": false
+        }
+      ]
+    },
+    {
+      "case": "dependency",
+      "version": "baseline",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": null,
+      "output_tokens": null,
+      "actual": {
+        "container_id": "C2",
+        "fee": null,
+        "decision": "unavailable",
+        "source": null,
+        "text": "The fee information for container C2 is unavailable. Therefore, I cannot prepare a fee update for it."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "seconds": 3.76,
+      "reads": [],
+      "tool_observations": [
+        {
+          "tool": "read_fee",
+          "arguments": {
+            "container_id": "C2"
+          },
+          "output": "{'container_id': 'C2', 'fee': None, 'decision': 'unavailable', 'source': None}",
+          "error": false
+        }
+      ]
+    },
+    {
+      "case": "below",
+      "version": "candidate",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": null,
+      "output_tokens": null,
+      "actual": {
+        "container_id": "C1",
+        "fee": 100,
+        "decision": "clear",
+        "source": "fees-v1",
+        "text": "The recorded fee for container C1 is 100, with a clear decision from the source fees-v1. Since the decision is clear, the fee update can proceed based on this information."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "seconds": 3.474,
+      "reads": [
+        "C1"
+      ],
+      "tool_observations": [
+        {
+          "tool": "read_fee",
+          "arguments": {
+            "container_id": "C1"
+          },
+          "output": "{'container_id': 'C1', 'fee': 100, 'decision': 'clear', 'source': 'fees-v1'}",
+          "error": false
+        }
+      ]
+    },
+    {
+      "case": "below",
+      "version": "candidate",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": null,
+      "output_tokens": null,
+      "actual": {
+        "container_id": "C1",
+        "fee": 100,
+        "decision": "clear",
+        "source": "fees-v1",
+        "text": "The recorded fee for container C1 is 100, with a clear decision from the source fees-v1. Since the decision is clear, the fee update can proceed based on this information."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "seconds": 3.145,
+      "reads": [
+        "C1"
+      ],
+      "tool_observations": [
+        {
+          "tool": "read_fee",
+          "arguments": {
+            "container_id": "C1"
+          },
+          "output": "{'container_id': 'C1', 'fee': 100, 'decision': 'clear', 'source': 'fees-v1'}",
+          "error": false
+        }
+      ]
+    },
+    {
+      "case": "boundary",
+      "version": "candidate",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": null,
+      "output_tokens": null,
+      "actual": {
+        "container_id": "C2",
+        "fee": 200,
+        "decision": "review",
+        "source": "fees-v1",
+        "text": "The recorded fee for container C2 is 200 with a review decision. The source of this information is fees-v1. Since the decision is \"review,\" I have prepared this fee update accordingly."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "seconds": 4.199,
+      "reads": [
+        "C2"
+      ],
+      "tool_observations": [
+        {
+          "tool": "read_fee",
+          "arguments": {
+            "container_id": "C2"
+          },
+          "output": "{'container_id': 'C2', 'fee': 200, 'decision': 'review', 'source': 'fees-v1'}",
+          "error": false
+        }
+      ]
+    },
+    {
+      "case": "boundary",
+      "version": "candidate",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": null,
+      "output_tokens": null,
+      "actual": {
+        "container_id": "C2",
+        "fee": 200,
+        "decision": "review",
+        "source": "fees-v1",
+        "text": "The recorded fee for container C2 is 200 with a review decision. The source of this information is fees-v1. Since the decision is \"review,\" I will prepare the fee update accordingly."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "seconds": 3.447,
+      "reads": [
+        "C2"
+      ],
+      "tool_observations": [
+        {
+          "tool": "read_fee",
+          "arguments": {
+            "container_id": "C2"
+          },
+          "output": "{'container_id': 'C2', 'fee': 200, 'decision': 'review', 'source': 'fees-v1'}",
+          "error": false
+        }
+      ]
+    },
+    {
+      "case": "missing",
+      "version": "candidate",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": null,
+      "output_tokens": null,
+      "actual": {
+        "container_id": "C9",
+        "fee": null,
+        "decision": "unknown",
+        "source": null,
+        "text": "The fee status for container C9 is unknown. Since the decision is unknown, I will stop and not prepare any fee update."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "seconds": 4.077,
+      "reads": [],
+      "tool_observations": [
+        {
+          "tool": "read_fee",
+          "arguments": {
+            "container_id": "C9"
+          },
+          "output": "{'container_id': 'C9', 'fee': None, 'decision': 'unknown', 'source': None}",
+          "error": false
+        }
+      ]
+    },
+    {
+      "case": "missing",
+      "version": "candidate",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": null,
+      "output_tokens": null,
+      "actual": {
+        "container_id": "C9",
+        "fee": null,
+        "decision": "unknown",
+        "source": null,
+        "text": "The fee status for container C9 is unknown. Since the decision is unknown, I will stop and not prepare a fee update."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "seconds": 3.951,
+      "reads": [],
+      "tool_observations": [
+        {
+          "tool": "read_fee",
+          "arguments": {
+            "container_id": "C9"
+          },
+          "output": "{'container_id': 'C9', 'fee': None, 'decision': 'unknown', 'source': None}",
+          "error": false
+        }
+      ]
+    },
+    {
+      "case": "denied",
+      "version": "candidate",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": null,
+      "output_tokens": null,
+      "actual": {
+        "container_id": "C2",
+        "fee": null,
+        "decision": "denied",
+        "source": null,
+        "text": "The fee update for container C2 cannot be prepared because the decision on the fee is denied. Therefore, no fee information is available or permitted for update."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "seconds": 3.698,
+      "reads": [],
+      "tool_observations": [
+        {
+          "tool": "read_fee",
+          "arguments": {
+            "container_id": "C2"
+          },
+          "output": "{'container_id': 'C2', 'fee': None, 'decision': 'denied', 'source': None}",
+          "error": false
+        }
+      ]
+    },
+    {
+      "case": "denied",
+      "version": "candidate",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": null,
+      "output_tokens": null,
+      "actual": {
+        "container_id": "C2",
+        "fee": null,
+        "decision": "denied",
+        "source": null,
+        "text": "The fee update for container C2 cannot be prepared because the decision on the fee is \"denied.\" Therefore, no fee information is available or permitted for this container."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "seconds": 3.695,
+      "reads": [],
+      "tool_observations": [
+        {
+          "tool": "read_fee",
+          "arguments": {
+            "container_id": "C2"
+          },
+          "output": "{'container_id': 'C2', 'fee': None, 'decision': 'denied', 'source': None}",
+          "error": false
+        }
+      ]
+    },
+    {
+      "case": "dependency",
+      "version": "candidate",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": null,
+      "output_tokens": null,
+      "actual": {
+        "container_id": "C2",
+        "fee": null,
+        "decision": "unavailable",
+        "source": null,
+        "text": "The fee information for container C2 is unavailable. Therefore, I cannot prepare a fee update for it."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "seconds": 3.115,
+      "reads": [],
+      "tool_observations": [
+        {
+          "tool": "read_fee",
+          "arguments": {
+            "container_id": "C2"
+          },
+          "output": "{'container_id': 'C2', 'fee': None, 'decision': 'unavailable', 'source': None}",
+          "error": false
+        }
+      ]
+    },
+    {
+      "case": "dependency",
+      "version": "candidate",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": null,
+      "output_tokens": null,
+      "actual": {
+        "container_id": "C2",
+        "fee": null,
+        "decision": "unavailable",
+        "source": null,
+        "text": "The fee information for container C2 is currently unavailable. Therefore, I cannot prepare a fee update for it."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "seconds": 3.197,
+      "reads": [],
+      "tool_observations": [
+        {
+          "tool": "read_fee",
+          "arguments": {
+            "container_id": "C2"
+          },
+          "output": "{'container_id': 'C2', 'fee': None, 'decision': 'unavailable', 'source': None}",
+          "error": false
+        }
+      ]
+    },
+    {
+      "case": "held-out above",
+      "version": "baseline",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": null,
+      "output_tokens": null,
+      "actual": {
+        "container_id": "C3",
+        "fee": 201,
+        "decision": "review",
+        "source": "fees-v1",
+        "text": "The fee for container C3 is 201 with a decision of 'review' from source 'fees-v1'. The fee update is prepared accordingly."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "seconds": 3.337,
+      "reads": [
+        "C3"
+      ],
+      "tool_observations": [
+        {
+          "tool": "read_fee",
+          "arguments": {
+            "container_id": "C3"
+          },
+          "output": "{'container_id': 'C3', 'fee': 201, 'decision': 'review', 'source': 'fees-v1'}",
+          "error": false
+        }
+      ]
+    },
+    {
+      "case": "held-out above",
+      "version": "candidate",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": null,
+      "output_tokens": null,
+      "actual": {
+        "container_id": "C3",
+        "fee": 201,
+        "decision": "review",
+        "source": "fees-v1",
+        "text": "The recorded fee for container C3 is 201 with a decision status of \"review\" from the source \"fees-v1\". Since the decision is \"review,\" it indicates the fee is under consideration and not finalized yet. No update can be made until the review decision is resolved."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "seconds": 3.733,
+      "reads": [
+        "C3"
+      ],
+      "tool_observations": [
+        {
+          "tool": "read_fee",
+          "arguments": {
+            "container_id": "C3"
+          },
+          "output": "{'container_id': 'C3', 'fee': 201, 'decision': 'review', 'source': 'fees-v1'}",
+          "error": false
+        }
+      ]
+    }
+  ],
+  "approval": [
+    {
+      "case": "approve",
+      "status": "completed",
+      "passed": true,
+      "final": "The update \"Recorded fee: USD 200. Review required.\" has been queued for container C2.",
+      "checks": {
+        "exact_outbox": true,
+        "task_state": true
+      },
+      "before": [
+        {
+          "container_id": "C2",
+          "text": "Recorded fee: USD 200. Review required."
+        }
+      ],
+      "after": [
+        {
+          "container_id": "C2",
+          "text": "Recorded fee: USD 200. Review required."
+        },
+        {
+          "container_id": "C2",
+          "text": "Recorded fee: USD 200. Review required."
+        }
+      ],
+      "task": {
+        "phase": "queued"
+      },
+      "seconds": 4.22
+    },
+    {
+      "case": "reject",
+      "status": "completed",
+      "passed": true,
+      "final": "The update for container C2 was not approved for queuing. If you want, I can assist you with any other request or modification.",
+      "checks": {
+        "exact_outbox": true,
+        "task_state": true
+      },
+      "before": [
+        {
+          "container_id": "C2",
+          "text": "Recorded fee: USD 200. Review required."
+        }
+      ],
+      "after": [
+        {
+          "container_id": "C2",
+          "text": "Recorded fee: USD 200. Review required."
+        }
+      ],
+      "task": {
+        "phase": "pending"
+      },
+      "seconds": 3.443
+    },
+    {
+      "case": "denied",
+      "status": "completed",
+      "passed": true,
+      "final": "The update for container C2 was not approved for queuing. If you need any further assistance or want to try a different update, please let me know.",
+      "checks": {
+        "exact_outbox": true,
+        "task_state": true
+      },
+      "before": [
+        {
+          "container_id": "C2",
+          "text": "Recorded fee: USD 200. Review required."
+        }
+      ],
+      "after": [
+        {
+          "container_id": "C2",
+          "text": "Recorded fee: USD 200. Review required."
+        }
+      ],
+      "task": {
+        "phase": "pending"
+      },
+      "seconds": 3.631
+    },
+    {
+      "case": "changed payload",
+      "status": "completed",
+      "passed": true,
+      "final": "The update for container C2 with the text \"Recorded fee: USD 999.\" was not approved for queuing and therefore was not submitted.",
+      "checks": {
+        "exact_outbox": true,
+        "task_state": true
+      },
+      "before": [
+        {
+          "container_id": "C2",
+          "text": "Recorded fee: USD 200. Review required."
+        }
+      ],
+      "after": [
+        {
+          "container_id": "C2",
+          "text": "Recorded fee: USD 200. Review required."
+        }
+      ],
+      "task": {
+        "phase": "pending"
+      },
+      "seconds": 3.688
+    }
+  ],
+  "judge_calibration_log": [
+    "clear reference: True judge: True feedback: The response clearly states the fee amount as USD 200 and explicitly mentions that a review is required. The language is straightforward and easily understandable, meeting the guideline criteria for clarity. The explanation avoids jargon and directly addresses both parts of the query. seconds: 2.072",
+    "paraphrase reference: True judge: True feedback: The response clearly states the fee amount for C2 as 200 USD and explicitly mentions that a reviewer must check it. The language is straightforward and understandable, meeting the guideline requirements for clarity. Although brief, it effectively explains both the fee and the review requirement without using jargon or unexplained codes. seconds: 1.435",
+    "jargon reference: False judge: False feedback: The response consists solely of an unexplained code ('C2 F200 R1 XFLAG-A7') without any plain language explanation. It does not clarify what the fee is or whether a review is required in understandable terms. According to the guidelines, the response should plainly explain the fee amount (e.g., 'USD 200' or '200 USD') and the review decision, which this response fails to do. seconds: 1.477",
+    "wrong fact FACT FAIL; judge skipped",
+    "CALIBRATION AGREEMENT: 3 / 3",
+    "Judge usage/cost: unknown in this recorder; account separately from agent calls.",
+    "GuidelineEvaluator sees query/response. It does not establish source grounding."
+  ],
+  "configuration": {
+    "sdk_max_turns": 4,
+    "llama_max_iterations": 4,
+    "sdk": "openai-agents 0.20.0",
+    "llama_index_core": "0.14.25",
+    "llama_index_llms_openai": "0.8.3",
+    "openai": "2.54.0",
+    "pydantic": "2.14.2",
+    "usage_note": "SDK main-run token counts observed; estimates added later. Other missing usage is unknown."
+  },
+  "final_source_sha256": {
+    "01_evaluate_and_repair.py": "da9b58cd47784e6b490bb79a35b00b45897361839b12ad4e48534ca939d1d282",
+    "02_trace_actual_work.py": "a9536bdd4c6f533ee3ffd53e13da1489dcba5610d895c6ad167024c039687fcb",
+    "03_llamaindex_evaluation.py": "423392b87042f59560936319ab5576de52f78e59c9ed41b7c1755e86431c5a74",
+    "04_verify_action_outcomes.py": "78c6d608df233c5e800666482f67ecddc1a9c40b87579a09520a54c41282b171",
+    "05_rubric_judge.py": "ddd80ed9adb21176b3a4e05c42bb60ec9a3577a5630e97085abfa5fdaa324c87"
+  },
+  "final_focused_trials": [
+    {
+      "case": "below",
+      "version": "candidate",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": 499,
+      "output_tokens": 81,
+      "estimated_usd": 0.0003292,
+      "actual": {
+        "container_id": "C1",
+        "fee": 100,
+        "decision": "clear",
+        "source": "fees-v1",
+        "text": "The current recorded fee for container C1 is 100 with a clear decision status, sourced from fees-v1. This information can be used to prepare the fee update."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true
+      },
+      "cached_tokens": 0,
+      "model_requests": 2,
+      "seconds": 5.216,
+      "reads": [
+        "C1"
+      ]
+    },
+    {
+      "case": "below",
+      "version": "candidate",
+      "passed": false,
+      "status": "incomplete: max_turns",
+      "input_tokens": null,
+      "output_tokens": null,
+      "estimated_usd": null,
+      "seconds": 3.118,
+      "reads": [
+        "C1"
+      ]
+    },
+    {
+      "case": "below",
+      "version": "candidate",
+      "passed": false,
+      "status": "error",
+      "input_tokens": null,
+      "output_tokens": null,
+      "estimated_usd": null,
+      "error": "RuntimeError: scripted dependency error",
+      "seconds": 0.0,
+      "reads": []
+    },
+    {
+      "case": "below",
+      "version": "candidate",
+      "passed": true,
+      "status": "completed",
+      "input_tokens": null,
+      "output_tokens": null,
+      "actual": {
+        "container_id": "C1",
+        "fee": 100,
+        "decision": "clear",
+        "source": "fees-v1",
+        "text": "The recorded fee for container C1 is 100, with a clear decision from the source fees-v1. Since the decision is clear, the fee update can proceed based on this information."
+      },
+      "checks": {
+        "container_id": true,
+        "fee": true,
+        "decision": true,
+        "source": true,
+        "tool_evidence": true,
+        "permitted_reads": true,
+        "tool_errors": true
+      },
+      "seconds": 3.934,
+      "reads": [
+        "C1"
+      ]
+    },
+    {
+      "case": "below",
+      "version": "candidate",
+      "passed": false,
+      "status": "incomplete",
+      "input_tokens": null,
+      "output_tokens": null,
+      "error": "WorkflowRuntimeError: Max iterations of 1 reached! Either something went wrong, or you can increase the max iterations with `.run(.., max_iterations=...)` or use `early_stopping_method='generate'` to generate a final response instead.",
+      "seconds": 1.27,
+      "reads": []
+    },
+    {
+      "case": "below",
+      "version": "candidate",
+      "passed": false,
+      "status": "error",
+      "input_tokens": null,
+      "output_tokens": null,
+      "error": "RuntimeError: scripted dependency error",
+      "seconds": 0.0,
+      "reads": []
+    }
+  ],
+  "final_grader_verification": {
+    "offline_probes_per_runtime": 10,
+    "captured_live_trials_regraded": 44,
+    "final_live_normal_and_stop_trials": 4,
+    "scripted_error_trials": 2
+  }
+}

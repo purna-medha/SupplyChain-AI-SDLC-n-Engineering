@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-06",
+  "model": "gpt-4.1-mini",
+  "scope": "Selected B4 classroom operations, not production-readiness or reliability evidence.",
+  "source_sha256": {
+    "01_read_business_api.py": "ddcb58f3a16c3aa075ce6d7160dc41d949385652b1e38765bb3ba8a8fc73e9c4",
+    "02_query_database.py": "35beca8601cd25c6241a1881aa1792150c5b2847df6baf0d3b67ec3595153d2f",
+    "03_scope_database_read.py": "b6072488cc567126892cedff72689588b6827e72d3002838fe042882d813adda",
+    "04_agent_with_api.py": "d1a54e4e6833a4d89560c6b2b43c23c559a369343d4eb2fca2b90d27e96462bb",
+    "05_llamaindex_database_tool.py": "90018f7eef2a4e89c54dda9e03b70f2231a72ebbc8503a6f62faa88166c7ac9b",
+    "06_approved_database_action.py": "e88809802e9836578de6fb72766227e7422797e12b6437a4255fde2e30db768c",
+    "07_prevent_duplicate_actions.py": "100efd4238d1ba6dcbf098513e129b36d438c2057dab018d6e56945028411e8d",
+    "service.py": "a4be6038117c9bd62d6ced2fb55afe80a6c077297d6716db368485c7d0b1d4a0"
+  },
+  "core_line_counts": {
+    "01_read_business_api.py": 24,
+    "02_query_database.py": 22,
+    "03_scope_database_read.py": 35,
+    "04_agent_with_api.py": 47,
+    "05_llamaindex_database_tool.py": 54,
+    "06_approved_database_action.py": 66,
+    "07_prevent_duplicate_actions.py": 28,
+    "service.py": 50
+  },
+  "http_observations": [
+    {
+      "container_id": "C1",
+      "caller_fixture": "demo-A",
+      "http_status": 200,
+      "body": {
+        "status": "ok",
+        "container_id": "C1",
+        "shipment_status": "delayed",
+        "fee": 100,
+        "currency": "USD",
+        "as_of": "2026-11-06T00:00:00Z",
+        "source": "training-api"
+      }
+    },
+    {
+      "container_id": "C2",
+      "caller_fixture": "demo-A",
+      "http_status": 404,
+      "body": {
+        "status": "unavailable"
+      }
+    },
+    {
+      "container_id": "C9",
+      "caller_fixture": "demo-A",
+      "http_status": 404,
+      "body": {
+        "status": "unavailable"
+      }
+    },
+    {
+      "container_id": "C2",
+      "caller_fixture": "demo-B",
+      "http_status": 200,
+      "body": {
+        "status": "ok",
+        "container_id": "C2",
+        "shipment_status": "on_time",
+        "fee": 200,
+        "currency": "USD",
+        "as_of": "2026-11-06T00:00:00Z",
+        "source": "training-api"
+      }
+    },
+    {
+      "container_id": "C1",
+      "caller_fixture": "demo-B",
+      "http_status": 404,
+      "body": {
+        "status": "unavailable"
+      }
+    },
+    {
+      "container_id": "C1",
+      "caller_fixture": "bad",
+      "http_status": 401,
+      "body": {
+        "status": "unauthenticated"
+      }
+    },
+    {
+      "container_id": "bad-id",
+      "caller_fixture": "demo-A",
+      "http_status": 400,
+      "body": {
+        "status": "invalid_request"
+      }
+    }
+  ],
+  "transcripts": {
+    "01_read_business_api": "RECORDED FACT: {'status': 'ok', 'container_id': 'C1', 'shipment_status': 'delayed', 'fee': 100, 'currency': 'USD', 'as_of': '2026-11-06T00:00:00Z', 'source': 'training-api'}\n",
+    "02_query_database": "RESULT: {'id': 'C1', 'fee': 100, 'currency': 'USD'}\n",
+    "03_scope_database_read": "AUDIT: A read_fee C1 ok\nRESULT: {'status': 'ok', 'container_id': 'C1', 'fee': 100, 'currency': 'USD', 'as_of': '2026-11-06T00:00:00Z', 'source': 'training-db'}\nAUDIT: A read_fee C2 unavailable\nRESULT: {'status': 'unavailable'}\nAUDIT: A read_fee C9 unavailable\nRESULT: {'status': 'unavailable'}\n",
+    "04_agent_with_api": "TOOL: C1 OBSERVATION: {'status': 'ok', 'container_id': 'C1', 'shipment_status': 'delayed', 'fee': 100, 'currency': 'USD', 'as_of': '2026-11-06T00:00:00Z', 'source': 'training-api'}\nANSWER: The recorded fee for container C1 is 100 USD. The source of this information is \"training-api\" and the timestamp is 2026-11-06T00:00:00Z.\n",
+    "04_agent_with_api_initial": "TOOL: C1 OBSERVATION: {'status': 'ok', 'container_id': 'C1', 'shipment_status': 'delayed', 'fee': 100, 'currency': 'USD', 'as_of': '2026-11-06T00:00:00Z', 'source': 'training-api'}\nANSWER: The recorded fee for container C1 is 100 USD. The source of this information is \"training-api,\" and it is as of November 6, 2026.\n",
+    "05_llamaindex_database_tool": "TOOL: C1 OBSERVATION: {'status': 'ok', 'container_id': 'C1', 'fee': 100, 'currency': 'USD', 'as_of': '2026-11-06T00:00:00Z', 'source': 'training-db'}\nANSWER: C1's recorded fee is 100 USD. The source is training-db and the fee is as of 2026-11-06T00:00:00Z.\n",
+    "05_llamaindex_database_tool_initial": "TOOL: C1 OBSERVATION: {'status': 'ok', 'container_id': 'C1', 'fee': 100, 'currency': 'USD', 'as_of': '2026-11-06T00:00:00Z', 'source': 'training-db'}\nANSWER: The recorded fee for container C1 is 100 USD. The fee information is sourced from the training database and is as of November 6, 2026.\n",
+    "06_approved_database_action": "REVIEW: {'container_id': 'C1', 'reason': 'Customs hold'}\napprove or reject? ANSWER: The draft for container ID \"C1\" with the reason \"Customs hold\" has been created successfully.\nACTUAL DRAFT ROWS: [('request-001', 'C1', 'Customs hold')]\n",
+    "07_prevent_duplicate_actions": "created\nreused\nconflict: same operation ID with a different payload\nACTUAL ROWS: [('request-001', 'C1', 'Customs hold')]\n",
+    "api_denied": "UNAVAILABLE 404\n",
+    "api_missing": "UNAVAILABLE 404\n",
+    "api_stopped_service": "SERVICE UNAVAILABLE: URLError\n",
+    "default-checks": "01_read_business_api executed\n05_llamaindex_database_tool executed\n04_agent_with_api executed\n06_approved_database_action executed\nALL DEFAULT HTTP/MODEL EXAMPLES VERIFIED\n",
+    "final-checks": "Final write, reused result, unapproved payload and operation conflict verified.\nBinding, owner predicate contrast, read-only write rejection and scripted timeout verified.\n",
+    "llama_denied": "TOOL: C2 OBSERVATION: {'status': 'unavailable'}\nANSWER: The recorded fee for container C2 is unavailable. There is no accessible record of the fee or its source/time.\n",
+    "llama_limit": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/snippets/b4/05_llamaindex_database_tool.py\", line 51, in <module>\n    asyncio.run(main())\n  File \"/opt/anaconda3/lib/python3.12/asyncio/runners.py\", line 194, in run\n    return runner.run(main)\n           ^^^^^^^^^^^^^^^^\n  File \"/opt/anaconda3/lib/python3.12/asyncio/runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/anaconda3/lib/python3.12/asyncio/base_events.py\", line 685, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/snippets/b4/05_llamaindex_database_tool.py\", line 47, in main\n    result = await agent.run(user_msg=\"Read C1's recorded fee and its source/time.\", max_iterations=4)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/workflows/handler.py\", line 34, in _await_result\n    stop_event = await self.stop_event_result()\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/workflows/handler.py\", line 95, in stop_event_result\n    return await self._result_task\n           ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/workflows/handler.py\", line 66, in _wait_for_result\n    result = await self._external_adapter.get_result()\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/workflows/plugins/basic.py\", line 228, in get_result\n    return await self._queues.complete\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/workflows/plugins/basic.py\", line 359, in run_with_concurrency_limit\n    return await registered.workflow_run_fn(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/workflows/runtime/types/step_function.py\", line 455, in run_workflow\n    result = await control_loop_fn(\n             ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/workflows/runtime/control_loop/runner.py\", line 680, in control_loop\n    return await runner.run(start_event=start_event)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/workflows/runtime/control_loop/runner.py\", line 511, in run\n    result = await self._process_tick(tick)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/workflows/runtime/control_loop/runner.py\", line 652, in _process_tick\n    result = await self.process_command(command)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/workflows/runtime/control_loop/runner.py\", line 383, in process_command\n    raise command.exception\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/workflows/runtime/types/step_function.py\", line 300, in wrapper\n    result = await partial_func()\n             ^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/llama_index_instrumentation/dispatcher.py\", line 464, in async_wrapper\n    result = await func(*args, **kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/workflows/runtime/types/step_function.py\", line 233, in span_safe_call\n    step_result = await call_func(*args, **kwargs)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/llama_index/core/agent/workflow/base_agent.py\", line 548, in parse_agent_output\n    raise WorkflowRuntimeError(\nworkflows.errors.WorkflowRuntimeError: Max iterations of 1 reached! Either something went wrong, or you can increase the max iterations with `.run(.., max_iterations=...)` or use `early_stopping_method='generate'` to generate a final response instead.\n",
+    "llama_missing": "TOOL: C9 OBSERVATION: {'status': 'unavailable'}\nANSWER: The recorded fee for container C9 is unavailable. There is no accessible record of the fee or its source/time.\n",
+    "reference_grain": "Fees above 100: [('C2', 200)]\nOne row per event: [('C1', 100, 'scan'), ('C1', 100, 'check'), ('C2', 200, 'scan')]\nWrong total: 400\nOne fee per container: 300\n",
+    "reference_scope": "C1 [('C1', 100)]\nC2 []\nDenied: Row budget must be 1 or 2\n",
+    "reference_sql_generation": "Actual SQL: SELECT SUM(fee) AS total_fee FROM containers;\nActual result: [(300,)]\nIndependently expected: [(300,)]\nCorrect: True\n",
+    "scope_predicate_removed": "AUDIT: A read_fee C1 ok\nRESULT: {'status': 'ok', 'container_id': 'C1', 'fee': 100, 'currency': 'USD', 'as_of': '2026-11-06T00:00:00Z', 'source': 'training-db'}\nAUDIT: A read_fee C2 ok\nRESULT: {'status': 'ok', 'container_id': 'C2', 'fee': 200, 'currency': 'USD', 'as_of': '2026-11-06T00:00:00Z', 'source': 'training-db'}\nAUDIT: A read_fee C9 unavailable\nRESULT: {'status': 'unavailable'}\n",
+    "scripted_timeout": "SERVICE UNAVAILABLE: TimeoutError\n",
+    "sdk_denied": "TOOL: C2 OBSERVATION: {'status': 'unavailable', 'http_status': 404}\nANSWER: The recorded fee and its source/time for container C2 is unavailable, as the information cannot be found. I am unable to provide the requested details.\n",
+    "sdk_limit": "TOOL: C1 OBSERVATION: {'status': 'ok', 'container_id': 'C1', 'shipment_status': 'delayed', 'fee': 100, 'currency': 'USD', 'as_of': '2026-11-06T00:00:00Z', 'source': 'training-api'}\nINCOMPLETE: turn limit reached.\nTraceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/snippets/b4/04_agent_with_api.py\", line 43, in <module>\n    result = Runner.run_sync(agent, \"Read C1's recorded fee and its source/time.\", max_turns=4)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/agents/run.py\", line 393, in run_sync\n    return runner.run_sync(\n           ^^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/agents/run.py\", line 1943, in run_sync\n    return default_loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/anaconda3/lib/python3.12/asyncio/base_events.py\", line 685, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/agents/run.py\", line 1279, in run\n    raise max_turns_error\nagents.exceptions.MaxTurnsExceeded: Max turns (1) exceeded\n",
+    "sdk_missing": "TOOL: C9 OBSERVATION: {'status': 'unavailable', 'http_status': 404}\nANSWER: The recorded fee for container C9 and its source/time is unavailable. I am unable to provide this information.\n",
+    "sdk_stopped_service": "TOOL: C1 OBSERVATION: {'status': 'service_unavailable'}\nANSWER: The recorded fee information for container C1 is currently unavailable. I cannot provide the fee, source, or timestamp.\n",
+    "sql_bound_input": "RESULT: unavailable\n",
+    "sql_read_only": "AUDIT: A read_fee C1 ok\nRESULT: {'status': 'ok', 'container_id': 'C1', 'fee': 100, 'currency': 'USD', 'as_of': '2026-11-06T00:00:00Z', 'source': 'training-db'}\nAUDIT: A read_fee C2 unavailable\nRESULT: {'status': 'unavailable'}\nAUDIT: A read_fee C9 unavailable\nRESULT: {'status': 'unavailable'}\nREAD-ONLY WRITE BLOCKED\n",
+    "variation-checks": "Seven real HTTP status/body/scope checks passed.\napi_denied verified\napi_missing verified\nllama_denied verified\nsdk_missing verified\nsdk_denied verified\nllama_missing verified\nwrite_reject verified\nwrite_invalid_review verified\nwrite_denied verified\nwrite_changed_payload verified\nwrite_missing verified\nsdk_limit verified\nllama_limit verified\nALL THIRTEEN LIVE INPUT/REVIEW/LIMIT VARIATIONS PASSED\n",
+    "write_changed_payload": "REVIEW: {'container_id': 'C1', 'reason': 'Different reason'}\napprove or reject? ANSWER: I was unable to create the draft due to lack of approval. If you want to try again or need help with something else, please let me know.\nACTUAL DRAFT ROWS: []\n",
+    "write_denied": "REVIEW: {'container_id': 'C2', 'reason': 'Customs hold'}\napprove or reject? ANSWER: The draft creation for container \"C2\" with the reason \"Customs hold\" was denied. If you need further assistance or want to try a different request, please let me know.\nACTUAL DRAFT ROWS: []\n",
+    "write_invalid_review": "REVIEW: {'container_id': 'C1', 'reason': 'Customs hold'}\napprove or reject? ANSWER: I was unable to create the draft due to lack of approval to execute the function. If you want to proceed, please confirm approval or provide further instructions.\nACTUAL DRAFT ROWS: []\n",
+    "write_missing": "REVIEW: {'container_id': 'C9', 'reason': 'Customs hold'}\napprove or reject? ANSWER: The draft creation was denied. If you need any further assistance or have another request, please let me know.\nACTUAL DRAFT ROWS: []\n",
+    "write_reject": "REVIEW: {'container_id': 'C1', 'reason': 'Customs hold'}\napprove or reject? ANSWER: The draft creation for the container with ID \"C1\" and reason \"Customs hold\" was not approved and therefore was not created. If you need further assistance, please let me know.\nACTUAL DRAFT ROWS: []\n",
+    "write_retry": "FIRST OBSERVATION: {'status': 'created', 'request_id': 'request-001'}\nRETRY OBSERVATION: {'status': 'reused', 'request_id': 'request-001'}\nUNAPPROVED PAYLOAD: {'status': 'denied'}\nOPERATION CONFLICT: {'status': 'conflict'}\nWRITE RETRY/PAYLOAD CHECKS PASSED\n",
+    "retry_new_identity": "created\ncreated\nconflict: same operation ID with a different payload\nACTUAL ROWS: [('request-001', 'C1', 'Customs hold'), ('request-002', 'C1', 'Customs hold')]\n"
+  },
+  "api_audit_transcript": "Classroom API: http://127.0.0.1:8766/containers/C1\nAUDIT: {'caller': 'A', 'container_id': 'C1', 'http_status': 200}\n127.0.0.1 - - [06/Nov/2026 07:51:33] \"GET /containers/C1 HTTP/1.1\" 200 -\nAUDIT: {'caller': 'A', 'container_id': 'C1', 'http_status': 200}\n127.0.0.1 - - [06/Nov/2026 07:51:38] \"GET /containers/C1 HTTP/1.1\" 200 -\nAUDIT: {'caller': 'A', 'container_id': 'C1', 'http_status': 200}\n127.0.0.1 - - [06/Nov/2026 07:54:07] \"GET /containers/C1 HTTP/1.1\" 200 -\nAUDIT: {'caller': 'A', 'container_id': 'C2', 'http_status': 404}\n127.0.0.1 - - [06/Nov/2026 07:54:07] \"GET /containers/C2 HTTP/1.1\" 404 -\nAUDIT: {'caller': 'A', 'container_id': 'C9', 'http_status': 404}\n127.0.0.1 - - [06/Nov/2026 07:54:07] \"GET /containers/C9 HTTP/1.1\" 404 -\nAUDIT: {'caller': 'B', 'container_id': 'C2', 'http_status': 200}\n127.0.0.1 - - [06/Nov/2026 07:54:07] \"GET /containers/C2 HTTP/1.1\" 200 -\nAUDIT: {'caller': 'B', 'container_id': 'C1', 'http_status': 404}\n127.0.0.1 - - [06/Nov/2026 07:54:07] \"GET /containers/C1 HTTP/1.1\" 404 -\nAUDIT: {'caller': None, 'container_id': 'C1', 'http_status': 401}\n127.0.0.1 - - [06/Nov/2026 07:54:07] \"GET /containers/C1 HTTP/1.1\" 401 -\nAUDIT: {'caller': 'A', 'container_id': 'bad-id', 'http_status': 400}\n127.0.0.1 - - [06/Nov/2026 07:54:07] \"GET /containers/bad-id HTTP/1.1\" 400 -\nAUDIT:AUDIT:  {'caller': 'A', 'container_id': 'C9', 'http_status': 404}\n{'caller': 'A', 'container_id': 'C2', 'http_status': 404}127.0.0.1 - - [06/Nov/2026 07:54:07] \"GET /containers/C9 HTTP/1.1\" 404 -\n\n127.0.0.1 - - [06/Nov/2026 07:54:07] \"GET /containers/C2 HTTP/1.1\" 404 -\nAUDIT: {'caller': 'A', 'container_id': 'C9', 'http_status': 404}\n127.0.0.1 - - [06/Nov/2026 07:54:09] \"GET /containers/C9 HTTP/1.1\" 404 -\nAUDIT: {'caller': 'A', 'container_id': 'C2', 'http_status': 404}\n127.0.0.1 - - [06/Nov/2026 07:54:10] \"GET /containers/C2 HTTP/1.1\" 404 -\nAUDIT: {'caller': 'A', 'container_id': 'C1', 'http_status': 200}\n127.0.0.1 - - [06/Nov/2026 07:54:21] \"GET /containers/C1 HTTP/1.1\" 200 -\nAUDIT: {'caller': 'A', 'container_id': 'C1', 'http_status': 200}\n127.0.0.1 - - [06/Nov/2026 08:04:23] \"GET /containers/C1 HTTP/1.1\" 200 -\n"
+}

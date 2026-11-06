@@ -1,0 +1,22 @@
+# Counterpart: ../../09_repeat_agent_trials.py. Actual SDK agent calls.
+# Run with --repeat 2 --no-cache --max-concurrency 1: 12 fresh trials.
+description: B5 09 - Repeat real agent trials
+prompts: ['Check {{container_id}}.']
+providers:
+  - id: file://09_repeat_agent_trials.py
+    label: baseline
+    config: {repaired: false}
+  - id: file://09_repeat_agent_trials.py
+    label: candidate
+    config: {repaired: true}
+defaultTest:
+  assert:
+    - type: python
+      value: file://09_repeat_agent_trials.py:get_assert
+tests:
+  - description: below
+    vars: {container_id: C1, expected: clear}
+  - description: boundary
+    vars: {container_id: C2, expected: review}
+  - description: missing
+    vars: {container_id: C9, expected: unknown}

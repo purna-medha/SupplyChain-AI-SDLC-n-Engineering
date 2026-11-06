@@ -11,498 +11,617 @@ style: |
 ---
 <!-- _class: lead -->
 
-# B4 · From a useful query to a governed capability
+# B4 · Querying enterprise data with AI agents
 
-Our workflow can request a fact.
+A business question, an approved database path and a checked answer
 
-Now we need to understand what a returned row means, who may receive it and how much work the read may perform.
+Schema · SQLAlchemy Core · LlamaIndex · Agent tools
 
 <!--
-Start from the B2/B3 tool rather than a SQL catalogue. The running data is synthetic container fees. Classroom queries use disposable SQLite; enterprise access choices will follow once the local read is understood.
+60-minute lecture: slides 2–17, 28 minutes; 18–26, 19 minutes; 27–34, 13 minutes. Explain concepts before opening their complete examples. Slides 31/32 are brief optional enterprise extensions. Run selected examples; variations support further exploration. All records/callers/fees are synthetic. Course order: B1 → B2 → B3 → B4 → B6 → B5. Source: ../B4-OUTLINE.md. Execution observations: ../snippets/b4/VERIFICATION.md. No HTTP service is needed for the six core files.
 -->
 
 ---
 
-# A business question comes first
+# The business question
 
-> Which containers have a fee above 100?
+> What is the total recorded USD fee for my delayed containers?
 
-Prepared records:
+We need to identify the caller's permitted records, select delayed containers and add each recorded fee once.
 
-| Container | Fee |
-| --- | ---: |
-| C1 | 100 |
-| C2 | 200 |
-
-What should the result contain?
+**Predict:** what information must the application obtain before it can answer?
 
 <!--
-Establish an independent expected answer before showing SQL. C2 qualifies and C1 does not under the strict 'above' requirement. The amounts are simplified teaching values. This small question lets shape and membership become visible separately.
+Answer cue: trusted caller context, approved records, status/fee definitions and currency. The model's general shipping knowledge cannot establish private recorded fees. A recorded fee is not automatically an outstanding balance; the fixture has no payments data.
 -->
 
 ---
 
-# Read the required rows
+# The next capability after B1–B3
+
+| Earlier capability | What B4 adds |
+| --- | --- |
+| B1: use a model | Supply authoritative structured facts |
+| B2: obtain facts through tools | Back a capability with a database |
+| B3: coordinate a task | Query and interpret permitted business data |
+
+The agent loop stays familiar. The data capability becomes richer.
+
+<!--
+Keep the focus on what the application can now do. A database connection is not a new agent architecture. Approved APIs and semantic services may also be the organisation's access path.
+-->
+
+---
+
+# Known lookups and analytical questions
+
+| Request | Suitable starting point |
+| --- | --- |
+| “What is C1's recorded fee?” | Fixed query with a container-ID parameter |
+| “What is the total for delayed containers?” | Analytical query over approved data |
+
+Use an existing approved business API or semantic interface when it provides the needed capability.
+
+<!--
+We first understand a fixed operational read, then add flexible question-to-SQL generation. This is not a recommendation to expose arbitrary production SQL. The capability owner chooses the access path.
+-->
+
+---
+
+# The synthetic business records
+
+| Container | Owner | Recorded status | Fee |
+| --- | --- | --- | --- |
+| C1 | A | delayed | USD 100 |
+| C2 | B | delayed | USD 200 |
+| C4 | A | delayed | USD 50 |
+| C5 | A | on_time | USD 75 |
+
+Lookup examples use C1/C2. Analytics uses A's C1/C4/C5 snapshot.
+
+<!--
+Establish the business facts before SQL. The files create separate disposable fixtures; they do not form a shared database pipeline. C2 belongs to B in B4. The later B5 evaluation fixture is separate and gives both known records to A. Preserve this distinction when teaching across modules.
+-->
+
+---
+
+# Tables describe rows and relationships
+
+The first example separates containers from their fees:
+
+```text
+containers: id, owner, status       one row per container
+fees: container_id, fee, currency   one fee row per container
+
+fees.container_id → containers.id
+```
+
+A **primary key** identifies a row. A **foreign key** declares a relationship to another table.
+
+<!--
+01 uses only C1/C2. fees.container_id is both its primary key and a declared foreign key. We inspect the declaration; the demonstration does not establish that every database constraint was exercised. Later events can have several rows per container, which makes row meaning important.
+-->
+
+---
+
+# Inspect the actual schema
+
+SQLAlchemy's Inspector reads database metadata.
+
+```python
+inspector = inspect(engine)
+print(inspector.get_table_names())
+print(inspector.get_columns("fees"))
+print(inspector.get_foreign_keys("fees"))
+```
+
+[Complete schema-inspection example](../snippets/b4/01_inspect_schema.py)
+
+<!--
+The complete file creates its fixture and iterates actual tables, columns, primary keys and declared foreign keys. This excerpt selects a few calls. The engine's connection responsibility is explained before executing a business query. No ORM classes are needed.
+Sources: https://docs.sqlalchemy.org/en/21/core/reflection.html and https://docs.sqlalchemy.org/en/21/tutorial/engine.html
+-->
+
+---
+
+# Schema and business meaning
+
+Metadata can tell us that a column is called `fee`.
+
+It cannot establish whether that amount is recorded, invoiced or outstanding, or which date/status defines “delayed this week”.
+
+Agree on the calculation, units and time window before querying.
+
+<!--
+An ambiguous question requires clarification. Our contract uses recorded status='delayed', one recorded fee per container and USD. No payments table exists, so the snapshot cannot establish an outstanding balance. A current status and any historical delay event are different conditions.
+-->
+
+---
+
+# The fixed lookup's contract
+
+```text
+User input:      requested container ID
+Trusted context: caller A
+Read:            matching ID AND matching owner
+Return:          ID, fee, currency and observation time
+```
+
+The lookup fixture keeps these fields in one `container_fees` table.
+
+The host supplies the caller identity; the model does not choose it.
+
+<!--
+02 is independent of 01 and combines lookup fields to isolate a small business read. It contains C1/A/100 and C2/B/200, plus a private note omitted from the output. This host identity is a classroom fixture, not an authentication implementation.
+-->
+
+---
+
+# SQL selects fields and matching rows
+
+For A's request about C1, the intended read is:
 
 ```sql
-SELECT id, fee FROM containers
-WHERE fee > ? ORDER BY id
+SELECT container_id, fee, currency, as_of
+FROM container_fees
+WHERE container_id = 'C1' AND owner = 'A'
+LIMIT 1
 ```
 
-Bind the threshold value 100.
+`SELECT` chooses fields. `WHERE` filters rows. `LIMIT` caps output.
 
-Source: [row-reading example](../authoring/previous-codealongs-before-essential-selection/b4/01_read_rows.py)
+**Predict:** what should this read return if the requested ID is C2?
 
 <!--
-Point to selected fields, predicate and ordering as separate choices. Run the source and inspect both cursor columns and actual rows. We have a useful query before adding generated SQL or enterprise controls.
+This literal SQL is a conceptual illustration of 02's fixed query, not the Python input-binding implementation. Answer cue: no row, because C2 belongs to B. A valid ID alone does not establish access. The amount is not returned for denied or missing records.
 -->
 
 ---
 
-# Change the boundary, inspect the membership
-
-Change `>` to `>=`.
-
-Which row is newly included? Do the column names change?
-
-A query has both an output shape and a rule for which records belong in it.
-
-<!--
-Have learners predict C1's inclusion. This exercise prepares them to inspect a generated query later. The ability to execute SQL is separate from correctly expressing the business question.
--->
-
----
-
-# A requested ID is data
-
-Now the user asks for C1's fee.
-
-The request supplies a value to match, rather than permission to rewrite the SQL statement.
-
-Keep the query structure owned by the application.
-
-<!--
-Move from a fixed threshold to external request input. Learners know API arguments from B2, so parameter binding is a familiar boundary applied to SQL. The next example contrasts an ordinary ID with SQL-looking text.
--->
-
----
-
-# Bind values into fixed SQL
-
-```python
-for requested_id in ["C1", "C1' OR 1=1 --"]:
-    rows = connection.execute(
-        "SELECT id, fee FROM containers WHERE id = ?",
-        (requested_id,),
-    ).fetchall()
-    print(repr(requested_id), rows)
-```
-
-Source: [02_bind_values.py](../authoring/previous-codealongs-before-essential-selection/b4/02_bind_values.py#L13)
-
-<!--
-Read the fixed query and the separate argument tuple. Run both requested IDs. The SQL-looking string remains one complete value and matches no supplied record. Binding does not by itself add caller scope or choose the right business calculation.
--->
-
----
-
-# A new question needs an event table
-
-> What are the total fees for containers that have an event?
-
-| Container | Fee | Number of events |
-| --- | ---: | ---: |
-| C1 | 100 | 2 |
-| C2 | 200 | 1 |
-
-The intended total is 300.
-
-<!--
-Add one piece of data to create a concrete join problem. Establish that the measure belongs to a container, while events have their own rows. Ask learners to predict the joined rows before calculating anything.
--->
-
----
-
-# A join changes the row meaning
+# SQLAlchemy executes the database operation
 
 ```text
-C1, 100, check
-C1, 100, scan
-C2, 200, scan
+Engine       manages connectivity to a database
+    ↓
+Connection   executes a SQL statement with supplied values
+    ↓
+Result       exposes the returned rows
 ```
 
-Summing the fee over these event rows gives 400.
-
-The query ran successfully, but C1's fee was counted twice.
+Creating an engine does not perform the business read. Executing the statement does.
 
 <!--
-These rows follow the supplied grain example. The problem is not invalid SQL or arithmetic; it is summing at the wrong grain. This makes the repair necessary and provides vocabulary for later generated-query review.
+The complete scripts use create_engine('sqlite://') for disposable in-memory SQLite. SQLAlchemy Core gives connections, SQL execution and result handling without requiring ORM model classes. Creation/fixture setup is ordinary application code; it is independent of model decisions.
+Source: https://docs.sqlalchemy.org/en/21/tutorial/engine.html
 -->
 
 ---
 
-# Filter by membership without multiplying rows
+# Bound values inside a fixed query
+
+```python
+row = connection.execute(text(
+    "SELECT container_id, fee, currency, as_of FROM container_fees "
+    "WHERE container_id = :id AND owner = :owner LIMIT 1"
+), {"id": container_id, "owner": trusted_owner}).mappings().first()
+```
+
+`:id` and `:owner` receive values without rewriting the statement.
+
+`mappings()` exposes named fields; `first()` obtains the first row, if any.
+
+[Complete scoped read](../snippets/b4/02_scoped_read.py)
+
+<!--
+The preceding slides establish the query and connection before this excerpt. The full file opens the connection and supplies container_id/trusted_owner. Values bind separately from SQL structure; the owner condition separately supplies this tool's scope. A selected result omits owner/private_note.
+Source: https://docs.sqlalchemy.org/en/21/tutorial/dbapi_transactions.html
+-->
+
+---
+
+# Scope and bound values have separate jobs
+
+Observed lookup variations for caller A:
+
+| Requested ID | Public result |
+| --- | --- |
+| C1 | Recorded fee 100 USD |
+| C2 | Unavailable |
+| C9 | Unavailable |
+| `C1' OR 1=1 --` | Unavailable |
+
+The owner condition restricts membership. Binding keeps an input a value.
+
+<!--
+Default and changed-input observations are captured in the B4 verification record. Unknown and inaccessible records have the same public result. SQL-looking text is still one bound ID value, not a change to the query's syntax.
+-->
+
+---
+
+# A typed business result
+
+Pydantic checks the declared result fields and types:
+
+```python
+class FeeRecord(BaseModel):
+    container_id: str
+    fee: StrictInt
+    currency: str
+    as_of: datetime
+```
+
+Correct shape still needs factual, permission and freshness checks.
+
+<!--
+Excerpt from 02; its full model also supplies the source label training-db. model_validate checks the selected row. StrictInt rejects text/bool amounts. Structure cannot establish that a recorded amount is current or correctly calculated.
+Source: https://pydantic.dev/docs/validation/latest/concepts/models/
+-->
+
+---
+
+# The approved analytics snapshot
+
+For analytics, the later examples start with this separate approved input:
+
+| Container | Recorded status | Recorded USD fee |
+| --- | --- | --- |
+| C1 | delayed | 100 |
+| C4 | delayed | 50 |
+| C5 | on_time | 75 |
+
+C2, owner fields and private notes are absent before model access.
+
+<!--
+This is a new fixture/projection, not a model-generated tenant filter or a pipeline implemented by earlier scripts. 03/06 include currency and as_of; 04/05 retain only fields needed for their lessons. Production visibility must come from an enforced trusted data/policy path, such as grants, views, row policies or the owning service. include_tables alone does not authorise access.
+-->
+
+---
+
+# Establish the answer before generating SQL
+
+For the delayed-container question:
+
+```text
+C1: delayed → contributes 100
+C4: delayed → contributes  50
+C5: on_time → excluded
+
+Independent expected total: 150 USD
+```
+
+**Predict:** what would the total become if the status condition were omitted?
+
+<!--
+Answer cue: 225 USD. Derive expectations from the business facts and definition, not from the same query being checked or a model's approval of itself. The full 03 file supplies expected=[(150,)] independently.
+-->
+
+---
+
+# SQL expresses the intended calculation
 
 ```sql
-SELECT SUM(c.fee) FROM containers c
-WHERE EXISTS (
-    SELECT 1 FROM events e
-    WHERE e.container_id = c.id
+SELECT SUM(fee)
+FROM container_fees
+WHERE status = 'delayed' AND currency = 'USD'
+```
+
+`WHERE` selects eligible rows. `SUM` adds their fee values.
+
+This hand-understood query describes what a generated proposal must achieve.
+
+<!--
+A conceptual query over the approved A snapshot. It establishes the calculation before introducing text-to-SQL. Status and currency filters matter; the snapshot already establishes caller visibility. No payments/balance calculation is implied.
+-->
+
+---
+
+# The model proposes the query
+
+```text
+Question + approved schema + business definitions
+                         ↓
+                  Model proposes SQL
+                         ↓
+             Restricted database executes
+                         ↓
+                    Actual rows
+```
+
+The application still checks permission and business meaning.
+
+<!--
+SQL generation does not grant access or establish correctness. The connection policy rejects unapproved operations independently of the proposal. Fixed-table schema context needs no vector retrieval. Schema/metadata also require approval for disclosure.
+Source: https://developers.llamaindex.ai/python/examples/index_structs/struct_indices/sqlindexdemo/
+-->
+
+---
+
+# LlamaIndex supplies the query capability
+
+```python
+database = SQLDatabase(
+    engine, include_tables=["container_fees"], sample_rows_in_table_info=0
+)
+query_engine = NLSQLTableQueryEngine(
+    sql_database=database, tables=["container_fees"],
+    llm=llm, synthesize_response=False,
 )
 ```
 
-Source: [grain example](../authoring/previous-codealongs-before-essential-selection/b4/03_preserve_grain.py)
+The selected table supplies schema context. Database policy separately enforces access.
+
+[Complete question-to-SQL example](../snippets/b4/03_question_to_sql.py)
 
 <!--
-EXISTS answers whether a matching event exists while retaining one row per container. Run the card and compare 400 with 300. Ask why SUM(DISTINCT fee) would fail when two different containers happen to have the same fee.
+The complete file supplies llm, business definitions, approved fixture and SQLite authorizer/progress policy. The excerpt shortens model construction and omits context_str_prefix. sample_rows=0 omits automatic sample-row prompting; it does not prevent returning rows. synthesize_response=False exposes raw results before a second generated explanation. Embeddings are disabled for this fixed-table path; the unused MockEmbedding setup message does not replace an actual SQL-generation call.
 -->
 
 ---
 
-# Describe the grain before generating a query
+# Inspect the proposal and actual result
 
-“One row per container” explains how to interpret the fee.
+Observed model proposal, formatted:
 
-The schema also needs field meanings, units and relevant dates.
-
-A model given only table names may produce plausible SQL with the wrong business meaning.
-
-<!--
-Use the join failure as motivation for richer schema context. The same documentation helps human reviewers. Approved examples and sample rows can help, but production-sensitive data should not be copied into a classroom prompt.
--->
-
----
-
-# The application needs a useful capability
-
-A status assistant should not need every table and internal field just to answer:
-
-> What is this container's recorded fee?
-
-Wrap the understood read in a narrow business contract.
-
-<!--
-Transition from query mechanics to the M11 capability-design story. SQL remains inside the owning service. Ask which inputs and result fields the caller actually needs, using B2's function-contract lesson.
--->
-
----
-
-# State the capability contract
-
-Illustrative enterprise contract:
+```sql
+SELECT SUM(container_fees.fee) FROM container_fees
+WHERE container_fees.status = 'delayed'
+  AND container_fees.currency = 'USD';
+```
 
 ```text
-input: container_id
-result: permitted fee, currency, as_of, source
-absence: controlled unavailable result
+ROWS: [(150,)]
+INDEPENDENT EXPECTATION: [(150,)]
 ```
 
-The interface describes the business fact rather than storage internals.
-
 <!--
-This is a proposed richer contract, not a claim that every field is implemented by the tiny source. The existing scope card supplies ID and fee. Explain why source and freshness would matter when the same fact is later used in an answer.
+Actual 03 observation, 6 November 2026. SQL spelling/format may vary. The changed maximum-fee question returned [(100,)]. A matching result on one fixture is evidence, not proof of all query semantics. 03 rejects a response lacking successful result metadata rather than treating an SQL error as an empty or zero result.
 -->
 
 ---
 
-# The requested record may belong to someone else
+# A valid join can repeat a fee
 
-The scope example adds ownership:
+New question: total fees for delayed containers **with at least one event**.
 
-| Container | Owner | Fee |
-| --- | --- | ---: |
-| C1 | A | 100 |
-| C2 | B | 200 |
-
-The caller is A. Which record may the capability return?
-
-<!--
-Make the permission problem concrete before a security table. The caller identity is trusted classroom context, not a model-generated argument. C2 exists and has a well-formed ID, but neither establishes the caller's permission.
--->
-
----
-
-# Apply both record and owner predicates
-
-```python
-result = connection.execute(
-    "SELECT id, fee FROM containers WHERE id = ? AND owner = ?",
-    (requested_id, trusted_owner),
-).fetchone()
-```
-
-Source: [04_scope_capability.py](../authoring/previous-codealongs-before-essential-selection/b4/04_scope_capability.py#L16)
-
-<!--
-Explain the two placeholders and why the owner comes from host context. Run the complete card for C1, C2 and a missing ID. Only id and fee are selected; the internal note is not part of the permitted output.
--->
-
----
-
-# Check identity before interpreting permission
-
-Authentication establishes who the caller is.
-
-Authorisation determines whether that caller may read this record.
-
-The classroom owner string demonstrates the second decision; production identity must come from a trusted system.
-
-<!--
-The distinction now resolves an actual question about trusted_owner. Avoid introducing an entire authentication implementation. Ask why accepting owner='A' from the model's tool arguments would break the intended boundary.
--->
-
----
-
-# Return controlled absence
-
-An inaccessible record does not become available because the model asks more confidently.
-
-The scope example returns “not available” for the missing and outside-owner records.
-
-The result avoids exposing fields that the caller should not receive.
-
-<!--
-Explain what the actual source does rather than promise an enterprise error taxonomy. Different products may deliberately distinguish some absence cases. In this lesson the important property is that the forbidden fee and internal note do not leave the read path.
--->
-
----
-
-# Publish the business capability through MCP
+Joining tracking events introduces several rows per container:
 
 ```text
-host admits the tool
-  → server checks trusted caller scope
-  → service reads permitted fields
-  → bounded result returns to the host
+C1, fee 100, scan
+C1, fee 100, hold
+C4, fee  50, hold
 ```
 
-B2's protocol can carry this contract.
+**Predict:** sum these joined rows. Does the result still represent one fee per eligible container?
 
 <!--
-Reuse the familiar MCP boundary without teaching it again. This is the architectural mapping; the core SQL card is not a new governed MCP server. The server must enforce its own policy even when a calling host makes a mistake.
+Answer cue: 250, while the intended total is 150. 04 executes a deliberately prepared wrong join, not a claimed model mistake. Its question is recorded fees for delayed containers that have at least one event. Each fee must contribute once; the join changes result grain to event rows.
 -->
 
 ---
 
-# A model can help propose a query
+# Preserve one contribution per container
 
-The schema and business question can be supplied to a model.
+`EXISTS` checks event membership without multiplying fee rows:
 
-The returned SQL is a candidate implementation of the question.
-
-Use the same independent expected facts we used to review our hand-written query.
-
-<!--
-Introduce natural-language-to-SQL after learners can inspect SQL meaning and scope. The current live experiment runs on a separate synthetic all-container dataset. It does not inherit the owner fixture from the previous card or establish production-grade SQL isolation.
--->
-
----
-
-# Supply the schema and question
-
-```python
-    messages=[
-        {
-            "role": "system",
-            "content": "Return one plain SQLite SELECT, no fences. "
-            "containers(id TEXT PRIMARY KEY, fee INTEGER); one row per container.",
-        },
-        {"role": "user", "content": "What is the total fee across all containers?"},
-    ],
+```sql
+SELECT SUM(f.fee)
+FROM container_fees f
+WHERE f.status='delayed'
+AND EXISTS (
+    SELECT 1 FROM events e WHERE e.container_id=f.container_id
 )
 ```
 
-Source: [05_generated_sql.py](../authoring/previous-codealongs-before-essential-selection/b4/05_generated_sql.py#L24)
+Wrong join: **250**. Intended grain: **150**.
+
+[Complete semantic failure and repair](../snippets/b4/04_check_business_meaning.py)
 
 <!--
-Read the one-row-per-container description and the requested total. Run the complete card and retain the actual proposed statement. It may be correct, wrong or malformed. Do not manufacture a particular failure to match a lecture script.
+Explain grain as what one row represents. The fixed calculation contributes one fee per eligible container. The expected total is supplied independently. Schema permission and syntax validity cannot establish that this measure was calculated at the correct grain.
 -->
 
 ---
 
-# Inspect before trusting the result
+# Equal amounts expose a false repair
 
-For the two-row dataset, the independently known total is 300.
+Give C1 and C4 a recorded fee of USD 100 each.
 
-Check the proposed query's table, aggregation, joins and filters.
+| Approach | Result |
+| --- | --- |
+| Intended one fee per eligible container | 200 |
+| Join over all event rows | 300 |
+| SUM of DISTINCT fee amounts | 100 |
 
-Then compare its actual result with the reference.
+Distinct amounts do not identify distinct containers.
 
 <!--
-The complete card prints both actual rows and a known reference, or a controlled execution error. The tiny database is disposable and has a read-only setting and progress limit. Those are limited teaching controls, not permission to run arbitrary model SQL against production data.
+Verified 04 variation with independent expectation updated to 200. DISTINCT happened to return 150 on the original fixture. Equal values expose why it is not a general repair. Keep the expectation independent when changing data.
 -->
 
 ---
 
-# Read-only stops a different failure
+# The database enforces execution boundaries
 
-What if the proposed operation tries to delete records?
+| Attempt | Observed outcome |
+| --- | --- |
+| Read the approved fee table | Permitted |
+| Read private_contacts | Rejected |
+| Delete fee records | Rejected |
 
-A read-only access path should reject the write.
+A model instruction alone cannot supply this enforcement.
 
-That effect restriction still cannot decide whether a permitted total is the right total.
+[Complete database-policy example](../snippets/b4/05_enforce_query_boundaries.py)
 
 <!--
-Separate two guarantees using the next card: a blocked DELETE and a permitted MAX that is wrong for SUM. The sequence matters because learners already understand the correct reference result.
+05 installs a SQLite connection authorizer. 03/06 additionally permit selected aggregate/string functions. Actual controlled probes also rejected ATTACH and policy-changing PRAGMA operations. Schema is inspected/cached before restriction in model examples. The approved snapshot supplies row visibility; the callback supplies table/operation restrictions. Production systems need their own tested identities/policies; these callbacks are not a portable production sandbox certification.
+Source: https://www.sqlite.org/c3ref/set_authorizer.html
 -->
 
 ---
 
-# Observe a blocked write and a wrong read
+# Partial output and database work
 
-```python
-connection.execute("PRAGMA query_only = ON")
-try:
-    connection.execute("DELETE FROM containers")
-except sqlite3.OperationalError as error:
-    print("write blocked:", error)
-wrong_total = connection.execute("SELECT MAX(fee) FROM containers").fetchone()[0]
-print("permitted read:", wrong_total, "known total:", 300)
-```
-
-Source: [06_read_only_effects.py](../authoring/previous-codealongs-before-essential-selection/b4/06_read_only_effects.py#L13)
-
-<!--
-Run the full source. query_only blocks the demonstrated DELETE while enabled, but MAX returns 200 instead of the known total 300. It is a mutable connection setting, not a hostile-SQL sandbox or an authorisation system.
--->
-
----
-
-# A small result can require large work
-
-A single aggregate row can scan or generate many intermediate rows.
-
-Limiting returned rows bounds disclosure size.
-
-Execution time and database work need their own limits.
-
-<!--
-Introduce resource controls through the one-row counterexample instead of a general checklist. Ask learners whether a row cap of two would stop a costly recursive aggregate. The next source makes that failure visible.
--->
-
----
-
-# Detect result truncation
-
-```python
-row_cap = 2
-rows = connection.execute("SELECT id FROM containers ORDER BY id").fetchmany(
-    row_cap + 1
-)
-print("visible:", rows[:row_cap], "truncated:", len(rows) > row_cap)
-```
-
-Source: [07_bound_output_work.py](../authoring/previous-codealongs-before-essential-selection/b4/07_bound_output_work.py#L13)
-
-Fetch one extra row to detect whether the visible result is incomplete.
-
-<!--
-Run the first part of the source. The result exposes truncation explicitly rather than silently pretending two rows are the full dataset. This bounds visible output, while the next part addresses work before any row returns.
--->
-
----
-
-# Interrupt excessive database work
-
-```python
-def stop_work():
-    global callbacks
-    callbacks += 1
-    return callbacks >= 5
-
-
-connection.set_progress_handler(stop_work, 100)
-```
-
-Source: [07_bound_output_work.py](../authoring/previous-codealongs-before-essential-selection/b4/07_bound_output_work.py#L21)
-
-The source's recursive aggregate is interrupted by a progress budget.
-
-<!--
-The progress handler is SQLite-specific classroom evidence. Run the complete query and inspect the actual interrupted outcome. Enterprise services may use timeouts, warehouse limits and connection controls; choose mechanisms appropriate to the real engine.
--->
-
----
-
-# Carry the source and freshness forward
-
-A fee has a record identity, currency and point in time.
-
-The capability should preserve the information needed to interpret it.
-
-An explanation must not silently turn a dated observation into a current guarantee.
-
-<!--
-Return to the richer contract introduced earlier. The toy cards isolate mechanisms and do not return every provenance field. Ask learners to name the additional fields a useful enterprise result would require, without claiming that code has already implemented them.
--->
-
----
-
-# Record the access decision
-
-An audit event should connect the caller, capability, permitted request and outcome.
-
-For a denial, record that protected downstream work did not occur.
-
-Keep unnecessary private result data out of the log.
-
-<!--
-Adapt M12's audit lesson after scope and limits have meaning. A polite denial is not proof if data already reached a log. Protected, durable audit storage is an enterprise implementation concern beyond the print-based teaching examples.
--->
-
----
-
-# Choose an approved enterprise read path
-
-Use a curated service, warehouse view or read replica with least privilege.
-
-Scope credentials and define result, execution and connection limits.
-
-Treat high-impact writes as a separate capability with an explicit approval boundary.
-
-<!--
-This operational summary lands after learners have experienced correctness, scope and cost failures. Briefly discuss managed short-lived credentials and avoiding broad shared service accounts. No production database access is required for the classroom builds.
--->
-
----
-
-# The governed capability, assembled
+With three approved rows and a display cap of two:
 
 ```text
-business question
-  → narrow contract
-  → trusted caller and permitted record
-  → correct query at the right grain
-  → bounded work and selected fields
-  → interpretable result and audit outcome
+VISIBLE: [('C1', 100), ('C4', 50)]
+TRUNCATED: True
 ```
 
+Fetching one extra row detects incomplete output.
+
+A separate progress callback limits query instructions. A row cap does not bound earlier database work.
+
 <!--
-Have learners explain which earlier example justifies each stage. This is the culmination of the module, rather than its opening taxonomy. A successfully executed query establishes only one part of the complete data-access claim.
+05 uses fetchmany(row_cap+1). Changing row_cap to 3 shows all rows with False. The SQLite progress handler interrupts at its first callback after roughly 10,000 VM instructions: not a wall-clock deadline or cumulative workflow budget. In 06 the outer-model row cap applies after LlamaIndex fetches raw results, so it alone does not bound memory/prior work.
 -->
 
 ---
 
-# Practice · Build and inspect the read
+# Empty, zero and failed results
 
-Complete the [B4 worked examples](../codealongs/b4/README.md).
+| Observation | Meaning depends on the contract |
+| --- | --- |
+| Empty rows | No matching visible records |
+| NULL SUM over no matches | No non-NULL amount contributed |
+| Recorded fee of 0 | A supplied zero amount |
+| Query rejected or failed | No successful result to answer from |
 
-Preserve correct totals, enforce caller scope and inspect an actual generated query.
-
-Change a boundary or policy and compare with your predicted result. Labs will follow separately.
+A failed read must not become a fabricated zero fee.
 
 <!--
-Ask learners to predict the wrong-owner and duplicated-fee outcomes before running. Keep the reference result independent of the implementation. A changed case with equal fees is useful for exposing an accidental DISTINCT-based repair.
+03 checks for result metadata because LlamaIndex can represent SQL errors in a response. 06 returns query_failed for missing result metadata. A COUNT of no rows may legitimately be zero; specify the measure. The verified C2 lookup returned [] and no fee.
 -->
 
 ---
 
-# B4 · A result with an explanation
+# A query capability inside the familiar agent loop
 
-We can explain what a row means, why it is correct, why the caller may receive it and how the read is bounded.
+```text
+User asks a fee question
+    SDK agent selects query_fees(question)
+    LlamaIndex proposes SQL; restricted database executes
+    Tool returns rows, columns, source/time and truncation
+    SDK agent explains that evidence
+```
 
-Next: B6 supplies evidence from documents when the required fact is a policy passage rather than a table row.
+B2's tool interaction now contains a governed database query.
 
 <!--
-Use one final container question and ask for evidence for each claim. Avoid accepting a successful SQL execution as a substitute for all four. The distinction between structured facts and document evidence prepares the retrieval module.
+The outer SDK runtime and inner query engine have separate roles. Both make actual model calls. Reuse B2's request/execution/observation model; do not introduce another orchestration architecture. The supplied snapshot's upstream approval is a classroom precondition.
+-->
+
+---
+
+# The query tool returns database evidence
+
+```python
+@function_tool
+async def query_fees(question: str) -> dict:
+    response = await query_engine.aquery(question)
+    # Check failure; return actual rows and source/snapshot metadata.
+```
+
+An empty result, a failed query and truncated output need explicit reporting.
+
+[Complete SDK agent with a LlamaIndex query tool](../snippets/b4/06_agent_queries_database.py)
+
+<!--
+Abbreviated body. The complete file prints tool question, actual SQL and rows, checks result metadata, and returns columns/rows/status/source/as_of/truncated. It caps rows sent to the outer model after raw fetching. The tool executes async on the SQLite connection's owning thread. Model instructions request faithful explanations but are not independent factual enforcement.
+-->
+
+---
+
+# Inspect the complete evidence path
+
+Observed highest-delayed-fee request:
+
+```text
+Question: highest recorded USD fee among delayed containers
+SQL: ... WHERE status='delayed' AND currency='USD'
+     ORDER BY fee DESC LIMIT 1
+ROWS: [('C1', 100)]
+Answer: C1, USD 100, with source and snapshot time
+```
+
+**Predict:** what should the agent report when asked for absent C2?
+
+<!--
+Condensed actual 06 observation, 6 November 2026. Source approved-fee-snapshot/A; as_of 2026-11-06T00:00:00Z. C2 variation returned [] and reported absence without a fee. A max_turns=1 variation stopped incomplete. These observations are not reliability estimates or guaranteed future answers.
+-->
+
+---
+
+# Preserve the observation's scope and time
+
+A useful answer retains the record identity, currency, source and observation time.
+
+A partial result must remain visibly partial.
+
+**Predict:** does querying a midnight snapshot at noon make its observations current at noon?
+
+<!--
+Answer cue: no. Snapshot time differs from fetch time. Preserve 2026-11-06T00:00:00Z rather than silently substituting now. In production, preserve per-record currency/time and coverage rather than assuming every result uses this classroom's fixed metadata.
+-->
+
+---
+
+# Extension · Larger schemas and accepted metrics
+
+Retrieve only relevant, approved table descriptions and relationships when a schema becomes large.
+
+A governed view or semantic interface can define an accepted measure instead of asking the agent to invent its calculation.
+
+The organisation still owns definitions, data quality and access policy.
+
+<!--
+Optional enterprise extension. LlamaIndex SQLTableRetrieverQueryEngine retrieves schema context; B6 later teaches embeddings/retrieval. dbt MetricFlow is an example of business-owned semantic metrics and relationship-driven query generation. No new installation is required here. Retrieved metadata must be approved for disclosure. A semantic layer does not guarantee every result.
+Sources: https://developers.llamaindex.ai/python/examples/index_structs/struct_indices/sqlindexdemo/ and https://docs.getdbt.com/docs/build/about-metricflow
+-->
+
+---
+
+# Extension · Separate controlled writes
+
+An analytical query does not authorise changing a business record.
+
+Reuse B3's exact-payload review and recheck permission within a transaction.
+
+A retry after a lost reply needs the same operation identity and compatible payload.
+
+[Optional reviewed write](../snippets/b4/reference/integrations/06_approved_database_action.py) · [Optional sequential retry](../snippets/b4/reference/integrations/07_prevent_duplicate_actions.py)
+
+<!--
+Supporting references, not a new core workflow. The reviewed-write example uses actual SDK pause/resume and a disposable SQLite insert; host review and the tool enforce owner/exact payload. The sequential retry example shows created/reused/conflict, not durable concurrent idempotency or actual network-loss reconciliation. No external message is sent. Commit/rollback determine persistence inside the transaction.
+-->
+
+---
+
+# The libraries implement distinct responsibilities
+
+| Library | Responsibility |
+| --- | --- |
+| SQLAlchemy Core | Metadata, connections and SQL execution |
+| LlamaIndex | Schema-grounded question-to-SQL capability |
+| Pydantic | Declared fields/types for a business result |
+| Agents SDK | Model decisions and tool feedback |
+
+Business meaning and permitted access remain explicit application requirements.
+
+<!--
+Return to mechanisms only after learners have seen their purpose. SQLDatabase wraps SQLAlchemy; include_tables supplies schema context. The database/service policy is separate from generation/orchestration. The six complete examples implement one learning step each, without teaching helpers.
+-->
+
+---
+
+# An inspectable answer to the business question
+
+Select the caller's permitted delayed records, add each fee once and compare the actual result with the intended calculation.
+
+Retain the source, observation time and any failure or output limit.
+
+Next, B6 supplies document evidence when rows cannot answer the question.
+
+<!--
+Return to the opening question: A's C1 and C4 contribute USD 150. Ask learners to identify source, scope, calculation and evidence in their own words. Labs, assessments and new notebooks remain deferred. Markdown is the authoritative source; its matching Gamma text carries the same visible teaching sequence.
 -->

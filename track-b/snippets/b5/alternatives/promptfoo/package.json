@@ -1,0 +1,8 @@
+{
+  "name": "b5-promptfoo-alternatives",
+  "private": true,
+  "description": "Optional Promptfoo counterparts to the B5 Python examples",
+  "devDependencies": {
+    "promptfoo": "0.125.1"
+  }
+}

@@ -221,10 +221,14 @@ Use actual output from the full file. The tool prints establish invocation; insp
 | Missing information | Clarify, obtain evidence or report the gap |
 | Turn limit reached | Retain an incomplete outcome |
 
-A turn can contain several tool calls. Its limit is not a total tool-call, token or spending limit.
+Turn limits do not bound total tool calls, tokens or spend.
+
+**Predict:** the last allowed model call requests a lookup. The tool returns, but no call remains. Is the task complete?
 
 <!--
 The example catches MaxTurnsExceeded and prints an explicit incomplete outcome. Set max_turns to 1 to demonstrate stopping without claiming success. A proposed plan is not a stopping guarantee. Service errors and denied operations need their own policies; repeating an unchanged request cannot correct an absent ID or create permission. Keep detailed retry machinery outside this lecture. Source: https://developers.openai.com/api/docs/guides/agents/running-agents
+
+Reasoning check: The lookup observation is progress, not a final answer based on that observation. If no model call remains to interpret it, report an incomplete run rather than success. Preserve the distinction between a model-turn limit and tool-call, token, spending or workflow-time budgets.
 -->
 
 ---
@@ -311,10 +315,12 @@ User → Triage → Charges specialist → user-facing answer
 
 The specialist becomes the active agent for that branch.
 
-A handoff fits when the specialist should own the response. Calling a specialist as a tool fits when a coordinator should combine its result.
+**Predict:** a specialist returns findings as a tool; another receives a handoff. Who should own the final answer in each arrangement?
 
 <!--
 Make the ownership distinction explicit before code. A handoff is not merely a specialist function returning a string. Available instructions and tools change with the active agent. Conversation context may transfer; a real application should choose what each specialist receives. This mechanism can also route to another narrow workflow, not only to a departmental persona. Source: https://developers.openai.com/api/docs/guides/agents/orchestration
+
+Reasoning check: For the specialist-as-tool arrangement, results return to the coordinator, which owns the combined answer. With a handoff, the specialist becomes active and owns the response for that branch. Compare FINAL OWNER in the two complete examples after participants state their predictions.
 -->
 
 ---

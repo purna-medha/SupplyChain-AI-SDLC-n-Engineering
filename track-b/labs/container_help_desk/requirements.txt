@@ -5,3 +5,8 @@ openai-agents==0.20.0
 mcp==2.3.0
 python-dotenv==1.2.4
 
+# B4 database/querying and the optional B5 LlamaIndex transfers.
+sqlalchemy==2.1.8
+pydantic==2.14.2
+llama-index-core==0.14.25
+llama-index-llms-openai==0.8.3
