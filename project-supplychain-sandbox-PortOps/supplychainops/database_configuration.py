@@ -1,5 +1,6 @@
 """SQLite engine setup and FastAPI session dependency injection."""
 
+from functools import cache
 from pathlib import Path
 from typing import Generator
 
@@ -10,21 +11,17 @@ DATABASE_PATH = PROJECT_ROOT / "data" / "supplychainops.db"
 DATABASE_URL = f"sqlite:///{DATABASE_PATH}"
 
 
-def get_engine(echo: bool = False):
+@cache
+def get_engine():
+    """Reuse one engine; each request still gets its own session."""
     DATABASE_PATH.parent.mkdir(parents=True, exist_ok=True)
     return create_engine(
         DATABASE_URL,
-        echo=echo,
         connect_args={"check_same_thread": False},
     )
 
 
-def get_session_factory(engine=None):
-    engine = engine or get_engine()
-    return Session(engine)
-
-
 def get_database_session() -> Generator[Session, None, None]:
     """FastAPI dependency — yields one request-scoped database session."""
-    with get_session_factory() as session:
+    with Session(get_engine()) as session:
         yield session

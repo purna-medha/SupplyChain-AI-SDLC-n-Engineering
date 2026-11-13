@@ -1,15 +1,15 @@
 # B5 · Specialist evaluation alternatives
 
-These are optional counterparts to the existing B5 examples. Choose plain Python, Promptfoo or DeepEval for the same teaching step; do not run all three paths in the one-hour session. The original nine programs remain the core sequence.
+These are optional counterparts to the [former application-checking B5 examples](../reference/application_checks/README.md), not the current five generated-answer examples. Choose plain Python, Promptfoo or DeepEval for the same teaching step; do not run all three paths in the one-hour session. Start with the [current five-example core](../README.md). These older alternatives are retained for reference; their generation-free rule tests do not establish LLM answer quality.
 
 | Original example | Promptfoo version | DeepEval version |
 | --- | --- | --- |
-| [01 · Check one answer](../01_check_one_answer.py) | [YAML assertions](promptfoo/01_check_one_answer.yaml) | [Five reported requirements](deepeval/01_check_one_answer.py) |
-| [02 · Evaluate cases](../02_evaluate_cases.py) | [Case configuration](promptfoo/02_evaluate_cases.yaml) + [application adapter](promptfoo/02_evaluate_cases.py) | [Cases and deterministic metric](deepeval/02_evaluate_cases.py) |
-| [03 · Check the grader](../03_check_the_grader.py) | [Probe configuration](promptfoo/03_check_the_grader.yaml) + [grader](promptfoo/03_check_the_grader.py) | [Grader probes](deepeval/03_check_the_grader.py) |
-| [07 · Judge clarity](../07_judge_clarity.py) | [`llm-rubric`](promptfoo/07_judge_clarity.yaml) | [`GEval`](deepeval/07_judge_clarity.py) |
-| [08 · Repair and compare](../08_repair_and_compare.py) | [Comparison configuration](promptfoo/08_repair_and_compare.yaml) + [rule adapter](promptfoo/08_repair_and_compare.py) | [Both versions and unchanged references](deepeval/08_repair_and_compare.py) |
-| [09 · Repeat agent trials](../09_repeat_agent_trials.py) | [Repeated evaluation](promptfoo/09_repeat_agent_trials.yaml) + [SDK adapter and assertion](promptfoo/09_repeat_agent_trials.py) | [Fresh SDK trials and evaluation](deepeval/09_repeat_agent_trials.py) |
+| [01 · Check one answer](../reference/application_checks/01_check_one_answer.py) | [YAML assertions](promptfoo/01_check_one_answer.yaml) | [Five reported requirements](deepeval/01_check_one_answer.py) |
+| [02 · Evaluate cases](../reference/application_checks/02_evaluate_cases.py) | [Case configuration](promptfoo/02_evaluate_cases.yaml) + [application adapter](promptfoo/02_evaluate_cases.py) | [Cases and deterministic metric](deepeval/02_evaluate_cases.py) |
+| [03 · Check the grader](../reference/application_checks/03_check_the_grader.py) | [Probe configuration](promptfoo/03_check_the_grader.yaml) + [grader](promptfoo/03_check_the_grader.py) | [Grader probes](deepeval/03_check_the_grader.py) |
+| [07 · Judge clarity](../reference/application_checks/07_judge_clarity.py) | [`llm-rubric`](promptfoo/07_judge_clarity.yaml) | [`GEval`](deepeval/07_judge_clarity.py) |
+| [08 · Repair and compare](../reference/application_checks/08_repair_and_compare.py) | [Comparison configuration](promptfoo/08_repair_and_compare.yaml) + [rule adapter](promptfoo/08_repair_and_compare.py) | [Both versions and unchanged references](deepeval/08_repair_and_compare.py) |
+| [09 · Repeat agent trials](../reference/application_checks/09_repeat_agent_trials.py) | [Repeated evaluation](promptfoo/09_repeat_agent_trials.yaml) + [SDK adapter and assertion](promptfoo/09_repeat_agent_trials.py) | [Fresh SDK trials and evaluation](deepeval/09_repeat_agent_trials.py) |
 
 Start with the [Promptfoo run guide](promptfoo/README.md) or [DeepEval run guide](deepeval/README.md). Each numbered example stands alone; it imports no other teaching example or shared teaching helper. The tooling has separate manifests and lockfiles. The shared Track B `pyproject.toml` and `uv.lock` do not gain dependencies.
 

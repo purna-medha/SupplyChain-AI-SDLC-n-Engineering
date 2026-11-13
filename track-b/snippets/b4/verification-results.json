@@ -20,16 +20,16 @@
   },
   "current_sources": {
     "B4-OUTLINE.md": {
-      "sha256": "495a465977389b4c98084a60894c7b76db92cdfb590d3e26e1c34db5f18a9079",
+      "sha256": "d075b09aedc75e39fb23ff88055f38063d99e34ecf5563391755bfa0da806165",
       "lines": 65
     },
     "slides-md/b4-enterprise-data.md": {
-      "sha256": "78aa3c6570f7722ef8e3a3b753c0982f2b194d050ec690efedd278b09d5ac7ed",
+      "sha256": "96f068de12bb8887c89f595a7c84d7000b2978e84620bc30816c503523e0577c",
       "lines": 627
     },
     "snippets/b4/README.md": {
-      "sha256": "6c53866798476ee4139242899bb4edaf984488e3327241b7fe885eab2a19a1ed",
-      "lines": 137
+      "sha256": "9ca7338c2497274a07287c3959eee2ea4aaac5fffe3e3c422b8fdf2a8dce8536",
+      "lines": 138
     },
     "snippets/b4/01_inspect_schema.py": {
       "sha256": "d6a789e5783d6f4dec29dc757e443369ddc720f6097c9ade953b7797637b58fb",
@@ -251,12 +251,39 @@
         "lines": 137
       },
       "change": "Teaching sequence refined and Gamma copy added; executable snippets and captured run transcripts unchanged."
+    },
+    {
+      "date": "2026-11-06",
+      "file": "B4-OUTLINE.md",
+      "previous_capture": {
+        "sha256": "495a465977389b4c98084a60894c7b76db92cdfb590d3e26e1c34db5f18a9079",
+        "lines": 65
+      },
+      "change": "B4 learner lab draft now available; navigation/status and presenter note updated. No snippet execution or visible slide content changed."
+    },
+    {
+      "date": "2026-11-06",
+      "file": "slides-md/b4-enterprise-data.md",
+      "previous_capture": {
+        "sha256": "78aa3c6570f7722ef8e3a3b753c0982f2b194d050ec690efedd278b09d5ac7ed",
+        "lines": 627
+      },
+      "change": "B4 learner lab draft now available; navigation/status and presenter note updated. No snippet execution or visible slide content changed."
+    },
+    {
+      "date": "2026-11-06",
+      "file": "snippets/b4/README.md",
+      "previous_capture": {
+        "sha256": "6c53866798476ee4139242899bb4edaf984488e3327241b7fe885eab2a19a1ed",
+        "lines": 137
+      },
+      "change": "B4 learner lab draft now available; navigation/status and presenter note updated. No snippet execution or visible slide content changed."
     }
   ],
   "teaching_materials": {
     "date": "2026-11-06",
     "markdown": "slides-md/b4-enterprise-data.md",
-    "markdown_sha256": "78aa3c6570f7722ef8e3a3b753c0982f2b194d050ec690efedd278b09d5ac7ed",
+    "markdown_sha256": "96f068de12bb8887c89f595a7c84d7000b2978e84620bc30816c503523e0577c",
     "gamma": "slides-gamma/b4-enterprise-data.txt",
     "gamma_sha256": "8c8dc06a358b390d2bfe2682abd8adf88775179f766bb3ec53e26a3e12502a08",
     "slides": 34,
@@ -265,5 +292,6 @@
     "conversion": "Visible slide bodies match after removal of frontmatter, comments and standalone local navigation. Every fenced block and table preserved exactly.",
     "layout": "Rendered with Marp; all slides visually inspected.",
     "execution_evidence": "Teaching material only; executable snippets and recorded model runs unchanged."
-  }
+  },
+  "lab_draft": "labs/container_help_desk/B4.md; independent verification in labs/verification-b4-b5.json"
 }

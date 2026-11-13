@@ -6,6 +6,7 @@ AUTO_APPROVAL_THRESHOLD_USD = 500.0
 
 CLAIM_STATUS_SUBMITTED = "SUBMITTED"
 CLAIM_STATUS_AUTO_APPROVED = "AUTO_APPROVED"
+CLAIM_STATUS_MANAGER_APPROVED = "MANAGER_APPROVED"
 CLAIM_STATUS_ESCALATED_TO_MANAGER = "ESCALATED_TO_MANAGER"
 CLAIM_STATUS_REJECTED = "REJECTED"
 
@@ -61,6 +62,8 @@ def validate_manual_waiver_override(
     """Return an error message when manager override rules are violated."""
     if claim_decision_status != CLAIM_STATUS_ESCALATED_TO_MANAGER:
         return "Manual override is only allowed for escalated claims"
+    if approved_waiver_amount_usd < 0:
+        return "Approved waiver cannot be negative"
     if approved_waiver_amount_usd > disputed_amount_usd:
         return "Approved waiver cannot exceed disputed amount"
     return None

@@ -22,7 +22,7 @@ sys.path.insert(0, str(LAB))
 class NewLabChecks(unittest.TestCase):
     def test_help_and_unfinished_checkpoints_work_without_model_access(self):
         for module, checkpoint, todo in [("b4", "read", "TODO B4.2"),
-                                          ("b5", "baseline", "TODO B5.1")]:
+                                          ("b5", "cases", "TODO B5.1")]:
             help_run = subprocess.run([sys.executable, str(LAB / f"{module}.py"), "--help"],
                                       cwd=tempfile.gettempdir(), capture_output=True, text=True)
             self.assertEqual(help_run.returncode, 0, help_run.stderr)
@@ -78,7 +78,7 @@ class NewLabChecks(unittest.TestCase):
         self.assertEqual(null["rows"], [[None]])
 
     def test_final_text_without_a_tool_observation_cannot_pass(self):
-        lab = importlib.import_module("b5")
+        lab = importlib.import_module("b5_application_checks_reference")
         case={"name":"boundary", "caller":"A", "container_id":"C2", "unavailable":False,
               "expected_fee":200, "expected_decision":"review"}
         # Replace only external execution and unfinished learner hooks. The supplied
@@ -94,7 +94,7 @@ class NewLabChecks(unittest.TestCase):
             self.assertFalse(lab.trial_passed(case,first))
 
     def test_every_stopped_trial_remains_in_the_repeated_result(self):
-        lab=importlib.import_module("b5")
+        lab=importlib.import_module("b5_application_checks_reference")
         from agents import MaxTurnsExceeded
         case={"name":"boundary", "caller":"A", "container_id":"C2", "unavailable":False,
               "expected_fee":200, "expected_decision":"review"}
@@ -105,6 +105,23 @@ class NewLabChecks(unittest.TestCase):
         self.assertEqual(len(trials),2)
         self.assertTrue(all(trial["error"]["type"]=="MaxTurnsExceeded" for trial in trials))
         self.assertTrue(all(not trial["passed"] for trial in trials))
+
+    def test_grader_probes_expose_boolean_numeric_equality(self):
+        lab = importlib.import_module("b5_application_checks_reference")
+        def lax_grader(expected, actual):
+            return all(key in actual and actual[key] == value for key, value in expected.items())
+        with patch.object(lab, "grade_observation", side_effect=lax_grader), contextlib.redirect_stdout(io.StringIO()):
+            with self.assertRaisesRegex(RuntimeError, "boolean"):
+                lab.probe_grader()
+
+    def test_grader_probes_distinguish_missing_field_from_present_null(self):
+        lab = importlib.import_module("b5_application_checks_reference")
+        def missing_field_grader(expected, actual):
+            return (type(actual.get("fee")) is type(expected["fee"])
+                    and all(actual.get(key) == value for key, value in expected.items()))
+        with patch.object(lab, "grade_observation", side_effect=missing_field_grader), contextlib.redirect_stdout(io.StringIO()):
+            with self.assertRaisesRegex(RuntimeError, "absent-fee"):
+                lab.probe_grader()
 
 
 if __name__ == "__main__":

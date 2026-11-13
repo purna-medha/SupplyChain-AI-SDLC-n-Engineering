@@ -1,0 +1,431 @@
+# B5 · Evaluate and improve generated LLM answers
+
+Actual answers, independent expectations and inspected judgments
+
+Correctness · Grounding · Relevance · Prompt comparison
+
+---
+
+# The answer we need to evaluate
+
+> Explain C2's recorded fee, review requirement and whether it will be released tomorrow.
+
+The application should use its approved facts and acknowledge missing information.
+
+**Predict:** what would make an answer useful—and what claim would require more evidence?
+
+---
+
+# The supplied synthetic context
+
+| Record | Recorded fee | Status |
+| --- | --- | --- |
+| C1 | USD 100 | on_time |
+| C2 | USD 200 | delayed |
+| C9 | No matching record | Unavailable |
+
+Recorded fees of USD 200 or more require review.
+
+No waiver, payment or release schedule is supplied.
+
+---
+
+# An independent reference answer
+
+C2's recorded fee is **USD 200**, so review is required under the supplied policy.
+
+Its release date cannot be determined from the supplied information.
+
+Write the expected meaning before generation. Valid paraphrases may express it differently.
+
+---
+
+# Generation and evaluation have different inputs
+
+```text
+Instruction + question + approved context → Generator → Actual answer
+
+Question + actual answer + reference      → Correctness judge
+Actual answer + approved context         → Grounding judge
+Question + actual answer                 → Relevance judge
+```
+
+The generator does not receive the reference answer or calibration labels.
+
+---
+
+# Generate the answer before grading it
+
+```python
+answer = generator.complete(
+    f"Answer the shipping enquiry.\n"
+    f"CONTEXT:\n{context}\nQUESTION: {question}"
+).text
+print("GENERATED ANSWER:", answer)
+```
+
+Inspect the actual text before reading any score.
+
+---
+
+# An actual answer exceeded the evidence
+
+Excerpt from the observed generated answer:
+
+> “the fee will not be released tomorrow. A review must be completed before any release can occur.”
+
+The context supplies neither a release schedule nor that release gate.
+
+**Predict:** should a correctness judge accept these claims?
+
+---
+
+# Separate the quality requirements
+
+| Criterion | Question it asks |
+| --- | --- |
+| Correctness | Does the answer meet the question and independent reference? |
+| Grounding | Are its claims supported by the supplied context? |
+| Relevance | Does it address the user's question? |
+
+A relevant answer can contain a wrong fact. A supported answer can leave part of the request unanswered.
+
+---
+
+# Reference-based correctness judgment
+
+LlamaIndex's `CorrectnessEvaluator` considers the question, actual response and reference.
+
+Its score uses a **1–5** scale. The example declares **at least 4** as passing.
+
+The score expresses the judge's assessment; it does not establish ground truth.
+
+---
+
+# Evaluate the generated text
+
+```python
+evaluator = CorrectnessEvaluator(llm=judge, score_threshold=4.0)
+result = evaluator.evaluate(
+    query=question, response=answer, reference=reference
+)
+print(result.score, result.passing)
+print(result.feedback)
+```
+
+Read feedback alongside the answer and reference.
+
+---
+
+# The judge also made a mistake
+
+For the unsupported release answer, the observed result was:
+
+```text
+CORRECTNESS: 5.0
+PASS: True
+```
+
+Its feedback treated the negative release prediction as consistent with uncertainty.
+
+A high score can coexist with a factual/evidence-use failure.
+
+---
+
+# Missing evidence supports uncertainty
+
+| Statement | Established by this context? |
+| --- | --- |
+| C2 has a recorded fee of USD 200 | Yes |
+| Review is required under the supplied policy | Yes |
+| A release date cannot be determined here | Yes |
+| C2 will—or will not—be released tomorrow | No |
+
+Check the meaning of claims, including their certainty.
+
+---
+
+# Grounding checks the answer against context
+
+Supply the actual response and the evidence available to generation.
+
+Inspect every factual claim, including extra explanations the question did not require.
+
+An unsupported detail can make a fluent answer unsuitable.
+
+---
+
+# Evaluate context support
+
+```python
+result = FaithfulnessEvaluator(llm=judge).evaluate(
+    response=answer, contexts=[context]
+)
+print(result.passing, result.score)
+print(result.feedback)
+```
+
+This example generates a new answer before evaluating it.
+
+---
+
+# A supported answer in a separate run
+
+The observed 02 answer stated that the release date was unknown from the available information.
+
+```text
+GROUNDED: True
+SCORE: 1.0
+FEEDBACK: YES
+```
+
+Inspect the answer itself; the judgment does not evaluate all possible replies.
+
+---
+
+# Judges need their own evaluation
+
+Use prepared answers whose expected acceptance is established independently.
+
+Include clear successes, wrong facts, unsupported claims and valid paraphrases.
+
+Keep these calibration labels out of the evaluator request.
+
+---
+
+# Calibration probes
+
+| Prepared answer | Expected acceptance |
+| --- | --- |
+| Correct fee, review and uncertainty | Accept |
+| Wrong fee of USD 999 | Reject |
+| Unsupported release tomorrow | Reject |
+| Unsupported denial of release tomorrow | Reject |
+| Same correct meaning in different wording | Accept |
+
+**Predict:** can passing four easy probes establish judge accuracy?
+
+---
+
+# Compare actual judgments with the labels
+
+```python
+result = evaluator.evaluate(
+    query=question, response=answer,
+    reference=reference, contexts=[context]
+)
+accepted = result.score >= thresholds[name]
+print("EXPECTED:", expected, "ACCEPTED:", accepted)
+```
+
+---
+
+# Calibration exposed another false pass
+
+Observed five-probe agreement:
+
+| Judge | Agreement with author labels |
+| --- | --- |
+| Correctness | 5/5 |
+| Grounding | 4/5 |
+
+The grounding judge accepted the unsupported negative release claim.
+
+---
+
+# Use judgments as inspected evidence
+
+The current generator and judges use the same model family. Their errors need not be independent.
+
+Inspect disagreements and known false positives before trusting a larger report.
+
+If the judge or rubric changes, rerun every compared prompt under that revised evaluation.
+
+---
+
+# A case contains more than a question
+
+```text
+Case ID
+Question
+Approved context
+Independent reference answer
+```
+
+The generator gets question/context. The evaluator receives the actual answer and its relevant evidence/reference.
+
+---
+
+# The development dataset
+
+| Case | Requirement to inspect |
+| --- | --- |
+| Known C2 fee | Correct amount, units and review |
+| Missing C9 | Unavailable information, not zero |
+| Tomorrow's release | Preserve uncertainty |
+| Claimed waiver | Do not adopt an unsupported premise |
+
+**Predict:** could the waiver answer be relevant while unsupported?
+
+---
+
+# Generate and evaluate each actual answer
+
+```python
+answer = generator.complete(
+    f"Answer the shipping enquiry.\nCONTEXT:\n{context}\nQUESTION: {question}"
+).text
+result = evaluator.evaluate(
+    query=question, response=answer,
+    reference=reference, contexts=[context]
+)
+```
+
+---
+
+# Separate judgments reveal different failures
+
+Observed development-case acceptance:
+
+| Criterion | Accepted cases |
+| --- | --- |
+| Correctness | 4/4 |
+| Grounding | 3/4 |
+| Relevance | 4/4 |
+
+These are model judgments, not verified quality rates.
+
+---
+
+# Inspect the waiver answer's actual failure
+
+Condensed observed behavior:
+
+```text
+User premise: C2's fee has been waived
+Answer: accepts the premise and permits skipping review
+Approved context: no waiver information supplied
+```
+
+The answer addresses the question, but the operational premise is unverified.
+
+---
+
+# A targeted instruction change
+
+Baseline: answer the shipping enquiry helpfully.
+
+Candidate:
+
+- Use only supplied facts and policy.
+- Correct unsupported premises and state unavailable information.
+- Do not infer waivers, balances or release dates.
+- Answer each requested part while preserving units.
+
+---
+
+# Keep the comparison matched
+
+Change the generation instruction.
+
+Keep model/settings, cases, context, references, evaluator models/rubrics and thresholds fixed.
+
+Generate fresh answers for both versions. A tie or regression is a valid outcome.
+
+---
+
+# Reserve a held-out question
+
+| Split | Role in this comparison |
+| --- | --- |
+| Four development cases | Inspect failures and formulate the candidate |
+| One held-out comparison question | Check a task not used to develop it |
+
+Once its feedback informs tuning, reserve another independent case for the next comparison.
+
+---
+
+# Fresh generation for each prompt and attempt
+
+```text
+For each prompt version
+    For each unchanged case
+        Generate a fresh answer
+        Run the same three judges
+        Retain text, feedback, status and outcome
+```
+
+---
+
+# The observed prompt comparison
+
+All-three-judgments acceptance, one attempt per case:
+
+| Split | Baseline | Candidate |
+| --- | --- | --- |
+| Development | 3/4 | 4/4 |
+| Held out | 1/1 | 1/1 |
+
+Inspect actual answers before interpreting the higher development count.
+
+---
+
+# Compare the changed answer, not just totals
+
+In a separate lab run, the candidate correctly challenged the unverified waiver premise.
+
+The relevance judge gave it **0.5**, criticising its refusal to accept that premise. Development acceptance tied at **3/4** for both prompts.
+
+Inspect whether the criterion captures the intended task before interpreting the score.
+
+---
+
+# Preserve unsuccessful and ungraded attempts
+
+| Outcome | Record it as |
+| --- | --- |
+| Generation failure | Attempt with no generated answer |
+| Judge error or invalid result | Unknown judgment with error/status |
+| Valid adverse judgment | Scored failure of that criterion |
+
+Keep attempted cases in the declared denominator. Unknown is not a measured zero score.
+
+---
+
+# Repetition and measurement scope
+
+More attempts give additional evidence, not a guarantee.
+
+Report case/split counts and keep errors visible. Separate generation latency from evaluation work when measuring resources.
+
+Small calibration sets, one held-out case and a shared model family leave substantial uncertainty.
+
+---
+
+# Traces support agent diagnosis
+
+When an agent answer fails, inspect actual tool requests, returned observations and the final explanation.
+
+A trace can locate where the failure began. It does not replace answer-quality evaluation.
+
+---
+
+# Lab · Evaluate actual generated answers
+
+| Checkpoint | Learner work |
+| --- | --- |
+| Cases and generation | Independent references; real model answers |
+| Evaluation | Configure and call the three evaluators |
+| Calibration | Inspect prepared-label agreement and mistakes |
+| Dataset | Read per-case answers, scores and feedback |
+| Prompt comparison | One candidate; matched cases and held-out task |
+
+---
+
+# A checked claim of improvement
+
+Generate actual answers. Compare them with independent expectations and supplied evidence.
+
+Inspect the judges as well as the model. Retain changed-case answers, regressions and remaining uncertainty.
+
+**Explain:** what would you do when a judge passes an answer whose release claim exceeds the context?

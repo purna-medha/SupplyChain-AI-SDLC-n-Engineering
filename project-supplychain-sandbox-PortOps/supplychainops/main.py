@@ -4,9 +4,15 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from sqlmodel import SQLModel
 
 import supplychainops.database_models  # noqa: F401
+from supplychainops import (
+    port_claims_service as claims,
+    port_demurrage_service as demurrage,
+    port_read_service as reads,
+)
 from supplychainops.application_api_routes import router
 from supplychainops.database_configuration import get_engine
 
@@ -31,3 +37,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(router)
+
+
+@app.exception_handler(reads.ContainerContextNotFoundError)
+@app.exception_handler(claims.ClaimNotFoundError)
+async def not_found_response(_request, error: Exception):
+    return JSONResponse(status_code=404, content={"detail": str(error)})
+
+
+@app.exception_handler(demurrage.GateOutConflictError)
+@app.exception_handler(claims.DuplicateClaimError)
+async def conflict_response(_request, error: Exception):
+    return JSONResponse(status_code=409, content={"detail": str(error)})
+
+
+@app.exception_handler(claims.ClaimValidationError)
+async def invalid_claim_response(_request, error: Exception):
+    return JSONResponse(status_code=400, content={"detail": str(error)})

@@ -1,12 +1,14 @@
 """Dynamically seed SQLite from normalized CSV files in data/seed/."""
 
 import csv
+import sqlite3
 from datetime import date, datetime, timezone
 from pathlib import Path
 import types
 from typing import Any, Annotated, Union, get_args, get_origin
 
 from sqlmodel import Session, SQLModel
+from sqlalchemy import MetaData
 
 import supplychainops.database_models  # noqa: F401
 from supplychainops.database_configuration import get_engine
@@ -74,19 +76,35 @@ def _load_csv_rows(csv_path: Path, model_class) -> list[dict]:
     return rows
 
 
-def seed_database() -> None:
+def seed_database() -> Path | None:
+    """Validate seeds, back up current data, and rebuild only the eight current tables."""
+    seed_batches = []
+    for filename, model in SEED_FILE_ORDER:
+        rows = _load_csv_rows(SEED_DIRECTORY / filename, model)
+        seed_batches.append((filename, [model.model_validate(row) for row in rows]))
     engine = get_engine()
-    SQLModel.metadata.drop_all(engine)
+    database_path = Path(engine.url.database)
+    backup_path = None
+    if database_path.exists():
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+        backup_path = database_path.with_name(f"{database_path.name}.{timestamp}.bak")
+        with sqlite3.connect(database_path) as source, sqlite3.connect(backup_path) as backup:
+            source.backup(backup)
+        print(f"Backed up existing database to {backup_path}")
+
+    # Reflect the physical schema so obsolete carrier/tariff tables are removed too.
+    existing_tables = MetaData()
+    existing_tables.reflect(bind=engine)
+    existing_tables.drop_all(engine)
     SQLModel.metadata.create_all(engine)
 
-    for csv_filename, model_class in SEED_FILE_ORDER:
-        csv_path = SEED_DIRECTORY / csv_filename
-        rows = _load_csv_rows(csv_path, model_class)
-        with Session(engine) as session:
-            for row in rows:
-                session.add(model_class(**row))
-            session.commit()
-        print(f"Seeded {len(rows)} rows from {csv_filename}")
+    with Session(engine) as session:
+        for filename, models in seed_batches:
+            session.add_all(models)
+            session.flush()
+            print(f"Seeded {len(models)} rows from {filename}")
+        session.commit()
+    return backup_path
 
 
 if __name__ == "__main__":

@@ -11,638 +11,600 @@ style: |
 ---
 <!-- _class: lead -->
 
-# B5 · Evaluating and improving AI applications
+# B5 · Evaluate and improve generated LLM answers
 
-One incorrect fee decision, an execution trace and a checked repair
+Actual answers, independent expectations and inspected judgments
 
-Requirements · Cases · Diagnosis · Re-evaluation
+Correctness · Grounding · Relevance · Prompt comparison
 
 <!--
-60-minute lecture: slides 2–10, 15 minutes; 11–19, 18 minutes; 20–25, 10 minutes; 26–36, 17 minutes. The central investigation follows C2's boundary error through checking, trace diagnosis, repair and repeated trials. Only then transfer the method to action outcomes and language judgments. Run selected demonstrations. File numbering is retained: teaching order 01,02,03,04,05,08,09,06,07. All records/policies are synthetic. B5 follows B6 in the course. ../B5-OUTLINE.md gives scope; ../snippets/b5/VERIFICATION.md records the 5 November observations. No hosted tracing account or evaluation service is needed.
+60 minutes: slides 2–15, 20 minutes; 16–25, 20 minutes; 26–36, 20 minutes. Core order: five standalone snippets 01–05. Generate actual answers, inspect judgments and judge mistakes, then compare prompts under fixed criteria. Run selected demonstrations; full comparisons make multiple generation/judge calls. All records/policies are synthetic. Source: ../B5-OUTLINE.md; actual 6 November observations: ../snippets/b5/VERIFICATION.md. B5 follows B6. Agent tracing, deterministic rules and action checks are supporting references, not the core LLM-quality task.
 -->
 
 ---
 
-# The incorrect fee decision
+# The answer we need to evaluate
 
-The assistant answers:
+> Explain C2's recorded fee, review requirement and whether it will be released tomorrow.
 
-> C2's recorded fee is USD 200. It is clear to proceed.
+The application should use its approved facts and acknowledge missing information.
 
-The classroom policy requires review for fees of **USD 200 or more**.
-
-**Predict:** which part of the answer is wrong, and how would you establish the expected decision?
+**Predict:** what would make an answer useful—and what claim would require more evidence?
 
 <!--
-Opening illustration, not a verbatim promised model answer. Answer cue: the amount can be correct while clear is wrong. Derive review from the independent policy. Actual SDK/LlamaIndex observations later show this boundary error. Start with a concrete failure before introducing evaluation vocabulary.
+A useful answer preserves amount/currency, applies the supplied review policy and does not invent a release schedule. User premises are not automatically verified operational facts. Begin with the language-generation requirement, not a Python rule defect or a grader library.
 -->
 
 ---
 
-# The facts and policy for this investigation
+# The supplied synthetic context
 
-| Record | Owner | Recorded fee | Expected decision |
-| --- | --- | --- | --- |
-| C1 | A | USD 100 | clear |
-| C2 | A | USD 200 | review |
-| C9 | — | No record | unknown |
-
-A denied or unavailable read supplies no fee.
-
-These are synthetic B5 fixtures, independent of B4's database examples.
-
-<!--
-Both known records belong to A here; B4 assigned C2 to B. Explain this fixture boundary explicitly. The defect is >200 instead of >=200, not a model's private reasoning. No production shipping policy is implied.
--->
-
----
-
-# Turn the requirement into separate checks
-
-| Requirement | What to inspect |
-| --- | --- |
-| Correct identity | Requested ID matches the result |
-| Correct recorded fee | Amount matches the trusted fixture |
-| Correct decision | Rule includes equality at 200 |
-| Supported explanation | Claims follow from the supplied evidence |
-
-A fluent answer can pass one requirement and fail another.
-
-<!--
-Later extensions add exact state-change and permission checks. For now hold the fee-decision task in focus. A successful API call or a structurally valid response does not establish every requirement.
--->
-
----
-
-# Check one prepared answer
-
-Trusted C2 fee: **200**. Prepared draft fee: **999**.
-
-```python
-checks = {
-    "correct container": draft.get("container_id") == facts["container_id"],
-    "correct amount": draft.get("fee") == facts["fee"],
-    "source label": draft.get("source") == facts["source"],
-}
-```
-
-Observed: `correct amount FAIL`; the other checks pass.
-
-[Complete single-answer check](../snippets/b5/01_check_one_answer.py)
-
-<!--
-The first runnable illustration is offline. The full 20-line file defines facts/draft and also checks required fields and exact integer type. This excerpt selects three checks. Changing draft fee 999 to 200 makes all five pass. These checks do not evaluate the explanation text's meaning.
--->
-
----
-
-# Cases cover different requirements
-
-| Case | Input and trusted context | Expected result |
+| Record | Recorded fee | Status |
 | --- | --- | --- |
-| Below | A requests C1 | 100, clear |
-| Boundary | A requests C2 | 200, review |
-| Missing | A requests C9 | Unknown, no fee |
-| Denied | B requests C2 | Denied, no fee |
-| Dependency | A requests C2, source unavailable | Unavailable, no fee |
+| C1 | USD 100 | on_time |
+| C2 | USD 200 | delayed |
+| C9 | No matching record | Unavailable |
 
-**Predict:** which case distinguishes `> 200` from `>= 200`?
+Recorded fees of USD 200 or more require review.
+
+No waiver, payment or release schedule is supplied.
 
 <!--
-Answer cue: boundary. Select representative cases from requirements before running the application. Denied and dependency cases check different conditions. The unavailable flag is a controlled fixture, not evidence of a real remote outage.
+Fixed source fees-v1, observed 2026-11-06T00:00:00Z. This independent B5 fixture is not the B4 database or the B1–B3 lab record set. The task requires claims supported by this approved context. Recorded fee does not establish outstanding balance; missing schedule establishes neither a positive nor a negative release guarantee.
 -->
 
 ---
 
-# A case pairs an input with an expectation
+# An independent reference answer
 
-```python
-("boundary", "A", "C2", False, (200, "review"))
-```
+C2's recorded fee is **USD 200**, so review is required under the supplied policy.
 
-```text
-Name | caller | requested ID | source unavailable? | expected result
-```
+Its release date cannot be determined from the supplied information.
 
-Compare the application's actual result with this independent reference.
-
-[Complete case loop](../snippets/b5/02_evaluate_cases.py)
+Write the expected meaning before generation. Valid paraphrases may express it differently.
 
 <!--
-The tuple comes from 02. Walk across each field before opening the loop. The reference comes from policy, not from calling the same function to generate its own expected answer. The plain loop prints expected/actual/PASS/FAIL without an evaluation framework.
--->
-
----
-
-# The baseline exposes the boundary error
-
-Observed deterministic checks:
-
-| Case | Expected | Actual |
-| --- | --- | --- |
-| Below | 100, clear | 100, clear |
-| Boundary | 200, review | 200, clear |
-| Missing, denied, dependency | Controlled absence | Matches |
-
-**4/5 pass.** The failing requirement is now specific.
-
-<!--
-Actual offline 02 observation. This is distinct from later repeated live agent scores of 4/6 and 6/6. Do not combine their denominators. The boundary failure is deliberate. Before trusting the result, also check that the grader itself discriminates correct/incorrect outputs.
--->
-
----
-
-# Check the checker
-
-| Supplied probe | Expected acceptance |
-| --- | --- |
-| Correct C2 amount and integer type | True |
-| Wrong amount or container | False |
-| Amount supplied as text | False |
-| Missing fee | False |
-
-**Predict:** what happens if the grader always returns `True`?
-
-[Complete grader probes](../snippets/b5/03_check_the_grader.py)
-
-<!--
-Answer cue: the known-wrong probe exposes it. Actual 03 assertions agree with all five labels; a controlled always-true mutation fails on wrong amount. Grader probes are separate known-answer checks, not new application case scores. Wording checks arrive later.
--->
-
----
-
-# Controlled tests and real model evaluations
-
-| Controlled operation | Real model operation |
-| --- | --- |
-| Supply known inputs/results | Let the model choose an output or tool call |
-| Check rules, parsing and state transitions | Check actual answer and execution |
-| Reproduce the boundary exactly | Observe repeated trials |
-
-Both require expectations defined before execution.
-
-<!--
-02 establishes the deterministic rule defect. 04/05 next observe how it appears inside actual agent runs; they do not replace model replies with prepared success. Mocked errors test handling of supplied failures, not what a live provider/model will do.
--->
-
----
-
-# Locate where the wrong decision begins
-
-```text
-User requests C2
-    Model selects read_fee with an ID
-    Runtime executes the tool
-    Tool returns a fee and decision
-    Model explains the observation
-```
-
-Inspect the ID, observation and final answer in that order.
-
-<!--
-Reuse B2's tool loop. The model can select the wrong ID, the tool can apply a wrong rule, or generation can exceed a correct observation. Locate the earliest mismatch rather than changing prompts by default.
--->
-
----
-
-# Traces, spans and events
-
-A **trace** connects the operations belonging to a request.
-
-A **span** records an operation, its timing and parent relationship.
-
-An **event** records an observation during execution.
-
-```text
-Agent run → model operation → tool operation → model operation
-```
-
-<!--
-This is a conceptual sequence, not a complete span tree. Frameworks can add nesting. Captured arguments/results help diagnosis; names/timing alone do not supply payloads. A trace does not reveal private model reasoning or establish correctness.
-Source: https://developers.openai.com/api/docs/guides/agents/integrations-observability
--->
-
----
-
-# Capture one SDK run locally
-
-```python
-set_trace_processors([processor])
-result = Runner.run_sync(
-    agent, request, max_turns=4,
-    run_config=RunConfig(trace_include_sensitive_data=True),
-)
-```
-
-The example prints native span relationships and synthetic tool arguments/results.
-
-[Complete SDK trace example](../snippets/b5/04_trace_openai_agent.py)
-
-<!--
-The full file defines processor as BatchTraceProcessor with a small readable console exporter. request abbreviates its formatted Check message. Local printing replaces hosted export. Sensitive payload capture is deliberately enabled for synthetic fixtures; real retention needs deliberate choices. This excerpt illustrates native capture, not a custom tracing implementation or dashboard ingestion.
-Source: https://developers.openai.com/api/docs/guides/agents/integrations-observability
--->
-
----
-
-# The first incorrect observation
-
-Observed C2 SDK run, condensed:
-
-```text
-Tool requested: read_fee(container_id="C2")
-Tool observation: fee=200, decision="clear"
-Final answer reports: fee=200, decision="clear"
-Policy expects: decision="review"
-```
-
-The requested ID and amount are correct. The wrong decision already exists in the tool result.
-
-<!--
-Actual 04 observation, 5 November 2026. The final wording is condensed. The evidence implicates the business rule before generation, rather than model choice or source amount. Different future runs still need inspection.
--->
-
----
-
-# Diagnose the responsible layer
-
-| Earliest mismatch | Investigate |
-| --- | --- |
-| Source amount is wrong | Data or source selection |
-| Tool requests the wrong ID | Arguments or task context |
-| Correct fee, wrong tool decision | Business rule |
-| Correct observation, unsupported final claim | Generation or evidence use |
-
-**Predict:** which row fits the observed C2 trace?
-
-<!--
-Answer cue: business rule. Other rows are diagnostic alternatives, not claimed failures in the current run. Missing retrieved evidence belongs at retrieval/context selection, connecting B6 to this method. Also inspect the reference/checker before assuming an application defect.
--->
-
----
-
-# The same investigation in LlamaIndex
-
-| Evidence | SDK | LlamaIndex |
-| --- | --- | --- |
-| Requested container | C2 | C2 |
-| Recorded fee | 200 | 200 |
-| Tool decision | clear | clear |
-| Independent expected decision | review | review |
-
-Changing the runtime leaves the defective rule in place.
-
-<!--
-04 and 05 use the same model, instruction, records and faulty rule. Actual 5 November observations show the same first wrong result. This is a conceptual/runtime comparison, not a controlled framework performance benchmark. No second evaluation system is built.
--->
-
----
-
-# LlamaIndex events expose the observation
-
-```python
-async for event in handler.stream_events():
-    if isinstance(event, ToolCallResult):
-        print(event.tool_name, event.tool_kwargs)
-        print(event.tool_output)
-result = await handler
-```
-
-Tool events supply payloads. `SimpleSpanHandler` separately supplies timing and parents.
-
-[Complete LlamaIndex trace example](../snippets/b5/05_trace_llamaindex_agent.py)
-
-<!--
-Selected print calls from the full file; its labels add readability. Native spans in this locked environment do not themselves supply argument/result payloads. streaming=False disables token streaming while workflow events remain available. Check what the chosen recorder actually captures.
-Sources: https://developers.llamaindex.ai/python/framework/understanding/agent/streaming/ and https://developers.llamaindex.ai/python/framework-api-reference/instrumentation/span_handlers/
--->
-
----
-
-# Repair the rule implicated by the evidence
-
-The requirement includes equality at USD 200.
-
-```python
-# Baseline
-requires_review = fee > 200
-
-# Candidate
-requires_review = fee >= 200
-```
-
-Keep the model, instruction, source facts and expectations fixed.
-
-<!--
-08 isolates the deterministic repair before 09 tests it inside actual agent trials. No new architecture, retrieval path or prompt is needed to fix this observed defect. The condition is a direct mechanism-level illustration of the code in 08/09.
--->
-
----
-
-# Recheck the failure and its neighbors
-
-Observed isolated rule results:
-
-| Recorded fee | Required decision | Baseline | Candidate |
-| --- | --- | --- | --- |
-| 100 | clear | clear | clear |
-| 200 | review | clear | review |
-| 201 | review | review | review |
-
-Only the boundary decision needed to change.
-
-[Complete deterministic repair comparison](../snippets/b5/08_repair_and_compare.py)
-
-<!--
-Actual 08 output. The original 100/200 cases and references stay fixed; 201 is an additional case separate from the repair examples. This does not infer later live model outcomes. Ask what a repair that also changed 100 to review would break.
--->
-
----
-
-# Independent trials start from fresh state
-
-Each repeated decision trial gets:
-
-- A new agent conversation.
-- The same defined source facts and policy expectation.
-- An empty record of tool calls.
-
-A previous success must not supply the next attempt's evidence.
-
-<!--
-09 creates a new Agent and calls list per attempt while holding the source fixture fixed. No outbox is part of this decision task. The later action example resets its own outbox. Isolated means starting from each case's defined fixture, not erasing legitimate history during a multi-turn task.
-Source: https://www.anthropic.com/research/demystifying-evals-for-ai-agents
--->
-
----
-
-# Define success for the repeated task
-
-09 asks for exactly one decision label: `clear`, `review` or `unknown`.
-
-A pass requires the expected label and actual tool requests for the intended ID.
-
-```python
-passed = actual == expected and bool(calls) and all(
-    cid == container_id for cid in calls
-)
-```
-
-[Complete real-agent repeated trials](../snippets/b5/09_repeat_agent_trials.py)
-
-<!--
-Same predicate as 09, wrapped for readability. The label-only task is explicit; this does not grade arbitrary natural-language explanations, fee fields or permission effects. Errors/incomplete runs get visible nonmatching outcomes rather than disappearing. Baseline/candidate share model, instruction, cases and checker.
--->
-
----
-
-# Compare the same cases after repair
-
-Observed real SDK trials, two attempts per case/version:
-
-| Decision case | Baseline successes | Candidate successes |
-| --- | --- | --- |
-| C1: below boundary | 2/2 | 2/2 |
-| C2: at boundary | 0/2 | 2/2 |
-| C9: missing | 2/2 | 2/2 |
-
-Total decision-task passes: **4/6 → 6/6**.
-
-<!--
-Actual final matched 09 comparison, 5 November 2026. No default errors/incomplete runs occurred. The isolated rule check and live agent comparison are different evidence. These scores do not cover the action/denial/clarity tasks. A prior instruction-development run remains separately recorded in verification; these matched runs use the same final instruction.
--->
-
----
-
-# Stopped attempts remain in the score
-
-A low turn limit can stop the workflow before its final answer.
-
-```text
-INCOMPLETE: turn limit
-```
-
-If one of two attempts succeeds and the other stops, report **1/2**.
-
-Retain each error or stop reason rather than dropping that attempt.
-
-<!--
-The 1/2 illustration is hypothetical, not a captured 09 score. Actual low-limit probes retained all incomplete attempts as failures. 04 raises MaxTurnsExceeded after an explicit incomplete message; 05 surfaces its workflow limit. Different limit units are not aggregate token/tool budgets. Lowering max_turns is a suggested 09 variation.
--->
-
----
-
-# A small passing sample leaves uncertainty
-
-C2's result of 2/2 means two successful attempts from clean fixtures.
-
-It does not establish a precise production success rate.
-
-The current score covers the decision-label task. It does not establish that every explanation is supported or every action is permitted.
-
-<!--
-Report attempt counts and scope together. No cherry-picking the best trial or retrying entire failed trials until a pass. Provider-level retries are a separate mechanism. Judge scores and held-out tasks cannot be silently added to this denominator.
-Source: https://www.anthropic.com/research/demystifying-evals-for-ai-agents
--->
-
----
-
-# Inspect regressions by requirement
-
-Prepared comparison for discussion:
-
-| Category | Baseline | Candidate |
-| --- | --- | --- |
-| Boundary decision | 0/2 | 2/2 |
-| Denied access | 2/2 | 1/2 |
-
-The total rises from 2/4 to 3/4 while denied-access behavior gets worse.
-
-**Predict:** has the permission requirement been satisfied?
-
-<!--
-Answer cue: no. Hypothetical category comparison, separate from observed runs. A better average cannot compensate for a failed authority boundary. Preserve failing cases and their category breakdown; adding easy cases is not a repair.
--->
-
----
-
-# Apply the method to other requirements
-
-The rule investigation used an exact expected decision.
-
-| New requirement | Appropriate evidence |
-| --- | --- |
-| “The update was queued” | Exact new state after execution |
-| “The explanation is clear” | A narrow language rubric |
-| “The explanation follows the source” | Claims checked against source evidence |
-
-Choose the check that establishes the particular requirement.
-
-<!--
-Explicit transition after completing the main investigation. Do not start a new architecture. The next action/clarity examples transfer the same expectation -> actual observation -> comparison method. A favorable clarity result does not establish source grounding or authority.
--->
-
----
-
-# An action claim needs a state change
-
-The assistant says:
-
-> Your C2 update is queued.
-
-Before the trial, the outbox already contains an identical old entry.
-
-**Predict:** why would searching for the text afterward give a false pass?
-
-<!--
-Answer cue: the old entry could match even when no new action occurred. New scenario reuses B3's reviewed action; it is distinct from 09's decision-label task. The local demonstration outbox sends no external messages and is not a durable delivery service.
--->
-
----
-
-# Compare the complete before and after state
-
-For the same reviewed payload:
-
-| Review outcome | Initial entries | Final entries | New entries |
-| --- | --- | --- | --- |
-| Approved, permitted payload | 1 | 2 | 1 |
-| Rejected | 1 | 1 | 0 |
-
-Count is useful; also verify the exact resulting entries.
-
-[Complete SDK action-outcome example](../snippets/b5/06_check_action_outcome.py)
-
-<!--
-Actual default 06 observations: approval adds one exact entry; rejection adds none; full-state comparisons pass. Review decisions are supplied evaluation fixtures, not live human approvals. A count alone cannot establish that the right payload was added.
--->
-
----
-
-# Check the exact action outcome
-
-```python
-expected = before + [reviewed] if should_queue else before
-print("New entries:", len(outbox) - len(before))
-print("Exact outcome:", "PASS" if outbox == expected else "FAIL")
-```
-
-A rejected or unapproved changed payload must leave the initial state intact.
-
-<!--
-Excerpt from 06. Host review checks caller A and exact pending payload, and the tool independently checks caller/approved payload. In the caller=B variation, host review rejects before the function executes, so that variation does not exercise the tool's separate caller check. Changed-text and denied-caller trials add no entries. No external message is sent.
--->
-
----
-
-# Reset between trials; preserve history within one
-
-```text
-Start independent trial from its defined fixture
-    Model proposes the action
-    Review checks that pending payload
-    Resume the same trial's conversation
-    Compare the resulting state
-Start the next trial from its defined fixture
-```
-
-Resuming an interrupted task is different from starting a fresh trial.
-
-<!--
-06 restores the seeded outbox and approved payload between approve/reject trials. It uses result.to_state() and resumes the same conversation within each trial. Resetting at resume changes the task. This complements 09's clean independent conversations; it does not contradict them.
--->
-
----
-
-# A language rubric needs a narrow purpose
-
-The clarity question is:
-
-> Does the explanation plainly state the fee and review decision?
-
-Accept equivalent wording. Reject unexplained codes.
-
-Clarity alone cannot establish that the fee follows from a source or that an action was authorised.
-
-<!--
-07 uses LlamaIndex GuidelineEvaluator on prepared drafts. Its query/response input does not verify source facts. 01 separately demonstrates field correctness. Do not substitute an LLM judgment for a deterministic permission or exact state check.
-Source: https://developers.llamaindex.ai/python/framework-api-reference/evaluation/guideline/
--->
-
----
-
-# Check the judge against labelled examples
-
-| Prepared draft | Reference label | Observed judge |
-| --- | --- | --- |
-| Clear fee and review explanation | Pass | Pass |
-| Valid paraphrase | Pass | Pass |
-| Unexplained codes | Fail | Fail |
-
-Inspect disagreements and feedback before trusting a larger score.
-
-[Complete narrow clarity judge](../snippets/b5/07_judge_clarity.py)
-
-<!--
-Actual 07 calls agreed with all three author-assigned labels on 5 November 2026. This is not independent validation of judge accuracy. The full file constructs GuidelineEvaluator and prints passing/feedback for each draft. Keep rubric/model consistent across a comparison; changes require rechecking known examples. Prepared drafts are not new agent responses.
-Source: https://arxiv.org/abs/2306.05685
--->
-
----
-
-# Quality, elapsed time and resource use
-
-04 prints end-to-end elapsed run time and actual input/output tokens.
-
-05 prints selected span durations. Nested or overlapping spans cannot simply be added into a run total.
-
-A cost estimate needs the applicable rates; judge calls add separate evaluation usage. Missing usage remains unknown.
-
-<!--
-Reuse B1's cost-estimation concept without adding another pricing lecture. 04 stops the timer when the SDK returns, before trace flush/printing. 05/judge provider usage is not collected. These are not controlled framework performance benchmarks. A faster incorrect answer does not meet the quality requirement.
--->
-
----
-
-# Keep evidence for the next regression run
-
-Retain the failing input, initial fixture and independent expected outcome.
-
-Record code/model/rubric configuration and detailed attempts, including errors, stop reasons and relevant state changes.
-
-Capture the source observations needed to explain the failure.
-
-[Run guide and verification record](../snippets/b5/README.md)
-
-<!--
-C2 remains in the case set after the repair. The earlier reference runner's unsupported not-finalized implication is retained in historical evidence, not presented as a current short-example output. Real content retention needs deliberate redaction/access choices; classroom trace payloads are synthetic. Record relevant evidence, not inferred private reasoning.
--->
-
----
-
-# Re-evaluate after application changes
-
-A model, instruction, tool, source or rubric change can alter behavior.
-
-Rerun relevant cases and inspect remaining failures by requirement.
-
-Reviewed operational feedback supplies new cases. A small passing classroom suite leaves untested tasks and failure modes.
-
-<!--
-Conceptual change-triggered evaluation, not CI/deployment setup. Full red-teaming, monitoring infrastructure, hosted evaluation services and lab scaffolding remain outside the hour. The current implementation uses local loops and SDK/framework calls.
+This is an author-written reference, not a model reply or exact string every answer must reproduce. The reference goes only to the correctness evaluator. It is separate from the approved facts supplied to generation. Human agreement on expectations is part of evaluation design.
 Source: https://developers.openai.com/api/docs/guides/evaluation-best-practices
 -->
 
 ---
 
-# The checked improvement
+# Generation and evaluation have different inputs
 
-C2's recorded fee was correct; the tool's boundary decision was wrong.
+```text
+Instruction + question + approved context → Generator → Actual answer
 
-An independent expectation exposed the failure. The trace located it. A targeted rule change repaired the observed decision under the same checks.
+Question + actual answer + reference      → Correctness judge
+Actual answer + approved context         → Grounding judge
+Question + actual answer                 → Relevance judge
+```
 
-**Explain:** what would you inspect if the next tool result were correct but the final answer added an unsupported claim?
+The generator does not receive the reference answer or calibration labels.
 
 <!--
-Answer cue: generation/evidence use; compare final claims with the supplied observation, not only the field or clarity score. Close the central investigation without implying universal reliability or permission. Nine short examples illustrate the method; labs, assessments, new notebooks and deployment remain deferred. Matching Gamma text preserves the visible sequence.
+The model producing an answer and the model judging it have separate responsibilities. Current examples configure separate clients using the same gpt-4.1-mini model family; separate calls do not establish independent errors. Do not feed the expected answer to generation and then call that a meaningful task test.
+-->
+
+---
+
+# Generate the answer before grading it
+
+```python
+answer = generator.complete(
+    f"Answer the shipping enquiry.\n"
+    f"CONTEXT:\n{context}\nQUESTION: {question}"
+).text
+print("GENERATED ANSWER:", answer)
+```
+
+Inspect the actual text before reading any score.
+
+[Complete generation and correctness example](../snippets/b5/01_evaluate_generated_answer.py)
+
+<!--
+Formatting-only equivalent of 01's generation call; the full file defines generator, context and question. It makes an actual model call, not an echo of a prepared answer. The independent reference is not interpolated into this request. Credentials use load_dotenv and OPEN_AI_KEY.
+-->
+
+---
+
+# An actual answer exceeded the evidence
+
+Excerpt from the observed generated answer:
+
+> “the fee will not be released tomorrow. A review must be completed before any release can occur.”
+
+The context supplies neither a release schedule nor that release gate.
+
+**Predict:** should a correctness judge accept these claims?
+
+<!--
+Actual 01 output, 6 November 2026. Preserve the original fee wording, which also confuses a fee with container release. The model additionally referred to delayed as fee status. These are generated-answer problems, not prepared failures or a promised response on every future run. The next slides inspect the actual judge's decision.
+-->
+
+---
+
+# Separate the quality requirements
+
+| Criterion | Question it asks |
+| --- | --- |
+| Correctness | Does the answer meet the question and independent reference? |
+| Grounding | Are its claims supported by the supplied context? |
+| Relevance | Does it address the user's question? |
+
+A relevant answer can contain a wrong fact. A supported answer can leave part of the request unanswered.
+
+<!--
+These criteria overlap but are not interchangeable. In this task approved evidence, not an unverified waiver premise, establishes operational facts. Human inspection still matters. We evaluate generation with fixed supplied context; no retrieval pipeline is rebuilt here.
+Sources: https://developers.llamaindex.ai/python/framework-api-reference/evaluation/ and https://developers.llamaindex.ai/python/examples/evaluation/answer_and_context_relevancy/
+-->
+
+---
+
+# Reference-based correctness judgment
+
+LlamaIndex's `CorrectnessEvaluator` considers the question, actual response and reference.
+
+Its score uses a **1–5** scale. The example declares **at least 4** as passing.
+
+The score expresses the judge's assessment; it does not establish ground truth.
+
+<!--
+Threshold 4 is the library default and an explicit teaching choice. Do not average this scale with normalized relevance or binary faithfulness. CorrectnessEvaluator does not use contexts in its implementation; support has its own evaluator.
+Source: https://developers.llamaindex.ai/python/framework-api-reference/evaluation/
+-->
+
+---
+
+# Evaluate the generated text
+
+```python
+evaluator = CorrectnessEvaluator(llm=judge, score_threshold=4.0)
+result = evaluator.evaluate(
+    query=question, response=answer, reference=reference
+)
+print(result.score, result.passing)
+print(result.feedback)
+```
+
+Read feedback alongside the answer and reference.
+
+[Complete correctness example](../snippets/b5/01_evaluate_generated_answer.py)
+
+<!--
+The code follows actual generation. The complete script checks for missing/invalid judgments rather than declaring them passes. Generator and judge configuration remain visible. No hosted evaluator platform is introduced.
+-->
+
+---
+
+# The judge also made a mistake
+
+For the unsupported release answer, the observed result was:
+
+```text
+CORRECTNESS: 5.0
+PASS: True
+```
+
+Its feedback treated the negative release prediction as consistent with uncertainty.
+
+A high score can coexist with a factual/evidence-use failure.
+
+<!--
+Actual 01 judge output for the answer shown on slide 7. The supplied reference says the release date cannot be determined; it does not say tomorrow's release will not occur. Do not present the score as a successful answer. This false positive motivates judge calibration and separate grounding checks.
+-->
+
+---
+
+# Missing evidence supports uncertainty
+
+| Statement | Established by this context? |
+| --- | --- |
+| C2 has a recorded fee of USD 200 | Yes |
+| Review is required under the supplied policy | Yes |
+| A release date cannot be determined here | Yes |
+| C2 will—or will not—be released tomorrow | No |
+
+Check the meaning of claims, including their certainty.
+
+<!--
+Human interpretation of the supplied classroom facts. Delay status alone does not determine tomorrow's release. A review requirement for a fee does not supply an operational release gate. Distinguish absence of evidence from evidence of absence.
+-->
+
+---
+
+# Grounding checks the answer against context
+
+Supply the actual response and the evidence available to generation.
+
+Inspect every factual claim, including extra explanations the question did not require.
+
+An unsupported detail can make a fluent answer unsuitable.
+
+<!--
+FaithfulnessEvaluator checks support from response/context; it does not use an independent reference answer to establish completeness or answer relevance. The default judge can itself miss unsupported claims, as the later calibration shows.
+Source: https://developers.llamaindex.ai/python/framework-api-reference/evaluation/
+-->
+
+---
+
+# Evaluate context support
+
+```python
+result = FaithfulnessEvaluator(llm=judge).evaluate(
+    response=answer, contexts=[context]
+)
+print(result.passing, result.score)
+print(result.feedback)
+```
+
+This example generates a new answer before evaluating it.
+
+[Complete grounding example](../snippets/b5/02_check_grounding.py)
+
+<!--
+02 has its own generation call and question about what is known of release. Its judgment must not be attributed to 01's different answer. Fixed-context evaluation uses no vector retrieval. The unused MockEmbedding setup message follows disabling embedding setup, not a prepared model reply.
+-->
+
+---
+
+# A supported answer in a separate run
+
+The observed 02 answer stated that the release date was unknown from the available information.
+
+```text
+GROUNDED: True
+SCORE: 1.0
+FEEDBACK: YES
+```
+
+Inspect the answer itself; the judgment does not evaluate all possible replies.
+
+<!--
+Actual 02 observation, 6 November 2026. It correctly retained uncertainty in this run. A grounding pass does not establish that every requested part was answered or that the source is current. The score is binary model judgment, not a confidence probability.
+-->
+
+---
+
+# Judges need their own evaluation
+
+Use prepared answers whose expected acceptance is established independently.
+
+Include clear successes, wrong facts, unsupported claims and valid paraphrases.
+
+Keep these calibration labels out of the evaluator request.
+
+<!--
+Prepared text is appropriate for testing a judge, while application-quality evaluation requires actual application outputs. We label that difference explicitly. Both baseline and candidate must use the same calibrated judge/rubric; if it changes, rerun both.
+Source: https://developers.openai.com/api/docs/guides/evaluation-best-practices
+-->
+
+---
+
+# Calibration probes
+
+| Prepared answer | Expected acceptance |
+| --- | --- |
+| Correct fee, review and uncertainty | Accept |
+| Wrong fee of USD 999 | Reject |
+| Unsupported release tomorrow | Reject |
+| Unsupported denial of release tomorrow | Reject |
+| Same correct meaning in different wording | Accept |
+
+**Predict:** can passing four easy probes establish judge accuracy?
+
+<!--
+Answer cue: no. These five labels are classroom author judgments, not independently validated large-scale annotations. The unsupported-denial probe was added after the real generation/judging failure, showing how observed failures grow a case set.
+-->
+
+---
+
+# Compare actual judgments with the labels
+
+```python
+result = evaluator.evaluate(
+    query=question, response=answer,
+    reference=reference, contexts=[context]
+)
+accepted = result.score >= thresholds[name]
+print("EXPECTED:", expected, "ACCEPTED:", accepted)
+```
+
+[Complete judge-calibration example](../snippets/b5/03_calibrate_judges.py)
+
+<!--
+Shortened excerpt from 03: full code handles invalid/missing results and evaluator exceptions before deciding accepted, retains every attempted probe in the denominator and prints feedback. Each evaluator uses its relevant inputs. expected is printed/compared by Python, not sent as a judge input.
+-->
+
+---
+
+# Calibration exposed another false pass
+
+Observed five-probe agreement:
+
+| Judge | Agreement with author labels |
+| --- | --- |
+| Correctness | 5/5 |
+| Grounding | 4/5 |
+
+The grounding judge accepted the unsupported negative release claim.
+
+<!--
+Actual updated 03 run, 6 November 2026. The correctness judge rejected the shorter negative claim here, while it accepted the longer actual 01 answer. Small wording/context differences can affect judgments. The grounding feedback was YES for the unsupported denial. Preserve these inconsistencies instead of hiding them behind a single favorable score.
+-->
+
+---
+
+# Use judgments as inspected evidence
+
+The current generator and judges use the same model family. Their errors need not be independent.
+
+Inspect disagreements and known false positives before trusting a larger report.
+
+If the judge or rubric changes, rerun every compared prompt under that revised evaluation.
+
+<!--
+Do not call separate clients independent ground truth. Human checks and task-specific calibration remain needed. Clarity/formality preferences can leak into correctness feedback, as one paraphrase judgment illustrated. Judge calls consume their own resources; missing usage remains unknown.
+-->
+
+---
+
+# A case contains more than a question
+
+```text
+Case ID
+Question
+Approved context
+Independent reference answer
+```
+
+The generator gets question/context. The evaluator receives the actual answer and its relevant evidence/reference.
+
+<!--
+All case data is explicit and small. Write references before generation; do not use the generated answer as its own reference. Case IDs preserve which requirement failed. No general dataset framework is needed for this teaching step.
+-->
+
+---
+
+# The development dataset
+
+| Case | Requirement to inspect |
+| --- | --- |
+| Known C2 fee | Correct amount, units and review |
+| Missing C9 | Unavailable information, not zero |
+| Tomorrow's release | Preserve uncertainty |
+| Claimed waiver | Do not adopt an unsupported premise |
+
+**Predict:** could the waiver answer be relevant while unsupported?
+
+<!--
+Answer cue: yes. The task requires facts supported by the approved snapshot, not treating a user's operational premise as verified evidence. These four questions/references are the development cases shared by 04 and 05.
+-->
+
+---
+
+# Generate and evaluate each actual answer
+
+```python
+answer = generator.complete(
+    f"Answer the shipping enquiry.\nCONTEXT:\n{context}\nQUESTION: {question}"
+).text
+result = evaluator.evaluate(
+    query=question, response=answer,
+    reference=reference, contexts=[context]
+)
+```
+
+[Complete generated-answer dataset](../snippets/b5/04_evaluate_answer_dataset.py)
+
+<!--
+Excerpt illustrates generation followed by one evaluator invocation. Full code loops through the three evaluators, records separate scores/feedback and catches generation/judge errors with attempted cases retained. Relevance's normalized score is explicitly thresholded because its passing field is unset in this installed version.
+-->
+
+---
+
+# Separate judgments reveal different failures
+
+Observed development-case acceptance:
+
+| Criterion | Accepted cases |
+| --- | --- |
+| Correctness | 4/4 |
+| Grounding | 3/4 |
+| Relevance | 4/4 |
+
+These are model judgments, not verified quality rates.
+
+<!--
+Actual 04 run, 6 November 2026. Grounding rejected the waiver-premise response; correctness still accepted it at 4. Both judges also missed an unsupported likelihood inference in the future-release case. Preserve raw answers/feedback so the report can be audited. Do not average these unlike scales or equate aggregate acceptance with truth.
+-->
+
+---
+
+# Inspect the waiver answer's actual failure
+
+Condensed observed behavior:
+
+```text
+User premise: C2's fee has been waived
+Answer: accepts the premise and permits skipping review
+Approved context: no waiver information supplied
+```
+
+The answer addresses the question, but the operational premise is unverified.
+
+<!--
+Condensed actual 04 observation, not a verbatim quote. Its relevance judge passed; grounding failed. Correctness also passed at 4, a false positive relative to the agreed reference. This directs attention to source authority/uncertainty instructions and evaluator limitations rather than a Python threshold repair.
+-->
+
+---
+
+# A targeted instruction change
+
+Baseline: answer the shipping enquiry helpfully.
+
+Candidate:
+
+- Use only supplied facts and policy.
+- Correct unsupported premises and state unavailable information.
+- Do not infer waivers, balances or release dates.
+- Answer each requested part while preserving units.
+
+<!--
+05 defines this candidate before evaluation using development-task requirements; it does not change the source facts, policy, questions or references. A prompt can help but does not enforce truth or guarantee a higher score. Do not supply the reference to the generator.
+-->
+
+---
+
+# Keep the comparison matched
+
+Change the generation instruction.
+
+Keep model/settings, cases, context, references, evaluator models/rubrics and thresholds fixed.
+
+Generate fresh answers for both versions. A tie or regression is a valid outcome.
+
+<!--
+Comparing prompts is the initial teaching experiment; model comparison is a later use of the same principles. Don't change generator and grader simultaneously then attribute all score movement to the prompt. No prepared successful candidate replies replace actual outputs.
+Source: https://developers.openai.com/api/docs/guides/evaluation-best-practices
+-->
+
+---
+
+# Reserve a held-out question
+
+| Split | Role in this comparison |
+| --- | --- |
+| Four development cases | Inspect failures and formulate the candidate |
+| One held-out comparison question | Check a task not used to develop it |
+
+Once its feedback informs tuning, reserve another independent case for the next comparison.
+
+<!--
+Held-out question compares C1/C2 amounts and review requirements. It appears in 05, not 04's development set. One held-out example is deliberately small and cannot establish generalization. The candidate is fixed before inspecting that comparison's output. Classroom learners can see source data, so treat this as a process demonstration, not a blind benchmark.
+-->
+
+---
+
+# Fresh generation for each prompt and attempt
+
+```text
+For each prompt version
+    For each unchanged case
+        Generate a fresh answer
+        Run the same three judges
+        Retain text, feedback, status and outcome
+```
+
+[Complete matched prompt comparison](../snippets/b5/05_compare_prompts.py)
+
+<!--
+05 defaults to repeats=1, so five cases and two versions mean ten generated answers plus judge calls. Increase repeats for more evidence; each .complete request starts from the supplied prompt without retained conversation history. Provider caching/retries are separate behavior. All errors/invalid judgments remain attempted cases.
+-->
+
+---
+
+# The observed prompt comparison
+
+All-three-judgments acceptance, one attempt per case:
+
+| Split | Baseline | Candidate |
+| --- | --- | --- |
+| Development | 3/4 | 4/4 |
+| Held out | 1/1 | 1/1 |
+
+Inspect actual answers before interpreting the higher development count.
+
+<!--
+Actual 05 run, 6 November 2026. Baseline waiver response failed correctness/grounding; candidate corrected that premise in this run. Held-out answers were accepted under both prompts, so no held-out improvement is shown. Known evaluator false positives remain; acceptance is not proven quality. Different runs may tie, regress or produce errors.
+-->
+
+---
+
+# Compare the changed answer, not just totals
+
+In a separate lab run, the candidate correctly challenged the unverified waiver premise.
+
+The relevance judge gave it **0.5**, criticising its refusal to accept that premise. Development acceptance tied at **3/4** for both prompts.
+
+Inspect whether the criterion captures the intended task before interpreting the score.
+
+<!--
+Actual separate completed-lab comparison, 6 November 2026. Both prompts accepted the held-out answer. Candidate waiver answer passed correctness/grounding but AnswerRelevancy scored 0.5, penalising refusal to accept the user's waiver claim. That evaluator sees question/answer, not the approved source context. The report retained the threshold of 1 and the tie; it was not changed to manufacture improvement. These are different generated runs from snippet 05's preceding table, not pooled scores.
+-->
+
+---
+
+# Preserve unsuccessful and ungraded attempts
+
+| Outcome | Record it as |
+| --- | --- |
+| Generation failure | Attempt with no generated answer |
+| Judge error or invalid result | Unknown judgment with error/status |
+| Valid adverse judgment | Scored failure of that criterion |
+
+Keep attempted cases in the declared denominator. Unknown is not a measured zero score.
+
+<!--
+04/05 print errors and retain attempted-case denominators. The learner lab additionally saves per-metric status, including range/finite-score validation, and continues other judges after one error. A compound pass is a declared reporting choice; inspect individual metrics. A zero faithfulness score is different from an unavailable judgment.
+-->
+
+---
+
+# Repetition and measurement scope
+
+More attempts give additional evidence, not a guarantee.
+
+Report case/split counts and keep errors visible. Separate generation latency from evaluation work when measuring resources.
+
+Small calibration sets, one held-out case and a shared model family leave substantial uncertainty.
+
+<!--
+05 can repeat cases; the lab can restrict to a selected case with --repeats 2. Selected-case output is not a full-dataset or held-out score. Current short examples do not collect an aggregate dollar cost; judge calls add usage. Missing token usage remains unknown. Nested span times cannot simply be added as end-to-end generation time.
+-->
+
+---
+
+# Traces support agent diagnosis
+
+When an agent answer fails, inspect actual tool requests, returned observations and the final explanation.
+
+A trace can locate where the failure began. It does not replace answer-quality evaluation.
+
+[SDK tracing reference](../snippets/b5/reference/application_checks/04_trace_openai_agent.py) · [LlamaIndex events reference](../snippets/b5/reference/application_checks/05_trace_llamaindex_agent.py)
+
+<!--
+Supporting examples preserve the prior tool/rule investigation. Exact outbox effects and deterministic checks remain useful application/agent tests, but are not the core generated-answer evaluation. No new runtime or hosted observability setup is introduced here.
+-->
+
+---
+
+# Lab · Evaluate actual generated answers
+
+| Checkpoint | Learner work |
+| --- | --- |
+| Cases and generation | Independent references; real model answers |
+| Evaluation | Configure and call the three evaluators |
+| Calibration | Inspect prepared-label agreement and mistakes |
+| Dataset | Read per-case answers, scores and feedback |
+| Prompt comparison | One candidate; matched cases and held-out task |
+
+[Independent B5 learner lab](../labs/container_help_desk/B5.md)
+
+<!--
+Five learner TODO functions, supplied actual-model/evaluation/reporting runners, no dependency on unfinished B4. Target 60 minutes including exploration, with setup completed beforehand; instructor timing unvalidated. Formal assessments and new notebooks remain deferred.
+-->
+
+---
+
+# A checked claim of improvement
+
+Generate actual answers. Compare them with independent expectations and supplied evidence.
+
+Inspect the judges as well as the model. Retain changed-case answers, regressions and remaining uncertainty.
+
+**Explain:** what would you do when a judge passes an answer whose release claim exceeds the context?
+
+<!--
+Answer cue: identify the unsupported claim, inspect reference/context and judge feedback, add a labelled probe, and revise/recheck the evaluator if needed. Rerun both prompt versions if evaluation criteria change. The five core snippets, Markdown deck, Gamma text and lab follow this generated-answer evaluation sequence.
 -->

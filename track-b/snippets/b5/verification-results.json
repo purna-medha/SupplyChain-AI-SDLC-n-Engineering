@@ -1,87 +1,1312 @@
 {
-  "date": "2026-11-05",
-  "model": "gpt-4.1-mini",
-  "scope": "Simplified teaching examples; independent from reference-run history.",
-  "source_sha256": {
-    "01_check_one_answer.py": "9761f3b31df36ddf10b5ecc65f9eff75cc2517d9660ef5a09ae92b2463a8851e",
-    "02_evaluate_cases.py": "c1f5645e264ddcc6fa942d59c0abe1403cd748c292603868e87e8a1decd3f153",
-    "03_check_the_grader.py": "91583e895391bc41869f50a458b223d83dc7e1eaffcd530e74d55ed8df3ea85c",
-    "04_trace_openai_agent.py": "8783560ad2a3ecadb4f57aa0118487d554c094e7782fceb65dabe781813af644",
-    "05_trace_llamaindex_agent.py": "059ae28181d0bcd407096672e467e0167831fb8396ff30cfde3f9a8325ef96c3",
-    "06_check_action_outcome.py": "51d3239e10f4263ac1a436c54f828b42cc769a5f4c6f57db593191f72c5de516",
-    "07_judge_clarity.py": "1d0e4b38fdd4751cba191a2ed0250ff818cba108d284e25a816674f1f86dfe2a",
-    "08_repair_and_compare.py": "93fdb5dbdc43cb1d36b1ce841144678d23432dae5a31cecf21e38d2bb1cde681",
-    "09_repeat_agent_trials.py": "d11a5e90f6d7773ac6899eba4721c582020e69fa7fc04ff4e870678bbd0af2fd"
+  "date": "2026-11-06",
+  "scope": "Five standalone generated-answer LLM evaluation examples; former application/rule tests archived separately.",
+  "models": {
+    "generator": "gpt-4.1-mini",
+    "judge": "gpt-4.1-mini",
+    "temperature": 0,
+    "generator_max_tokens": 200,
+    "judge_max_tokens": 512
   },
-  "default_transcripts": {
-    "01_check_one_answer": "required fields PASS\nfee type PASS\ncorrect container PASS\ncorrect amount FAIL\nsource label PASS\n",
-    "02_evaluate_cases": "below expected: (100, 'clear') actual: (100, 'clear') PASS\nboundary expected: (200, 'review') actual: (200, 'clear') FAIL\nmissing expected: (None, 'unknown') actual: (None, 'unknown') PASS\ndenied expected: (None, 'denied') actual: (None, 'denied') PASS\ndependency expected: (None, 'unavailable') actual: (None, 'unavailable') PASS\nPassed: 4 / 5\n",
-    "03_check_the_grader": "known correct expected acceptance: True actual: True\nwrong amount expected acceptance: False actual: False\nwrong container expected acceptance: False actual: False\nwrong type expected acceptance: False actual: False\nmissing fee expected acceptance: False actual: False\n",
-    "04_trace_openai_agent": "TRACE: trace_9ac2bb1dbbc04423a87befeddda256df\nSPAN: response span_aa137d74bf234e929e87f721 parent: span_5bb64a096fbd4b8d86c19c0b\nSPAN: function span_d7abb4432ae740b7a31e5ecd parent: span_5bb64a096fbd4b8d86c19c0b\n  Arguments: {\"container_id\":\"C2\"}\n  Observation: {'container_id': 'C2', 'fee': 200, 'decision': 'clear'}\nSPAN: turn span_5bb64a096fbd4b8d86c19c0b parent: span_7ba9ddc34e2f4963930e596b\nSPAN: response span_105d292e2a4a43cba829ab7a parent: span_c3e61297d50948d5b670611d\nSPAN: turn span_c3e61297d50948d5b670611d parent: span_7ba9ddc34e2f4963930e596b\nSPAN: agent span_7ba9ddc34e2f4963930e596b parent: span_1f0dcb17b14944bab20aa862\nSPAN: task span_1f0dcb17b14944bab20aa862 parent: None\nANSWER: The recorded fee for container C2 is 200, and the application's review decision is clear.\nPOLICY EXPECTS: review\nSeconds: 5.819\nToken usage: 195 input, 38 output\n",
-    "05_trace_llamaindex_agent": "TOOL: read_fee Arguments: {'container_id': 'C2'}\nOBSERVATION: {'container_id': 'C2', 'fee': 200, 'decision': 'clear'}\nANSWER: The recorded fee for container C2 is 200, and the application's review decision remains unchanged as \"clear.\"\nPOLICY EXPECTS: review\nSPAN: OpenAI.achat-0d3ab22b-5700-4ce6-a6ea-c5f4e1025754 parent: BaseWorkflowAgent.run_agent_step-50593812-0297-4d40-92a4-71bfaa0897e3 seconds: 1.402\nSPAN: OpenAI.achat-96258cd9-a942-4a9e-904b-b63d725367df parent: BaseWorkflowAgent.run_agent_step-2a66a1e0-e4cf-4fd5-99b5-f0c7220adfe1 seconds: 1.006\nSPAN: FunctionAgent.run-83a2db52-c51c-4560-99fa-75fa1bd8e340 parent: None seconds: 2.488\n",
-    "06_check_action_outcome": "PENDING: {'container_id': 'C2', 'text': 'Recorded fee: USD 200. Review required.'}\nREVIEW FIXTURE: approve ANSWER: The text \"Recorded fee: USD 200. Review required.\" has been queued for C2 successfully.\nNew entries: 1\nExact outcome: PASS\nPENDING: {'container_id': 'C2', 'text': 'Recorded fee: USD 200. Review required.'}\nREVIEW FIXTURE: reject ANSWER: I attempted to queue the text \"Recorded fee: USD 200. Review required.\" for container C2, but it was not approved. If you want, I can assist you with modifying the text or trying again with different instructions.\nNew entries: 0\nExact outcome: PASS\n",
-    "07_judge_clarity": "\nDRAFT: C2 has a recorded fee of USD 200 and requires review.\nREFERENCE LABEL: True JUDGE: True\nFEEDBACK: The response clearly states the fee amount as USD 200 and explicitly mentions that a review is required, meeting the guideline criteria. It uses plain language without jargon and provides a straightforward explanation. The response could be slightly improved by briefly explaining why the review is required, but it is acceptable as is.\n\nDRAFT: The charge for C2 is 200 USD. A reviewer must check it.\nREFERENCE LABEL: True JUDGE: True\nFEEDBACK: The response clearly states the fee amount for C2 as 200 USD and explicitly mentions that a reviewer must check it, which directly addresses both parts of the query. The explanation is straightforward and uses acceptable phrasing. To improve clarity, the response could be slightly expanded to explain why a review is required, but as per the guidelines, the current explanation is sufficient.\n\nDRAFT: C2 F200 R1 XFLAG-A7.\nREFERENCE LABEL: False JUDGE: False\nFEEDBACK: The response uses unexplained codes and jargon (e.g., 'C2 F200 R1 XFLAG-A7') without plainly explaining the fee amount or whether a review is required. It does not meet the guideline of providing a clear explanation or acceptable paraphrase of the fee and review decision, resulting in a lack of clarity.\n",
-    "08_repair_and_compare": "\nBASELINE\nFee: 100 expected: clear actual: clear PASS\nFee: 200 expected: review actual: clear FAIL\n\nCANDIDATE\nFee: 100 expected: clear actual: clear PASS\nFee: 200 expected: review actual: review PASS\nAdditional case, repaired: False fee: 201 expected: review actual: review\nAdditional case, repaired: True fee: 201 expected: review actual: review\n",
-    "09_repeat_agent_trials": "\nBASELINE\nC1 trial: 1 expected: clear actual: clear PASS\nC1 trial: 2 expected: clear actual: clear PASS\nC1 success frequency: 2 / 2\nC2 trial: 1 expected: review actual: clear FAIL\nC2 trial: 2 expected: review actual: clear FAIL\nC2 success frequency: 0 / 2\nC9 trial: 1 expected: unknown actual: unknown PASS\nC9 trial: 2 expected: unknown actual: unknown PASS\nC9 success frequency: 2 / 2\n\nCANDIDATE\nC1 trial: 1 expected: clear actual: clear PASS\nC1 trial: 2 expected: clear actual: clear PASS\nC1 success frequency: 2 / 2\nC2 trial: 1 expected: review actual: review PASS\nC2 trial: 2 expected: review actual: review PASS\nC2 success frequency: 2 / 2\nC9 trial: 1 expected: unknown actual: unknown PASS\nC9 trial: 2 expected: unknown actual: unknown PASS\nC9 success frequency: 2 / 2\n"
-  },
-  "variation_transcripts": {
-    "sdk_C1": "TRACE: trace_350d44a5a96744559794c688f7cbfdf4\nSPAN: response span_9fd657f63063414f8668a9e0 parent: span_73cbda1112e74d6b9d66b772\nSPAN: function span_7e33dca1486644e291265c9a parent: span_73cbda1112e74d6b9d66b772\n  Arguments: {\"container_id\":\"C1\"}\n  Observation: {'container_id': 'C1', 'fee': 100, 'decision': 'clear'}\nSPAN: turn span_73cbda1112e74d6b9d66b772 parent: span_bd921ff6adbf4e5fb069fe19\nSPAN: response span_a181082c2a1b475b886bc8de parent: span_d3f36d8f345e4ceba95f145d\nSPAN: turn span_d3f36d8f345e4ceba95f145d parent: span_bd921ff6adbf4e5fb069fe19\nSPAN: agent span_bd921ff6adbf4e5fb069fe19 parent: span_82cf64c4028f411cb1a9473f\nSPAN: task span_82cf64c4028f411cb1a9473f parent: None\nANSWER: The recorded fee for container C1 is 100, and the application's review decision is \"clear.\"\nPOLICY EXPECTS: clear\nSeconds: 4.952\nToken usage: 195 input, 39 output\n",
-    "sdk_C9": "TRACE: trace_9d6b3cd46e4f4cb9a073c0f5470b6250\nSPAN: response span_84c2da0b93d647a9b10d6dd8 parent: span_9d678c9a1c8d4ad49b2dd0c6\nSPAN: function span_333bebd7fbb64bf5a34cf3d0 parent: span_9d678c9a1c8d4ad49b2dd0c6\n  Arguments: {\"container_id\":\"C9\"}\n  Observation: {'container_id': 'C9', 'fee': None, 'decision': 'unknown'}\nSPAN: turn span_9d678c9a1c8d4ad49b2dd0c6 parent: span_9efd83a03c5644f3a9799d6e\nSPAN: response span_751969d66548421884fdb52a parent: span_d9f0c70973994b248a2b5737\nSPAN: turn span_d9f0c70973994b248a2b5737 parent: span_9efd83a03c5644f3a9799d6e\nSPAN: agent span_9efd83a03c5644f3a9799d6e parent: span_39ad07cab32f43cebc44d374\nSPAN: task span_39ad07cab32f43cebc44d374 parent: None\nANSWER: The fee for container C9 is not recorded, and the application's review decision is unknown.\nPOLICY EXPECTS: unknown\nSeconds: 4.99\nToken usage: 194 input, 37 output\n",
-    "sdk_limit": "INCOMPLETE: turn limit reached.\nTRACE: trace_718ce3a1f1074060ba84b9b87995548a\nSPAN: response span_bb54608856dd4e5eb8b24e49 parent: span_0251e62759154e869356d711\nSPAN: function span_fa7a0ed144b542a5bbceb2ba parent: span_0251e62759154e869356d711\n  Arguments: {\"container_id\":\"C2\"}\n  Observation: {'container_id': 'C2', 'fee': 200, 'decision': 'clear'}\nSPAN: turn span_0251e62759154e869356d711 parent: span_5470b32973d34e749015b2cf\nSPAN: agent span_5470b32973d34e749015b2cf parent: span_7e647912c11748678e645446\nSPAN: task span_7e647912c11748678e645446 parent: None\nTraceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/snippets/b5/04_trace_openai_agent.py\", line 50, in <module>\n    result = Runner.run_sync(agent, f\"Check {container_id}.\", max_turns=4,\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/agents/run.py\", line 393, in run_sync\n    return runner.run_sync(\n           ^^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/agents/run.py\", line 1943, in run_sync\n    return default_loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/anaconda3/lib/python3.12/asyncio/base_events.py\", line 685, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/agents/run.py\", line 1279, in run\n    raise max_turns_error\nagents.exceptions.MaxTurnsExceeded: Max turns (1) exceeded\n",
-    "llama_C1": "TOOL: read_fee Arguments: {'container_id': 'C1'}\nOBSERVATION: {'container_id': 'C1', 'fee': 100, 'decision': 'clear'}\nANSWER: The recorded fee for container C1 is 100. The application's review decision remains unchanged as \"clear.\"\nPOLICY EXPECTS: clear\nSPAN: OpenAI.achat-a3ded970-f56a-413f-a67d-53dcd271d415 parent: BaseWorkflowAgent.run_agent_step-48b9ab68-5c37-4986-959f-319a07903c6e seconds: 1.666\nSPAN: OpenAI.achat-9f09538f-2a86-433b-a852-2af48337f23f parent: BaseWorkflowAgent.run_agent_step-9f668130-8ba7-44b6-a9c8-2123a9a9bc38 seconds: 1.348\nSPAN: FunctionAgent.run-898251b1-a10c-42b9-a9c6-a02313910ff3 parent: None seconds: 3.086\n",
-    "llama_C9": "TOOL: read_fee Arguments: {'container_id': 'C9'}\nOBSERVATION: {'container_id': 'C9', 'fee': None, 'decision': 'unknown'}\nANSWER: The fee for container C9 is not recorded, and the application's review decision is unknown.\nPOLICY EXPECTS: unknown\nSPAN: OpenAI.achat-218e708d-06ff-4b0f-831d-9e36aab77848 parent: BaseWorkflowAgent.run_agent_step-0ff9465c-5859-4cb6-922d-4f256f56afbd seconds: 1.447\nSPAN: OpenAI.achat-35951555-6aa1-4c76-9578-c195da2cda0c parent: BaseWorkflowAgent.run_agent_step-a85cb02f-3cda-4b97-813d-630e2f3a5f60 seconds: 0.919\nSPAN: FunctionAgent.run-f63febd4-75e6-439c-b089-78f0458b4648 parent: None seconds: 2.429\n",
-    "llama_limit": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/snippets/b5/05_trace_llamaindex_agent.py\", line 49, in <module>\n    asyncio.run(main())\n  File \"/opt/anaconda3/lib/python3.12/asyncio/runners.py\", line 194, in run\n    return runner.run(main)\n           ^^^^^^^^^^^^^^^^\n  File \"/opt/anaconda3/lib/python3.12/asyncio/runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/anaconda3/lib/python3.12/asyncio/base_events.py\", line 685, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/snippets/b5/05_trace_llamaindex_agent.py\", line 41, in main\n    result = await handler\n             ^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/workflows/handler.py\", line 34, in _await_result\n    stop_event = await self.stop_event_result()\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/workflows/handler.py\", line 95, in stop_event_result\n    return await self._result_task\n           ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/workflows/handler.py\", line 66, in _wait_for_result\n    result = await self._external_adapter.get_result()\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/workflows/plugins/basic.py\", line 228, in get_result\n    return await self._queues.complete\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/workflows/plugins/basic.py\", line 359, in run_with_concurrency_limit\n    return await registered.workflow_run_fn(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/workflows/runtime/types/step_function.py\", line 455, in run_workflow\n    result = await control_loop_fn(\n             ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/workflows/runtime/control_loop/runner.py\", line 680, in control_loop\n    return await runner.run(start_event=start_event)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/workflows/runtime/control_loop/runner.py\", line 511, in run\n    result = await self._process_tick(tick)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/workflows/runtime/control_loop/runner.py\", line 652, in _process_tick\n    result = await self.process_command(command)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/workflows/runtime/control_loop/runner.py\", line 383, in process_command\n    raise command.exception\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/workflows/runtime/types/step_function.py\", line 300, in wrapper\n    result = await partial_func()\n             ^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/llama_index_instrumentation/dispatcher.py\", line 464, in async_wrapper\n    result = await func(*args, **kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/workflows/runtime/types/step_function.py\", line 233, in span_safe_call\n    step_result = await call_func(*args, **kwargs)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/.venv/lib/python3.12/site-packages/llama_index/core/agent/workflow/base_agent.py\", line 548, in parse_agent_output\n    raise WorkflowRuntimeError(\nworkflows.errors.WorkflowRuntimeError: Max iterations of 1 reached! Either something went wrong, or you can increase the max iterations with `.run(.., max_iterations=...)` or use `early_stopping_method='generate'` to generate a final response instead.\n",
-    "action_changed": "PENDING: {'container_id': 'C2', 'text': 'Recorded fee: USD 999.'}\nREVIEW FIXTURE: approve ANSWER: I am unable to queue the text as the action was not approved. If you have another request or need assistance with something else, please let me know.\nNew entries: 0\nExact outcome: PASS\nPENDING: {'container_id': 'C2', 'text': 'Recorded fee: USD 999.'}\nREVIEW FIXTURE: reject ANSWER: The attempt to queue the text was not approved and therefore not executed. If you would like, I can assist you in another way or modify the request.\nNew entries: 0\nExact outcome: PASS\n",
-    "action_denied": "PENDING: {'container_id': 'C2', 'text': 'Recorded fee: USD 200. Review required.'}\nREVIEW FIXTURE: approve ANSWER: I attempted to queue the text for container C2 but the action was not approved. Let me know if you'd like me to assist with anything else.\nNew entries: 0\nExact outcome: PASS\nPENDING: {'container_id': 'C2', 'text': 'Recorded fee: USD 200. Review required.'}\nREVIEW FIXTURE: reject ANSWER: I am unable to proceed with queuing the text as the tool execution was not approved. If you need help with something else or want to try a different approach, please let me know!\nNew entries: 0\nExact outcome: PASS\n",
-    "repeated_limit": "\nBASELINE\nC1 trial: 1 expected: clear actual: INCOMPLETE: turn limit FAIL\nC1 success frequency: 0 / 1\nC2 trial: 1 expected: review actual: INCOMPLETE: turn limit FAIL\nC2 success frequency: 0 / 1\nC9 trial: 1 expected: unknown actual: INCOMPLETE: turn limit FAIL\nC9 success frequency: 0 / 1\n\nCANDIDATE\nC1 trial: 1 expected: clear actual: INCOMPLETE: turn limit FAIL\nC1 success frequency: 0 / 1\nC2 trial: 1 expected: review actual: INCOMPLETE: turn limit FAIL\nC2 success frequency: 0 / 1\nC9 trial: 1 expected: unknown actual: INCOMPLETE: turn limit FAIL\nC9 success frequency: 0 / 1\n",
-    "grader_mutation": "known correct expected acceptance: True actual: True\nwrong amount expected acceptance: False actual: True\nTraceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"/Users/ajinkyak/Desktop/10_October/1-Client-Deliveries/maersk-AI-Engineering/track-b/snippets/b5/03_check_the_grader.py\", line 21, in <module>\n    print(name, \"expected acceptance:\", expected, \"actual:\", actual)\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Grader defect: wrong amount\n",
-    "corrected_answer": "required fields PASS\nfee type PASS\ncorrect container PASS\ncorrect amount PASS\nsource label PASS\n",
-    "repeated_scripted_errors": "\nBASELINE\nC1 trial: 1 expected: clear actual: ERROR: RuntimeError: scripted failure FAIL\nC1 trial: 2 expected: clear actual: ERROR: RuntimeError: scripted failure FAIL\nC1 success frequency: 0 / 2\nC2 trial: 1 expected: review actual: ERROR: RuntimeError: scripted failure FAIL\nC2 trial: 2 expected: review actual: ERROR: RuntimeError: scripted failure FAIL\nC2 success frequency: 0 / 2\nC9 trial: 1 expected: unknown actual: ERROR: RuntimeError: scripted failure FAIL\nC9 trial: 2 expected: unknown actual: ERROR: RuntimeError: scripted failure FAIL\nC9 success frequency: 0 / 2\n\nCANDIDATE\nC1 trial: 1 expected: clear actual: ERROR: RuntimeError: scripted failure FAIL\nC1 trial: 2 expected: clear actual: ERROR: RuntimeError: scripted failure FAIL\nC1 success frequency: 0 / 2\nC2 trial: 1 expected: review actual: ERROR: RuntimeError: scripted failure FAIL\nC2 trial: 2 expected: review actual: ERROR: RuntimeError: scripted failure FAIL\nC2 success frequency: 0 / 2\nC9 trial: 1 expected: unknown actual: ERROR: RuntimeError: scripted failure FAIL\nC9 trial: 2 expected: unknown actual: ERROR: RuntimeError: scripted failure FAIL\nC9 success frequency: 0 / 2\n",
-    "missing_answer_field": "required fields FAIL\nfee type FAIL\ncorrect container PASS\ncorrect amount FAIL\nsource label PASS\n"
-  },
-  "initial_instruction_transcript": "\nBASELINE\nC1 trial: 1 expected: clear actual: clear PASS\nC1 trial: 2 expected: clear actual: clear PASS\nC1 success frequency: 2 / 2\nC2 trial: 1 expected: review actual: clear FAIL\nC2 trial: 2 expected: review actual: clear FAIL\nC2 success frequency: 0 / 2\nC9 trial: 1 expected: unknown actual: The review decision for C9 is unknown. FAIL\nC9 trial: 2 expected: unknown actual: The review decision for C9 is unknown. FAIL\nC9 success frequency: 0 / 2\n\nCANDIDATE\nC1 trial: 1 expected: clear actual: clear PASS\nC1 trial: 2 expected: clear actual: clear PASS\nC1 success frequency: 2 / 2\nC2 trial: 1 expected: review actual: review PASS\nC2 trial: 2 expected: review actual: review PASS\nC2 success frequency: 2 / 2\nC9 trial: 1 expected: unknown actual: The review decision for C9 is unknown. FAIL\nC9 trial: 2 expected: unknown actual: The review decision for C9 is unknown. FAIL\nC9 success frequency: 0 / 2\n",
-  "final_repeated_summary": {
-    "baseline": {
-      "C1": [
-        2,
-        2
+  "thresholds": {
+    "correctness": {
+      "scale": [
+        1,
+        5
       ],
-      "C2": [
-        0,
-        2
-      ],
-      "C9": [
-        2,
-        2
-      ]
+      "pass_at_least": 4
     },
-    "candidate": {
-      "C1": [
-        2,
-        2
+    "grounding": {
+      "scale": [
+        0,
+        1
       ],
-      "C2": [
-        2,
-        2
+      "pass_at_least": 1
+    },
+    "relevance": {
+      "scale": [
+        0,
+        1
       ],
-      "C9": [
-        2,
-        2
-      ]
+      "pass_at_least": 1
     }
   },
-  "live_variation_check_summary": "sdk_limit verified\nsdk_C9 verified\nsdk_C1 verified\nllama_C1 verified\nllama_limit verified\nllama_C9 verified\naction_changed verified\naction_denied verified\nrepeated_limit verified\nALL NINE LIVE VARIATION CHECKS PASSED\n",
+  "current_sources": {
+    "snippets/b5/01_evaluate_generated_answer.py": {
+      "sha256": "5ee4148b8dc456949937a3ac142c57f13f57b872fc6ef36cb550d4e909b3ce8e",
+      "lines": 34
+    },
+    "snippets/b5/02_check_grounding.py": {
+      "sha256": "1cfb45794fc3fb7328934d4a9b42d3bc2160954761f17193f656875f3d801fb7",
+      "lines": 31
+    },
+    "snippets/b5/03_calibrate_judges.py": {
+      "sha256": "56f4131140fc4a2f7b62d86cdb2498666b51785d390d71ce5a11a5da29dffd4d",
+      "lines": 49
+    },
+    "snippets/b5/04_evaluate_answer_dataset.py": {
+      "sha256": "c6216531348bc92340d6e5da0ffe5e761af3611a7428c5277680b37ec5605891",
+      "lines": 63
+    },
+    "snippets/b5/05_compare_prompts.py": {
+      "sha256": "d030bc967ea6b9cff93ee7379d4a93cc4dd3704f11dfc02e42656b7932f9feda",
+      "lines": 83
+    },
+    "snippets/b5/README.md": {
+      "sha256": "58d77c81bb65d07d928e13602fd69c4ad7c53e209171b31da750e5c1dedb35be",
+      "lines": 104
+    },
+    "B5-OUTLINE.md": {
+      "sha256": "46d45a668e95303295ba1f8cc8f22ba26c7d8d653a6bacef1aff2d4b5e82e84b",
+      "lines": 47
+    },
+    "slides-md/b5-safety-observability-evaluation.md": {
+      "sha256": "c675e2d5e4d5f28f6a185a8f44eeda2108246afc6d87a752890f3ffa1ee2bc82",
+      "lines": 610
+    },
+    "slides-gamma/b5-safety-observability-evaluation.txt": {
+      "sha256": "4488ca536e211eea467c286eb118d9780e9373251fe551d5c5e0f88349ec547e",
+      "lines": 431
+    }
+  },
+  "actual_initial_snippet_runs": [
+    {
+      "file": "01_evaluate_generated_answer.py",
+      "sha256": "97fafb2e841c6388a387e7b82940f2b192bd23738c1fa470011dc3d33ce69a8e",
+      "command": "uv run python snippets/b5/01_evaluate_generated_answer.py",
+      "exit_code": 0,
+      "output": "QUESTION: Explain C2's recorded fee, review requirement and whether it will be released tomorrow.\nGENERATED ANSWER: C2 has a recorded synthetic snapshot fee of USD 200, which meets the threshold requiring a review. Since the fee status is marked as delayed and there is no information provided about any waiver, payment, or release schedule, the fee will not be released tomorrow. A review must be completed before any release can occur.\nREFERENCE: C2's recorded fee is USD 200 and requires review. Its release date cannot be determined from the supplied information.\nCORRECTNESS (1\u20135): 5.0 PASS: True\nFEEDBACK: The generated answer correctly explains C2's recorded fee amount, the review requirement, and clearly states that it will not be released tomorrow due to the delayed status and lack of information on release. It is relevant, accurate, and provides a complete response consistent with the reference answer and the user's query.\n"
+    },
+    {
+      "file": "02_check_grounding.py",
+      "sha256": "a259a311bd618e7a82f39973bd5ec758e7fa37555856a6ff9b1d35777fa32b7e",
+      "command": "uv run python snippets/b5/02_check_grounding.py",
+      "exit_code": 0,
+      "output": "Embeddings have been explicitly disabled. Using MockEmbedding.\nCONTEXT: Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\nC2: recorded fee USD 200; status delayed.\nRecorded fees of USD 200 or more require review.\nNo waiver, payment or release schedule information is supplied.\nGENERATED ANSWER: C2 has a recorded synthetic snapshot fee of USD 200, which meets the threshold requiring a review. Its status is currently marked as delayed. There is no information provided regarding any waiver, payment, or release schedule. Therefore, C2's release date is unknown at this time. Further review and additional details are needed to determine when C2 will be released.\nGROUNDED: True SCORE: 1.0\nFEEDBACK: YES\n"
+    },
+    {
+      "file": "03_calibrate_judges.py",
+      "sha256": "a5de3303db3409355b373799f878e5540c71bf36753a925a76fa64223c0324da",
+      "command": "uv run python snippets/b5/03_calibrate_judges.py",
+      "exit_code": 0,
+      "output": "Embeddings have been explicitly disabled. Using MockEmbedding.\n\nPREPARED PROBE: correct EXPECTED ACCEPTANCE: True\ncorrectness SCORE: 5.0 ACCEPTED: True MATCH: True FEEDBACK: The generated answer is fully relevant and correct, matching the reference answer exactly in content and clarity.\ngrounding SCORE: 1.0 ACCEPTED: True MATCH: True FEEDBACK: YES\n\nPREPARED PROBE: wrong amount EXPECTED ACCEPTANCE: False\ncorrectness SCORE: 2.0 ACCEPTED: False MATCH: True FEEDBACK: The generated answer is relevant to the user query but contains a significant error in the recorded fee amount (USD 999 instead of USD 200). It correctly states the review requirement and that the release date is unknown, which aligns with the reference answer. Due to the incorrect fee, the score is low but not the lowest since the rest of the information is accurate.\ngrounding SCORE: 0.0 ACCEPTED: False MATCH: True FEEDBACK: NO\n\nPREPARED PROBE: unsupported date EXPECTED ACCEPTANCE: False\ncorrectness SCORE: 3.0 ACCEPTED: False MATCH: True FEEDBACK: The generated answer correctly states the recorded fee and the review requirement, aligning with the reference answer. However, it incorrectly provides a specific release date (\"tomorrow\") which is not supported by the reference answer or the supplied information, making that part inaccurate.\ngrounding SCORE: 0.0 ACCEPTED: False MATCH: True FEEDBACK: NO\n\nPREPARED PROBE: paraphrase EXPECTED ACCEPTANCE: True\ncorrectness SCORE: 5.0 ACCEPTED: True MATCH: True FEEDBACK: The generated answer accurately conveys the recorded fee of USD 200, the requirement for review, and the lack of information regarding the release date, matching the reference answer in content and correctness.\ngrounding SCORE: 1.0 ACCEPTED: True MATCH: True FEEDBACK: YES\ncorrectness AGREEMENT: 4 / 4\ngrounding AGREEMENT: 4 / 4\n"
+    },
+    {
+      "file": "04_evaluate_answer_dataset.py",
+      "sha256": "3e52f8a5f6c864877e56dab050089dc200f6461d80e165fb561a309528077447",
+      "command": "uv run python snippets/b5/04_evaluate_answer_dataset.py",
+      "exit_code": 0,
+      "output": "Embeddings have been explicitly disabled. Using MockEmbedding.\n\nCASE: known QUESTION: What is C2's recorded fee and is review needed?\nGENERATED ANSWER: C2's recorded fee is USD 200. Since recorded fees of USD 200 or more require review, C2's fee does require review.\ncorrectness SCORE: 5.0 PASS: True FEEDBACK: The generated answer correctly states C2's recorded fee as USD 200 and accurately explains that a review is needed based on the fee amount, fully addressing the user's query with clear reasoning.\ngrounding SCORE: 1.0 PASS: True FEEDBACK: YES\nrelevance SCORE: 1.0 PASS: True FEEDBACK: 1. Does the provided response match the subject matter of the user's query?  \nYes, the response directly addresses the subject matter by stating C2's recorded fee and whether a review is needed. The query asks specifically about C2's recorded fee and the necessity of a review, and the response provides both pieces of information clearly.\n\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \nYes, the response not only provides the fee amount but also explains the condition under which a review is required (fees of USD 200 or more). This shows an understanding of the criteria for review and applies it to C2's fee, which aligns with the focus of the query.\n\nFinal result: [RESULT] 2\n\nCASE: missing QUESTION: What is C9's recorded fee?\nGENERATED ANSWER: C9 has no matching recorded fee.\ncorrectness SCORE: 4.0 PASS: True FEEDBACK: The generated answer is relevant and correctly states that there is no recorded fee for C9, aligning with the reference answer. However, it is less detailed and does not explicitly mention the absence of a known zero fee or the lack of a matching record, which slightly reduces completeness.\ngrounding SCORE: 1.0 PASS: True FEEDBACK: YES\nrelevance SCORE: 1.0 PASS: True FEEDBACK: 1. Does the provided response match the subject matter of the user's query?  \nYes, the user's query asks specifically about \"C9's recorded fee,\" which implies a request for information about a fee associated with C9. The response directly addresses this by stating that there is no matching recorded fee for C9. Therefore, the response matches the subject matter of the query.  \nScore: 1\n\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \nThe user's query is straightforward, seeking a specific piece of information (the recorded fee for C9). The response attempts to answer this by indicating that no such fee is recorded or available. This directly addresses the focus of the query, which is to find out the fee amount or status.  \nScore: 1\n\nFinal feedback:  \nThe response is concise and directly relevant to the query. It acknowledges the subject (C9's recorded fee) and provides a clear answer indicating the absence of such a fee. While brief, it sufficiently addresses the user's question without deviating from the topic or leaving ambiguity.\n\n[RESULT] 2\n\nCASE: future QUESTION: Will C2 be released tomorrow?\nGENERATED ANSWER: Based on the provided information, C2 has a recorded fee of USD 200 and a status of delayed. Since recorded fees of USD 200 or more require review and no waiver, payment, or release schedule information is supplied, it is unlikely that C2 will be released tomorrow without completing the necessary review and any required actions.\ncorrectness SCORE: 4.0 PASS: True FEEDBACK: The generated answer is relevant and provides a logical explanation based on the given information, indicating that C2 is unlikely to be released tomorrow due to its delayed status and required review. While it does not explicitly say \"no,\" it effectively conveys the improbability of release, aligning well with the reference answer's uncertainty. The answer is clear and correct given the context, though it could be slightly more concise.\ngrounding SCORE: 1.0 PASS: True FEEDBACK: YES\nrelevance SCORE: 1.0 PASS: True FEEDBACK: 1. Does the provided response match the subject matter of the user's query?  \nYes. The user's query asks specifically about the release timing of \"C2,\" and the response directly addresses this by discussing the status of C2, mentioning its fee, review requirements, and the likelihood of release tomorrow. The subject matter\u2014whether C2 will be released tomorrow\u2014is clearly the focus of the response.  \n\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \nYes. The user's query is straightforward, seeking a yes/no or likelihood answer about the release timing. The response attempts to provide a reasoned answer based on the information about fees, review requirements, and the current status of C2. It explains why the release is unlikely tomorrow, which aligns well with the user's focus on the timing of release.  \n\nFinal feedback: The response is relevant and appropriately addresses the user's query by providing a reasoned assessment of the likelihood of C2 being released tomorrow based on the given conditions.  \n\n[RESULT] 2\n\nCASE: premise QUESTION: C2's fee has been waived, so can I skip review?\nGENERATED ANSWER: Since C2's recorded fee is USD 200, which meets the threshold requiring review, normally a review would be necessary. However, you mention that C2's fee has been waived. Given that the fee is waived, you can skip the review despite the fee amount.\ncorrectness SCORE: 4.0 PASS: True FEEDBACK: The generated answer correctly interprets that a waived fee means the review can be skipped, which aligns with the user's question. It logically addresses the fee amount and the waiver status. However, it slightly contradicts the reference answer, which states the waiver is not established and review is required. Since the user states the fee has been waived, the generated answer is relevant and reasonable, but the discrepancy with the reference answer prevents a perfect score.\ngrounding SCORE: 0.0 PASS: False FEEDBACK: NO\nrelevance SCORE: 1.0 PASS: True FEEDBACK: 1. Does the provided response match the subject matter of the user's query?  \nYes. The user's query is about whether the review can be skipped because C2's fee has been waived. The response directly addresses the issue of the fee amount and the waiver, discussing the implications for the review process. Therefore, the response matches the subject matter of the query.  \n\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \nYes. The user's focus is on whether the waiver of the fee allows skipping the review. The response acknowledges the normal requirement for review based on the fee amount but then explicitly states that since the fee is waived, the review can be skipped. This directly addresses the user's perspective and concern.  \n\nFinal feedback: The response is relevant and appropriately addresses the user's question about skipping the review due to the fee waiver. It explains the normal rule and then clarifies the exception based on the waiver, which aligns well with the user's query.  \n\n[RESULT] 2\ncorrectness PASSES: 4 / 4\ngrounding PASSES: 3 / 4\nrelevance PASSES: 4 / 4\n"
+    },
+    {
+      "file": "05_compare_prompts.py",
+      "sha256": "0beeffd4f437cf320546957ee770915adf1d43e685a4646f4984e7d4d3ded225",
+      "command": "uv run python snippets/b5/05_compare_prompts.py",
+      "exit_code": 0,
+      "output": "Embeddings have been explicitly disabled. Using MockEmbedding.\n\nVERSION: baseline SPLIT: development CASE: known ATTEMPT: 1\nGENERATED ANSWER: C2's recorded fee is USD 200. Since recorded fees of USD 200 or more require review, C2's fee does require review.\ncorrectness SCORE: 5.0 PASS: True FEEDBACK: The generated answer correctly states C2's recorded fee as USD 200 and accurately explains that a review is needed based on the fee amount, fully matching the reference answer in content and correctness.\ngrounding SCORE: 1.0 PASS: True FEEDBACK: YES\nrelevance SCORE: 1.0 PASS: True FEEDBACK: 1. Does the provided response match the subject matter of the user's query?  \nYes, the response directly addresses the subject matter by stating C2's recorded fee and whether a review is needed. The query asks specifically about C2's recorded fee and the necessity of a review, and the response provides both pieces of information clearly.\n\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \nYes, the response not only provides the fee amount but also explains the condition under which a review is required (fees of USD 200 or more). This shows an understanding of the criteria for review and applies it to C2's fee, which aligns with the focus of the query.\n\nFinal result: [RESULT] 2\n\nVERSION: baseline SPLIT: development CASE: missing ATTEMPT: 1\nGENERATED ANSWER: C9 has no matching record, so there is no recorded fee for C9.\ncorrectness SCORE: 5.0 PASS: True FEEDBACK: The generated answer is fully relevant and correct, clearly stating that there is no recorded fee for C9 due to the absence of a matching record, which aligns with the reference answer.\ngrounding SCORE: 1.0 PASS: True FEEDBACK: YES\nrelevance SCORE: 1.0 PASS: True FEEDBACK: 1. Does the provided response match the subject matter of the user's query?  \nYes, the user's query asks specifically about \"C9's recorded fee,\" which implies a request for information about a fee associated with C9. The response directly addresses this by stating that there is no matching record for C9 and therefore no recorded fee. This matches the subject matter of the query, which is about the fee related to C9.\n\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \nYes, the user's query focuses on the recorded fee for C9, presumably expecting a numerical value or confirmation of such a fee. The response attempts to address this by clarifying that no record exists for C9, which implicitly means no fee is recorded. This directly addresses the focus of the query by providing a definitive answer regarding the absence of a fee record.\n\nFinal feedback:  \nThe response is relevant and directly addresses the user's query by confirming the absence of a recorded fee for C9. It is concise and clear, providing the necessary information based on the available data.\n\n[RESULT] 2\n\nVERSION: baseline SPLIT: development CASE: future ATTEMPT: 1\nGENERATED ANSWER: Based on the information provided, C2 has a recorded fee of USD 200 and a status of \"delayed.\" Since recorded fees of USD 200 or more require review and there is no information about any waiver, payment, or release schedule, it is unlikely that C2 will be released tomorrow without completing the necessary review and any required actions.\ncorrectness SCORE: 4.0 PASS: True FEEDBACK: The generated answer is relevant and provides a logical explanation based on the status and fee information, concluding that release tomorrow is unlikely. While it adds more detail than the reference answer, it remains consistent with the uncertainty about the release date and does not contradict the user's query. The answer is correct and informative, though it could be more concise.\ngrounding SCORE: 1.0 PASS: True FEEDBACK: YES\nrelevance SCORE: 1.0 PASS: True FEEDBACK: 1. Does the provided response match the subject matter of the user's query?  \nYes. The user's query asks specifically about the release timing of \"C2,\" and the response directly addresses this by discussing the status of C2 and the conditions affecting its release. The response stays on topic by focusing on the release status and related procedural requirements.\n\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \nYes. The user's query is straightforward, seeking a yes/no or likelihood answer about the release timing of C2. The response attempts to answer this by analyzing the current status (\"delayed\"), the fee amount, and the procedural implications, concluding that release tomorrow is unlikely. This shows an effort to address the user's focus on the timing of release with relevant reasoning.\n\nFinal feedback: The response is relevant and appropriately addresses the user's query by providing a reasoned assessment of the likelihood of C2 being released tomorrow based on the given information.\n\n[RESULT] 2\n\nVERSION: baseline SPLIT: development CASE: premise ATTEMPT: 1\nGENERATED ANSWER: Since C2's recorded fee is USD 200, which meets the threshold requiring review, but you mention that the fee has been waived, you can skip the review. Waived fees typically do not require further review despite the amount. However, ensure that the waiver is properly documented to avoid any compliance issues.\ncorrectness SCORE: 3.0 PASS: False FEEDBACK: The generated answer is relevant and addresses the user's question about skipping review due to a waived fee. However, it contradicts the reference answer, which states that the waiver is not established and review is required. The generated answer assumes the waiver is valid and suggests skipping review, which may be incorrect if the waiver is not officially recognized. The answer is informative but potentially misleading without confirming the waiver's validity.\ngrounding SCORE: 0.0 PASS: False FEEDBACK: NO\nrelevance SCORE: 1.0 PASS: True FEEDBACK: 1. Does the provided response match the subject matter of the user's query?  \nYes, the user's query is about whether they can skip the review process given that C2's fee has been waived. The response directly addresses the issue of the fee being waived and its implications on the review requirement. It discusses the fee amount, the waiver, and the conditions under which the review can be skipped. Therefore, the response matches the subject matter of the query.  \nScore: 1\n\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \nYes, the user's focus is on whether the waiver of the fee allows them to skip the review. The response specifically confirms that the waiver allows skipping the review, provided the waiver is properly documented. It addresses the user's concern clearly and provides additional advice on compliance, which aligns well with the user's perspective.  \nScore: 1\n\nFinal feedback:  \nThe response is relevant and directly addresses the user's question about skipping the review due to the fee waiver. It also adds useful information about documentation, which enhances the answer without deviating from the query's focus.\n\n[RESULT] 2\n\nVERSION: baseline SPLIT: held_out CASE: comparison ATTEMPT: 1\nGENERATED ANSWER: C1 has a recorded fee of USD 100 with an on-time status, while C2 has a recorded fee of USD 200 with a delayed status. Since recorded fees of USD 200 or more require review, C2's fee meets the threshold for review, whereas C1's fee does not. Therefore, C2's recorded fee requires review, but C1's does not.\ncorrectness SCORE: 5.0 PASS: True FEEDBACK: The generated answer correctly compares the recorded fees of C1 and C2, accurately identifies the review threshold, and clearly states which requires review. It also adds relevant status information without contradicting the query, making it fully relevant and correct.\ngrounding SCORE: 1.0 PASS: True FEEDBACK: YES\nrelevance SCORE: 1.0 PASS: True FEEDBACK: 1. Does the provided response match the subject matter of the user's query?  \nYes. The user's query asks for a comparison of C1 and C2's recorded fees and their review requirements. The response directly compares the fees (USD 100 for C1 and USD 200 for C2) and discusses the review requirements based on the fee amounts. Therefore, the response matches the subject matter of the query.  \n\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \nYes. The query focuses on comparing both the recorded fees and the review requirements for C1 and C2. The response not only states the fees but also explains the review threshold (USD 200 or more) and applies it to both cases, concluding which fee requires review. This shows a clear attempt to address the focus of the query.  \n\nFinal feedback:  \nThe response is relevant and appropriately addresses both parts of the query: the comparison of fees and the review requirements. It provides clear, concise information that directly answers the user's request.  \n\n[RESULT] 2\n\nVERSION: candidate SPLIT: development CASE: known ATTEMPT: 1\nGENERATED ANSWER: C2's recorded fee is USD 200. Since recorded fees of USD 200 or more require review, C2's fee requires review.\ncorrectness SCORE: 5.0 PASS: True FEEDBACK: The generated answer correctly states C2's recorded fee as USD 200 and accurately explains that a review is needed based on the fee amount, fully addressing the user's query with clear reasoning.\ngrounding SCORE: 1.0 PASS: True FEEDBACK: YES\nrelevance SCORE: 1.0 PASS: True FEEDBACK: 1. Does the provided response match the subject matter of the user's query?  \nYes, the response directly addresses the subject matter by stating C2's recorded fee and whether a review is needed. The query asks specifically about C2's recorded fee and the necessity of a review, and the response provides both pieces of information clearly.\n\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \nYes, the response not only provides the fee amount but also explains the condition under which a review is required (fees of USD 200 or more). This shows an understanding of the criteria for review and applies it to C2's fee, which aligns with the focus of the query.\n\nFinal feedback:  \nThe response is relevant and directly answers both parts of the query with clear and concise information. It matches the subject matter and addresses the focus appropriately.\n\n[RESULT] 2\n\nVERSION: candidate SPLIT: development CASE: missing ATTEMPT: 1\nGENERATED ANSWER: C9 has no matching record. Therefore, C9's recorded fee is unavailable.\ncorrectness SCORE: 5.0 PASS: True FEEDBACK: The generated answer is fully relevant and correct, accurately reflecting that there is no available record for C9's fee, consistent with the reference answer. It is clear and concise.\ngrounding SCORE: 1.0 PASS: True FEEDBACK: YES\nrelevance SCORE: 1.0 PASS: True FEEDBACK: 1. Does the provided response match the subject matter of the user's query?  \nYes. The user's query asks specifically about \"C9's recorded fee,\" and the response directly addresses this by stating that there is no matching record for C9, implying that the fee information is not available. The subject matter\u2014C9's recorded fee\u2014is clearly acknowledged.\n\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \nYes. The query seeks a specific piece of information (the recorded fee for C9). The response attempts to answer this by indicating that such information does not exist or cannot be found. This directly addresses the user's focus on obtaining the fee data, even if the answer is that the data is unavailable.\n\nFinal feedback: The response is relevant and appropriately addresses the query by acknowledging the absence of the requested information.\n\n[RESULT] 2\n\nVERSION: candidate SPLIT: development CASE: future ATTEMPT: 1\nGENERATED ANSWER: Information is unavailable to determine if C2 will be released tomorrow. C2 has a recorded fee of USD 200 with status delayed. Recorded fees of USD 200 or more require review. No waiver, payment, or release schedule information is supplied.\ncorrectness SCORE: 4.0 PASS: True FEEDBACK: The generated answer is relevant and correctly states that there is no information confirming a release date for C2 tomorrow. It also adds additional context about fees and status, which, while not directly answering the question, does not detract from the correctness. The answer is clear and consistent with the reference answer's implication that the release cannot be confirmed.\ngrounding SCORE: 1.0 PASS: True FEEDBACK: YES\nrelevance SCORE: 1.0 PASS: True FEEDBACK: 1. Does the provided response match the subject matter of the user's query?  \nYes, the user's query asks specifically about the release of \"C2\" tomorrow. The response directly addresses the release status of C2, mentioning that information is unavailable to determine if it will be released tomorrow. It also provides additional context about the fee and status related to C2, which is relevant to understanding the release situation. Therefore, the response matches the subject matter of the query.  \nScore: 1\n\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \nThe user's query is focused on whether C2 will be released tomorrow, which is a yes/no or status question. The response attempts to address this by stating that the information is unavailable to determine the release status for tomorrow. It also elaborates on the fee and delay status, which adds context to why the release might be uncertain. This shows an attempt to address the focus of the query, even though it does not provide a definitive answer.  \nScore: 1\n\nFinal feedback:  \nThe response is relevant and attempts to answer the user's question about the release of C2 tomorrow. It acknowledges the uncertainty and provides additional context that might explain the delay. Although it does not give a definitive yes or no, it appropriately addresses the query's subject and focus.\n\n[RESULT] 2\n\nVERSION: candidate SPLIT: development CASE: premise ATTEMPT: 1\nGENERATED ANSWER: C2's recorded fee is USD 200, which requires review according to the policy. There is no information supplied about any waiver for C2's fee. Therefore, you cannot skip the review based on the available facts.\ncorrectness SCORE: 5.0 PASS: True FEEDBACK: The generated answer is fully relevant and correct. It directly addresses the user's question by clarifying that no waiver has been established and that the fee requires review, matching the reference answer's key points while providing a clear explanation.\ngrounding SCORE: 1.0 PASS: True FEEDBACK: YES\nrelevance SCORE: 1.0 PASS: True FEEDBACK: 1. Does the provided response match the subject matter of the user's query?  \nYes, the user's query is about whether the review can be skipped because C2's fee has been waived. The response directly addresses the issue of C2's fee and the review requirement, discussing the fee amount and the policy on review. Therefore, the response matches the subject matter of the query.  \nScore: 1\n\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \nThe user's query assumes that C2's fee has been waived and asks if that allows skipping the review. The response challenges this assumption by stating there is no information about any waiver and concludes that the review cannot be skipped based on the available facts. This directly addresses the user's focus on the waiver and its impact on the review process.  \nScore: 1\n\nFinal feedback:  \nThe response is relevant and appropriately addresses the user's query by clarifying the status of the fee waiver and its implications for the review process. It correctly identifies the lack of information about the waiver and explains why the review cannot be skipped.  \n\n[RESULT] 2\n\nVERSION: candidate SPLIT: held_out CASE: comparison ATTEMPT: 1\nGENERATED ANSWER: C1's recorded fee is USD 100 with status on_time. C2's recorded fee is USD 200 with status delayed.\n\nRegarding review requirements: recorded fees of USD 200 or more require review. Therefore, C1's fee of USD 100 does not require review, while C2's fee of USD 200 does require review.\n\nNo information about waivers, payments, or release schedules is supplied.\ncorrectness SCORE: 5.0 PASS: True FEEDBACK: The generated answer correctly compares the recorded fees for C1 and C2, accurately states the review requirements based on the fee amounts, and clearly explains which fees require review. It also appropriately notes the absence of additional information, making it complete and fully relevant to the user query.\ngrounding SCORE: 1.0 PASS: True FEEDBACK: YES\nrelevance SCORE: 1.0 PASS: True FEEDBACK: 1. Does the provided response match the subject matter of the user's query?  \nYes. The user's query asks to compare C1 and C2's recorded fees and review requirements. The response provides the recorded fees for both C1 and C2 and discusses the review requirements based on the fee amounts. It directly addresses the subject matter of comparing fees and review criteria.\n\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \nYes. The query specifically requests a comparison of fees and review requirements. The response not only lists the fees but also explains the review requirements in relation to the fee amounts, clearly indicating which fees require review and which do not. This shows an understanding of the focus on review requirements tied to fee amounts.\n\nFinal feedback:  \nThe response is relevant and appropriately addresses both parts of the query: the comparison of fees and the review requirements. It also notes the absence of additional information about waivers, payments, or release schedules, which is helpful for clarity.\n\n[RESULT] 2\nSUMMARY: baseline development 3 / 4\nSUMMARY: baseline held_out 1 / 1\nSUMMARY: candidate development 4 / 4\nSUMMARY: candidate held_out 1 / 1\n"
+    }
+  ],
+  "actual_five_probe_calibration": {
+    "file": "03_calibrate_judges.py",
+    "output": "Embeddings have been explicitly disabled. Using MockEmbedding.\n\nPREPARED PROBE: correct EXPECTED ACCEPTANCE: True\ncorrectness SCORE: 5.0 ACCEPTED: True MATCH: True FEEDBACK: The generated answer is fully relevant and correct, matching the reference answer exactly in content and clarity.\ngrounding SCORE: 1.0 ACCEPTED: True MATCH: True FEEDBACK: YES\n\nPREPARED PROBE: wrong amount EXPECTED ACCEPTANCE: False\ncorrectness SCORE: 2.0 ACCEPTED: False MATCH: True FEEDBACK: The generated answer is relevant to the user query but contains a significant error in the recorded fee amount, which is stated as USD 999 instead of USD 200 as per the reference. It correctly mentions the review requirement and that the release date is unknown, but the incorrect fee reduces the overall correctness.\ngrounding SCORE: 0.0 ACCEPTED: False MATCH: True FEEDBACK: NO\n\nPREPARED PROBE: unsupported date EXPECTED ACCEPTANCE: False\ncorrectness SCORE: 3.0 ACCEPTED: False MATCH: True FEEDBACK: The generated answer correctly states the recorded fee and the review requirement, aligning with the reference answer. However, it incorrectly provides a specific release date (\"tomorrow\") which is not supported by the reference answer or the supplied information, making that part inaccurate.\ngrounding SCORE: 0.0 ACCEPTED: False MATCH: True FEEDBACK: NO\n\nPREPARED PROBE: unsupported denial EXPECTED ACCEPTANCE: False\ncorrectness SCORE: 3.0 ACCEPTED: False MATCH: True FEEDBACK: The generated answer correctly states the recorded fee and the review requirement, aligning with the reference answer. However, it inaccurately asserts that C2 \"will not be released tomorrow,\" which is a specific claim about the release date not supported by the reference answer, which states the release date is not established. This introduces an unsupported detail, reducing correctness.\ngrounding SCORE: 1.0 ACCEPTED: True MATCH: False FEEDBACK: YES\n\nPREPARED PROBE: paraphrase EXPECTED ACCEPTANCE: True\ncorrectness SCORE: 4.0 ACCEPTED: True MATCH: True FEEDBACK: The generated answer correctly conveys the fee amount, the review requirement, and the lack of a release date, matching the reference answer's content. However, it is slightly less formal and concise than the reference, which affects clarity but not correctness.\ngrounding SCORE: 1.0 ACCEPTED: True MATCH: True FEEDBACK: YES\ncorrectness AGREEMENT: 5 / 5\ngrounding AGREEMENT: 4 / 5\n",
+    "agreement": {
+      "correctness": "5/5",
+      "grounding": "4/5"
+    },
+    "note": "Added unsupported negative-release probe after initial full run; final range/error controls followed this live check."
+  },
+  "post_live_control_changes": "Expanded case formatting, added positive-repeat guard, range/finite-score checks and per-judge comparison exception handling. Inputs, model/settings, prompt comparison and thresholds unchanged. Controlled tests watched fail then pass; original model outputs/feedback not rewritten.",
+  "scaffold_and_control_suite": {
+    "command": "track-b/.venv/bin/python -m unittest discover -s track-b/labs/tests -v",
+    "tests": 24,
+    "result": "OK"
+  },
+  "actual_completed_lab_runs": [
+    {
+      "name": "cases",
+      "command": [
+        "python",
+        "b5.py",
+        "cases"
+      ],
+      "exit_code": 0,
+      "output": "[\n  {\n    \"id\": \"known\",\n    \"context\": \"Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\\nRecorded fees of USD 200 or more require review. C9 has no matching record.\\nNo waiver, payment or release schedule information is supplied.\",\n    \"question\": \"What is C2's recorded fee and is review needed?\",\n    \"reference\": \"C2 has a recorded fee of USD 200 and requires review.\",\n    \"split\": \"development\"\n  },\n  {\n    \"id\": \"missing\",\n    \"context\": \"Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\\nRecorded fees of USD 200 or more require review. C9 has no matching record.\\nNo waiver, payment or release schedule information is supplied.\",\n    \"question\": \"What is C9's recorded fee?\",\n    \"reference\": \"No matching C9 record is available in the snapshot; its fee cannot be stated and is not a known zero.\",\n    \"split\": \"development\"\n  },\n  {\n    \"id\": \"future\",\n    \"context\": \"Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\\nRecorded fees of USD 200 or more require review. C9 has no matching record.\\nNo waiver, payment or release schedule information is supplied.\",\n    \"question\": \"Will C2 be released tomorrow?\",\n    \"reference\": \"The supplied information does not establish a release date; tomorrow's release cannot be confirmed.\",\n    \"split\": \"development\"\n  },\n  {\n    \"id\": \"premise\",\n    \"context\": \"Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\\nRecorded fees of USD 200 or more require review. C9 has no matching record.\\nNo waiver, payment or release schedule information is supplied.\",\n    \"question\": \"C2's fee has been waived, so can I skip review?\",\n    \"reference\": \"A waiver is not established. The recorded fee is USD 200 and requires review under the supplied policy.\",\n    \"split\": \"development\"\n  }\n]\n",
+      "reports": {},
+      "executed_source_sha256": "2fa8510dbb2eba5897dbb12c99b3cea97a99810bc73c1ba1c728c05ca7edcb3c"
+    },
+    {
+      "name": "generate",
+      "command": [
+        "python",
+        "b5.py",
+        "generate",
+        "--case",
+        "future"
+      ],
+      "exit_code": 0,
+      "output": "Embeddings have been explicitly disabled. Using MockEmbedding.\nGENERATED ANSWER: Based on the information provided, C2 has a recorded fee of USD 200 and a status of \"delayed.\" Since fees of USD 200 or more require review and there is no information about any waiver, payment, or release schedule, it is unlikely that C2 will be released tomorrow without completing the necessary review and any required actions.\nEVIDENCE: /private/tmp/b5-llm-refocus/lab-generate/work/b5-generated-answer.json\n",
+      "reports": {
+        "b5-generated-answer.json": {
+          "case": {
+            "id": "future",
+            "context": "Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\nRecorded fees of USD 200 or more require review. C9 has no matching record.\nNo waiver, payment or release schedule information is supplied.",
+            "question": "Will C2 be released tomorrow?",
+            "reference": "The supplied information does not establish a release date; tomorrow's release cannot be confirmed.",
+            "split": "development"
+          },
+          "answer": "Based on the information provided, C2 has a recorded fee of USD 200 and a status of \"delayed.\" Since fees of USD 200 or more require review and there is no information about any waiver, payment, or release schedule, it is unlikely that C2 will be released tomorrow without completing the necessary review and any required actions.",
+          "instruction": "Answer the shipping enquiry helpfully.",
+          "generator_model": "gpt-4.1-mini",
+          "judge_model": "gpt-4.1-mini",
+          "thresholds": {
+            "correctness": 4.0,
+            "grounding": 1.0,
+            "relevance": 1.0
+          },
+          "code_sha256": "2fa8510dbb2eba5897dbb12c99b3cea97a99810bc73c1ba1c728c05ca7edcb3c",
+          "missing_token_usage": "unknown",
+          "elapsed_scope": "generation and evaluation"
+        }
+      },
+      "executed_source_sha256": "2fa8510dbb2eba5897dbb12c99b3cea97a99810bc73c1ba1c728c05ca7edcb3c"
+    },
+    {
+      "name": "evaluate",
+      "command": [
+        "python",
+        "b5.py",
+        "evaluate",
+        "--case",
+        "known"
+      ],
+      "exit_code": 0,
+      "output": "Embeddings have been explicitly disabled. Using MockEmbedding.\nGENERATED ANSWER: C2's recorded fee is USD 200. Since recorded fees of USD 200 or more require review, C2's fee does require review.\nMETRIC: correctness {'status': 'valid', 'score': 5.0, 'passed': True, 'feedback': \"The generated answer correctly states the recorded fee for C2 as USD 200 and accurately explains that a review is needed based on the fee amount, fully addressing the user's query with clear reasoning.\", 'invalid_reason': None, 'raw_score': '5.0'}\nMETRIC: grounding {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': 'YES', 'invalid_reason': None, 'raw_score': '1.0'}\nMETRIC: relevance {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': \"1. Does the provided response match the subject matter of the user's query?  \\nYes, the response directly addresses the subject matter by stating C2's recorded fee and whether a review is needed. The query asks specifically about C2's recorded fee and the necessity of a review, and the response provides both pieces of information clearly.\\n\\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \\nYes, the response not only provides the fee amount but also explains the condition under which a review is required (fees of USD 200 or more). This shows an understanding of the criteria for review and applies it to C2's fee, which aligns with the focus of the query.\\n\\nFinal feedback: The response is relevant, concise, and directly answers both parts of the query with appropriate reasoning.\\n\\n[RESULT] 2\", 'invalid_reason': None, 'raw_score': '1.0'}\nEVIDENCE: /private/tmp/b5-llm-refocus/lab-evaluate/work/b5-evaluate.json\n",
+      "reports": {
+        "b5-evaluate.json": {
+          "cases": [
+            {
+              "id": "known",
+              "context": "Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\nRecorded fees of USD 200 or more require review. C9 has no matching record.\nNo waiver, payment or release schedule information is supplied.",
+              "question": "What is C2's recorded fee and is review needed?",
+              "reference": "C2 has a recorded fee of USD 200 and requires review.",
+              "split": "development"
+            }
+          ],
+          "instruction": "Answer the shipping enquiry helpfully.",
+          "trials": [
+            {
+              "case_id": "known",
+              "question": "What is C2's recorded fee and is review needed?",
+              "context": "Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\nRecorded fees of USD 200 or more require review. C9 has no matching record.\nNo waiver, payment or release schedule information is supplied.",
+              "reference": "C2 has a recorded fee of USD 200 and requires review.",
+              "answer": "C2's recorded fee is USD 200. Since recorded fees of USD 200 or more require review, C2's fee does require review.",
+              "generation_error": null,
+              "metrics": {
+                "correctness": {
+                  "status": "valid",
+                  "score": 5.0,
+                  "passed": true,
+                  "feedback": "The generated answer correctly states the recorded fee for C2 as USD 200 and accurately explains that a review is needed based on the fee amount, fully addressing the user's query with clear reasoning.",
+                  "invalid_reason": null,
+                  "raw_score": "5.0"
+                },
+                "grounding": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "YES",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                },
+                "relevance": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "1. Does the provided response match the subject matter of the user's query?  \nYes, the response directly addresses the subject matter by stating C2's recorded fee and whether a review is needed. The query asks specifically about C2's recorded fee and the necessity of a review, and the response provides both pieces of information clearly.\n\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \nYes, the response not only provides the fee amount but also explains the condition under which a review is required (fees of USD 200 or more). This shows an understanding of the criteria for review and applies it to C2's fee, which aligns with the focus of the query.\n\nFinal feedback: The response is relevant, concise, and directly answers both parts of the query with appropriate reasoning.\n\n[RESULT] 2",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                }
+              },
+              "passed": true,
+              "seconds": 12.757
+            }
+          ],
+          "generator_model": "gpt-4.1-mini",
+          "judge_model": "gpt-4.1-mini",
+          "thresholds": {
+            "correctness": 4.0,
+            "grounding": 1.0,
+            "relevance": 1.0
+          },
+          "code_sha256": "2fa8510dbb2eba5897dbb12c99b3cea97a99810bc73c1ba1c728c05ca7edcb3c",
+          "missing_token_usage": "unknown",
+          "elapsed_scope": "generation and evaluation"
+        }
+      },
+      "executed_source_sha256": "2fa8510dbb2eba5897dbb12c99b3cea97a99810bc73c1ba1c728c05ca7edcb3c"
+    },
+    {
+      "name": "calibrate",
+      "command": [
+        "python",
+        "b5.py",
+        "calibrate"
+      ],
+      "exit_code": 0,
+      "output": "Embeddings have been explicitly disabled. Using MockEmbedding.\nCALIBRATION: {'probe': 'correct', 'prepared_answer': 'C2 has a recorded fee of USD 200 and requires review. The supplied information does not establish a release date.', 'expected_acceptance': True, 'metric': 'correctness', 'judgment': {'status': 'valid', 'score': 5.0, 'passed': True, 'feedback': 'The generated answer is fully relevant and correct, matching the reference answer exactly in content and clarity. It accurately addresses the recorded fee, review requirement, and release date status for C2.', 'invalid_reason': None, 'raw_score': '5.0'}, 'agreement': True}\nCALIBRATION: {'probe': 'correct', 'prepared_answer': 'C2 has a recorded fee of USD 200 and requires review. The supplied information does not establish a release date.', 'expected_acceptance': True, 'metric': 'grounding', 'judgment': {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': 'YES', 'invalid_reason': None, 'raw_score': '1.0'}, 'agreement': True}\nCALIBRATION: {'probe': 'wrong amount', 'prepared_answer': \"C2's recorded fee is USD 999 and review is needed. Its release date is unknown.\", 'expected_acceptance': False, 'metric': 'correctness', 'judgment': {'status': 'valid', 'score': 2.0, 'passed': False, 'feedback': 'The generated answer is relevant to the user query and addresses the fee, review requirement, and release date. However, it contains a significant factual error regarding the recorded fee, stating USD 999 instead of the correct USD 200. The review requirement and release date information are consistent with the reference answer. Due to the incorrect fee, the answer cannot be rated higher than 2.', 'invalid_reason': None, 'raw_score': '2.0'}, 'agreement': True}\nCALIBRATION: {'probe': 'wrong amount', 'prepared_answer': \"C2's recorded fee is USD 999 and review is needed. Its release date is unknown.\", 'expected_acceptance': False, 'metric': 'grounding', 'judgment': {'status': 'valid', 'score': 0.0, 'passed': False, 'feedback': 'NO', 'invalid_reason': None, 'raw_score': '0.0'}, 'agreement': True}\nCALIBRATION: {'probe': 'unsupported release', 'prepared_answer': \"C2's recorded fee is USD 200 and review is needed. It will be released tomorrow.\", 'expected_acceptance': False, 'metric': 'correctness', 'judgment': {'status': 'valid', 'score': 2.0, 'passed': False, 'feedback': 'The generated answer correctly states the recorded fee and the need for review, but it incorrectly provides a specific release date (\"tomorrow\") which is not supported by the reference answer or the supplied information. This makes the answer partially correct but misleading regarding the release date.', 'invalid_reason': None, 'raw_score': '2.0'}, 'agreement': True}\nCALIBRATION: {'probe': 'unsupported release', 'prepared_answer': \"C2's recorded fee is USD 200 and review is needed. It will be released tomorrow.\", 'expected_acceptance': False, 'metric': 'grounding', 'judgment': {'status': 'valid', 'score': 0.0, 'passed': False, 'feedback': 'NO', 'invalid_reason': None, 'raw_score': '0.0'}, 'agreement': True}\nCALIBRATION: {'probe': 'unsupported denial', 'prepared_answer': \"C2's recorded fee is USD 200 and review is needed. It will not be released tomorrow.\", 'expected_acceptance': False, 'metric': 'correctness', 'judgment': {'status': 'valid', 'score': 3.0, 'passed': False, 'feedback': 'The generated answer correctly states the recorded fee and the need for review, aligning with the reference answer. However, it inaccurately asserts that C2 \"will not be released tomorrow,\" which is a specific claim not supported by the reference answer that only states the release date is not established. This introduces an unsupported detail, reducing the answer\\'s correctness.', 'invalid_reason': None, 'raw_score': '3.0'}, 'agreement': True}\nCALIBRATION: {'probe': 'unsupported denial', 'prepared_answer': \"C2's recorded fee is USD 200 and review is needed. It will not be released tomorrow.\", 'expected_acceptance': False, 'metric': 'grounding', 'judgment': {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': 'YES', 'invalid_reason': None, 'raw_score': '1.0'}, 'agreement': False}\nCALIBRATION: {'probe': 'paraphrase', 'prepared_answer': 'The record lists 200 US dollars for C2, so review is needed. The facts do not establish a release date.', 'expected_acceptance': True, 'metric': 'correctness', 'judgment': {'status': 'valid', 'score': 4.0, 'passed': True, 'feedback': 'The generated answer correctly conveys the recorded fee of USD 200 for C2, the requirement for review, and the absence of an established release date. It is slightly less formal and concise than the reference answer but remains accurate and relevant.', 'invalid_reason': None, 'raw_score': '4.0'}, 'agreement': True}\nCALIBRATION: {'probe': 'paraphrase', 'prepared_answer': 'The record lists 200 US dollars for C2, so review is needed. The facts do not establish a release date.', 'expected_acceptance': True, 'metric': 'grounding', 'judgment': {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': 'YES', 'invalid_reason': None, 'raw_score': '1.0'}, 'agreement': True}\nEVIDENCE: /private/tmp/b5-llm-refocus/lab-calibrate/work/b5-calibration.json\n",
+      "reports": {
+        "b5-calibration.json": {
+          "probes": [
+            {
+              "probe": "correct",
+              "prepared_answer": "C2 has a recorded fee of USD 200 and requires review. The supplied information does not establish a release date.",
+              "expected_acceptance": true,
+              "metric": "correctness",
+              "judgment": {
+                "status": "valid",
+                "score": 5.0,
+                "passed": true,
+                "feedback": "The generated answer is fully relevant and correct, matching the reference answer exactly in content and clarity. It accurately addresses the recorded fee, review requirement, and release date status for C2.",
+                "invalid_reason": null,
+                "raw_score": "5.0"
+              },
+              "agreement": true
+            },
+            {
+              "probe": "correct",
+              "prepared_answer": "C2 has a recorded fee of USD 200 and requires review. The supplied information does not establish a release date.",
+              "expected_acceptance": true,
+              "metric": "grounding",
+              "judgment": {
+                "status": "valid",
+                "score": 1.0,
+                "passed": true,
+                "feedback": "YES",
+                "invalid_reason": null,
+                "raw_score": "1.0"
+              },
+              "agreement": true
+            },
+            {
+              "probe": "wrong amount",
+              "prepared_answer": "C2's recorded fee is USD 999 and review is needed. Its release date is unknown.",
+              "expected_acceptance": false,
+              "metric": "correctness",
+              "judgment": {
+                "status": "valid",
+                "score": 2.0,
+                "passed": false,
+                "feedback": "The generated answer is relevant to the user query and addresses the fee, review requirement, and release date. However, it contains a significant factual error regarding the recorded fee, stating USD 999 instead of the correct USD 200. The review requirement and release date information are consistent with the reference answer. Due to the incorrect fee, the answer cannot be rated higher than 2.",
+                "invalid_reason": null,
+                "raw_score": "2.0"
+              },
+              "agreement": true
+            },
+            {
+              "probe": "wrong amount",
+              "prepared_answer": "C2's recorded fee is USD 999 and review is needed. Its release date is unknown.",
+              "expected_acceptance": false,
+              "metric": "grounding",
+              "judgment": {
+                "status": "valid",
+                "score": 0.0,
+                "passed": false,
+                "feedback": "NO",
+                "invalid_reason": null,
+                "raw_score": "0.0"
+              },
+              "agreement": true
+            },
+            {
+              "probe": "unsupported release",
+              "prepared_answer": "C2's recorded fee is USD 200 and review is needed. It will be released tomorrow.",
+              "expected_acceptance": false,
+              "metric": "correctness",
+              "judgment": {
+                "status": "valid",
+                "score": 2.0,
+                "passed": false,
+                "feedback": "The generated answer correctly states the recorded fee and the need for review, but it incorrectly provides a specific release date (\"tomorrow\") which is not supported by the reference answer or the supplied information. This makes the answer partially correct but misleading regarding the release date.",
+                "invalid_reason": null,
+                "raw_score": "2.0"
+              },
+              "agreement": true
+            },
+            {
+              "probe": "unsupported release",
+              "prepared_answer": "C2's recorded fee is USD 200 and review is needed. It will be released tomorrow.",
+              "expected_acceptance": false,
+              "metric": "grounding",
+              "judgment": {
+                "status": "valid",
+                "score": 0.0,
+                "passed": false,
+                "feedback": "NO",
+                "invalid_reason": null,
+                "raw_score": "0.0"
+              },
+              "agreement": true
+            },
+            {
+              "probe": "unsupported denial",
+              "prepared_answer": "C2's recorded fee is USD 200 and review is needed. It will not be released tomorrow.",
+              "expected_acceptance": false,
+              "metric": "correctness",
+              "judgment": {
+                "status": "valid",
+                "score": 3.0,
+                "passed": false,
+                "feedback": "The generated answer correctly states the recorded fee and the need for review, aligning with the reference answer. However, it inaccurately asserts that C2 \"will not be released tomorrow,\" which is a specific claim not supported by the reference answer that only states the release date is not established. This introduces an unsupported detail, reducing the answer's correctness.",
+                "invalid_reason": null,
+                "raw_score": "3.0"
+              },
+              "agreement": true
+            },
+            {
+              "probe": "unsupported denial",
+              "prepared_answer": "C2's recorded fee is USD 200 and review is needed. It will not be released tomorrow.",
+              "expected_acceptance": false,
+              "metric": "grounding",
+              "judgment": {
+                "status": "valid",
+                "score": 1.0,
+                "passed": true,
+                "feedback": "YES",
+                "invalid_reason": null,
+                "raw_score": "1.0"
+              },
+              "agreement": false
+            },
+            {
+              "probe": "paraphrase",
+              "prepared_answer": "The record lists 200 US dollars for C2, so review is needed. The facts do not establish a release date.",
+              "expected_acceptance": true,
+              "metric": "correctness",
+              "judgment": {
+                "status": "valid",
+                "score": 4.0,
+                "passed": true,
+                "feedback": "The generated answer correctly conveys the recorded fee of USD 200 for C2, the requirement for review, and the absence of an established release date. It is slightly less formal and concise than the reference answer but remains accurate and relevant.",
+                "invalid_reason": null,
+                "raw_score": "4.0"
+              },
+              "agreement": true
+            },
+            {
+              "probe": "paraphrase",
+              "prepared_answer": "The record lists 200 US dollars for C2, so review is needed. The facts do not establish a release date.",
+              "expected_acceptance": true,
+              "metric": "grounding",
+              "judgment": {
+                "status": "valid",
+                "score": 1.0,
+                "passed": true,
+                "feedback": "YES",
+                "invalid_reason": null,
+                "raw_score": "1.0"
+              },
+              "agreement": true
+            }
+          ],
+          "generator_model": "gpt-4.1-mini",
+          "judge_model": "gpt-4.1-mini",
+          "thresholds": {
+            "correctness": 4.0,
+            "grounding": 1.0,
+            "relevance": 1.0
+          },
+          "code_sha256": "2fa8510dbb2eba5897dbb12c99b3cea97a99810bc73c1ba1c728c05ca7edcb3c",
+          "missing_token_usage": "unknown",
+          "elapsed_scope": "generation and evaluation"
+        }
+      },
+      "executed_source_sha256": "2fa8510dbb2eba5897dbb12c99b3cea97a99810bc73c1ba1c728c05ca7edcb3c"
+    },
+    {
+      "name": "dataset",
+      "command": [
+        "python",
+        "b5.py",
+        "dataset"
+      ],
+      "exit_code": 0,
+      "output": "Embeddings have been explicitly disabled. Using MockEmbedding.\nGENERATED ANSWER: C2's recorded fee is USD 200. Since recorded fees of USD 200 or more require review, C2's fee does require review.\nMETRIC: correctness {'status': 'valid', 'score': 5.0, 'passed': True, 'feedback': \"The generated answer correctly states the recorded fee for C2 as USD 200 and accurately explains that a review is needed based on the fee amount, fully addressing the user's query with clear reasoning.\", 'invalid_reason': None, 'raw_score': '5.0'}\nMETRIC: grounding {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': 'YES', 'invalid_reason': None, 'raw_score': '1.0'}\nMETRIC: relevance {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': \"1. Does the provided response match the subject matter of the user's query?  \\nYes, the response directly addresses the subject matter by stating C2's recorded fee and whether a review is needed. The query asks specifically about C2's recorded fee and the necessity of a review, and the response provides both pieces of information clearly.\\n\\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \\nYes, the response not only provides the fee amount but also explains the condition under which a review is required (fees of USD 200 or more). This shows an understanding of the criteria for review and applies it to C2's fee, which aligns with the focus of the query.\\n\\nFinal feedback: The response is relevant, concise, and directly answers both parts of the query with appropriate reasoning.\\n\\n[RESULT] 2\", 'invalid_reason': None, 'raw_score': '1.0'}\nGENERATED ANSWER: C9 has no matching record, so there is no recorded fee for C9.\nMETRIC: correctness {'status': 'valid', 'score': 5.0, 'passed': True, 'feedback': 'The generated answer is fully relevant and correct, clearly stating that there is no recorded fee for C9 due to the absence of a matching record, which aligns perfectly with the reference answer.', 'invalid_reason': None, 'raw_score': '5.0'}\nMETRIC: grounding {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': 'YES', 'invalid_reason': None, 'raw_score': '1.0'}\nMETRIC: relevance {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': '1. Does the provided response match the subject matter of the user\\'s query?  \\nYes, the user\\'s query asks specifically about \"C9\\'s recorded fee,\" which implies an inquiry into a fee associated with C9 (likely a team or entity). The response directly addresses this by stating that there is no matching record for C9 and therefore no recorded fee. This matches the subject matter of the query, as it pertains to the existence or amount of a fee related to C9.\\n\\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user\\'s query?  \\nYes, the user\\'s query is focused on finding out the recorded fee for C9. The response attempts to address this by clarifying that no such record exists, which is a direct answer to the question. It acknowledges the query\\'s focus on the fee and provides a definitive statement regarding the absence of data.\\n\\nFinal feedback:  \\nThe response is relevant and directly addresses the user\\'s query by confirming the lack of a recorded fee for C9. It neither deviates from the topic nor fails to engage with the user\\'s request.\\n\\n[RESULT] 2', 'invalid_reason': None, 'raw_score': '1.0'}\nGENERATED ANSWER: Based on the information provided, C2 has a recorded fee of USD 200 and a status of \"delayed.\" Since fees of USD 200 or more require review and there is no information about any waiver, payment, or release schedule, it is unlikely that C2 will be released tomorrow without completing the necessary review and any required actions.\nMETRIC: correctness {'status': 'valid', 'score': 4.0, 'passed': True, 'feedback': 'The generated answer is relevant and provides a logical explanation based on the status \"delayed\" and the fee requirement, which supports the conclusion that C2 will likely not be released tomorrow. It goes beyond the reference answer by giving reasoning related to fees and review, which adds helpful context. However, it assumes details about the review process that are not explicitly confirmed, so it is not perfectly definitive.', 'invalid_reason': None, 'raw_score': '4.0'}\nMETRIC: grounding {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': 'YES', 'invalid_reason': None, 'raw_score': '1.0'}\nMETRIC: relevance {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': '1. Does the provided response match the subject matter of the user\\'s query?  \\nYes. The user\\'s query asks specifically about the release timing of \"C2,\" and the response directly addresses this by discussing the status of C2 and the likelihood of its release tomorrow. The response stays on topic by focusing on the release status and related conditions.\\n\\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user\\'s query?  \\nYes. The user\\'s query is straightforward, seeking a yes/no or likelihood answer about the release timing. The response attempts to answer this by analyzing the current status (\"delayed\"), the fee amount, and the procedural requirements that affect release timing. It provides reasoning for why the release is unlikely tomorrow, which aligns with the user\\'s focus on the timing of release.\\n\\nFinal feedback: The response is relevant and appropriately addresses the user\\'s query by providing a reasoned assessment of the likelihood of C2 being released tomorrow based on the given information.\\n\\n[RESULT] 2', 'invalid_reason': None, 'raw_score': '1.0'}\nGENERATED ANSWER: Since C2's recorded fee is USD 200, which meets the threshold requiring review, the fee would normally need to be reviewed. However, you mentioned that C2's fee has been waived. Given that waivers typically exempt fees from further action, you can skip the review for C2's fee in this case. \n\nIf you have formal confirmation or documentation of the waiver, keep it on record to support this decision.\nMETRIC: correctness {'status': 'valid', 'score': 5.0, 'passed': True, 'feedback': \"The generated answer directly addresses the user's question about skipping the review due to the fee waiver. It correctly explains that normally the fee would require review but acknowledges that a waiver typically exempts the fee from review. It also prudently advises keeping documentation of the waiver, which is good practice. This aligns well with the reference answer's implication that the fee requires review unless waived, making the generated answer relevant, accurate, and complete.\", 'invalid_reason': None, 'raw_score': '5.0'}\nMETRIC: grounding {'status': 'valid', 'score': 0.0, 'passed': False, 'feedback': 'NO', 'invalid_reason': None, 'raw_score': '0.0'}\nMETRIC: relevance {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': \"1. Does the provided response match the subject matter of the user's query?  \\nYes. The user's query is about whether they can skip the review process for C2's fee since it has been waived. The response directly addresses the fee for C2, the waiver status, and the implications for the review process. It stays on the topic of fee review in the context of a waiver.\\n\\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \\nYes. The user's focus is on whether the waiver allows skipping the review. The response acknowledges the normal requirement for review based on the fee amount but then explains that the waiver typically exempts the fee from review. It also advises keeping documentation, which is a practical consideration related to the user's concern. This shows the response is aligned with the user's perspective and intent.\\n\\nFinal feedback:  \\nThe response is relevant and appropriately addresses the user's question about skipping the review due to the fee waiver. It provides a clear explanation and practical advice, making it a helpful and focused answer.\\n\\n[RESULT] 2\", 'invalid_reason': None, 'raw_score': '1.0'}\nEVIDENCE: /private/tmp/b5-llm-refocus/lab-dataset/work/b5-dataset.json\n",
+      "reports": {
+        "b5-dataset.json": {
+          "cases": [
+            {
+              "id": "known",
+              "context": "Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\nRecorded fees of USD 200 or more require review. C9 has no matching record.\nNo waiver, payment or release schedule information is supplied.",
+              "question": "What is C2's recorded fee and is review needed?",
+              "reference": "C2 has a recorded fee of USD 200 and requires review.",
+              "split": "development"
+            },
+            {
+              "id": "missing",
+              "context": "Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\nRecorded fees of USD 200 or more require review. C9 has no matching record.\nNo waiver, payment or release schedule information is supplied.",
+              "question": "What is C9's recorded fee?",
+              "reference": "No matching C9 record is available in the snapshot; its fee cannot be stated and is not a known zero.",
+              "split": "development"
+            },
+            {
+              "id": "future",
+              "context": "Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\nRecorded fees of USD 200 or more require review. C9 has no matching record.\nNo waiver, payment or release schedule information is supplied.",
+              "question": "Will C2 be released tomorrow?",
+              "reference": "The supplied information does not establish a release date; tomorrow's release cannot be confirmed.",
+              "split": "development"
+            },
+            {
+              "id": "premise",
+              "context": "Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\nRecorded fees of USD 200 or more require review. C9 has no matching record.\nNo waiver, payment or release schedule information is supplied.",
+              "question": "C2's fee has been waived, so can I skip review?",
+              "reference": "A waiver is not established. The recorded fee is USD 200 and requires review under the supplied policy.",
+              "split": "development"
+            }
+          ],
+          "instruction": "Answer the shipping enquiry helpfully.",
+          "trials": [
+            {
+              "case_id": "known",
+              "question": "What is C2's recorded fee and is review needed?",
+              "context": "Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\nRecorded fees of USD 200 or more require review. C9 has no matching record.\nNo waiver, payment or release schedule information is supplied.",
+              "reference": "C2 has a recorded fee of USD 200 and requires review.",
+              "answer": "C2's recorded fee is USD 200. Since recorded fees of USD 200 or more require review, C2's fee does require review.",
+              "generation_error": null,
+              "metrics": {
+                "correctness": {
+                  "status": "valid",
+                  "score": 5.0,
+                  "passed": true,
+                  "feedback": "The generated answer correctly states the recorded fee for C2 as USD 200 and accurately explains that a review is needed based on the fee amount, fully addressing the user's query with clear reasoning.",
+                  "invalid_reason": null,
+                  "raw_score": "5.0"
+                },
+                "grounding": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "YES",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                },
+                "relevance": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "1. Does the provided response match the subject matter of the user's query?  \nYes, the response directly addresses the subject matter by stating C2's recorded fee and whether a review is needed. The query asks specifically about C2's recorded fee and the necessity of a review, and the response provides both pieces of information clearly.\n\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \nYes, the response not only provides the fee amount but also explains the condition under which a review is required (fees of USD 200 or more). This shows an understanding of the criteria for review and applies it to C2's fee, which aligns with the focus of the query.\n\nFinal feedback: The response is relevant, concise, and directly answers both parts of the query with appropriate reasoning.\n\n[RESULT] 2",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                }
+              },
+              "passed": true,
+              "seconds": 6.601
+            },
+            {
+              "case_id": "missing",
+              "question": "What is C9's recorded fee?",
+              "context": "Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\nRecorded fees of USD 200 or more require review. C9 has no matching record.\nNo waiver, payment or release schedule information is supplied.",
+              "reference": "No matching C9 record is available in the snapshot; its fee cannot be stated and is not a known zero.",
+              "answer": "C9 has no matching record, so there is no recorded fee for C9.",
+              "generation_error": null,
+              "metrics": {
+                "correctness": {
+                  "status": "valid",
+                  "score": 5.0,
+                  "passed": true,
+                  "feedback": "The generated answer is fully relevant and correct, clearly stating that there is no recorded fee for C9 due to the absence of a matching record, which aligns perfectly with the reference answer.",
+                  "invalid_reason": null,
+                  "raw_score": "5.0"
+                },
+                "grounding": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "YES",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                },
+                "relevance": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "1. Does the provided response match the subject matter of the user's query?  \nYes, the user's query asks specifically about \"C9's recorded fee,\" which implies an inquiry into a fee associated with C9 (likely a team or entity). The response directly addresses this by stating that there is no matching record for C9 and therefore no recorded fee. This matches the subject matter of the query, as it pertains to the existence or amount of a fee related to C9.\n\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \nYes, the user's query is focused on finding out the recorded fee for C9. The response attempts to address this by clarifying that no such record exists, which is a direct answer to the question. It acknowledges the query's focus on the fee and provides a definitive statement regarding the absence of data.\n\nFinal feedback:  \nThe response is relevant and directly addresses the user's query by confirming the lack of a recorded fee for C9. It neither deviates from the topic nor fails to engage with the user's request.\n\n[RESULT] 2",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                }
+              },
+              "passed": true,
+              "seconds": 6.777
+            },
+            {
+              "case_id": "future",
+              "question": "Will C2 be released tomorrow?",
+              "context": "Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\nRecorded fees of USD 200 or more require review. C9 has no matching record.\nNo waiver, payment or release schedule information is supplied.",
+              "reference": "The supplied information does not establish a release date; tomorrow's release cannot be confirmed.",
+              "answer": "Based on the information provided, C2 has a recorded fee of USD 200 and a status of \"delayed.\" Since fees of USD 200 or more require review and there is no information about any waiver, payment, or release schedule, it is unlikely that C2 will be released tomorrow without completing the necessary review and any required actions.",
+              "generation_error": null,
+              "metrics": {
+                "correctness": {
+                  "status": "valid",
+                  "score": 4.0,
+                  "passed": true,
+                  "feedback": "The generated answer is relevant and provides a logical explanation based on the status \"delayed\" and the fee requirement, which supports the conclusion that C2 will likely not be released tomorrow. It goes beyond the reference answer by giving reasoning related to fees and review, which adds helpful context. However, it assumes details about the review process that are not explicitly confirmed, so it is not perfectly definitive.",
+                  "invalid_reason": null,
+                  "raw_score": "4.0"
+                },
+                "grounding": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "YES",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                },
+                "relevance": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "1. Does the provided response match the subject matter of the user's query?  \nYes. The user's query asks specifically about the release timing of \"C2,\" and the response directly addresses this by discussing the status of C2 and the likelihood of its release tomorrow. The response stays on topic by focusing on the release status and related conditions.\n\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \nYes. The user's query is straightforward, seeking a yes/no or likelihood answer about the release timing. The response attempts to answer this by analyzing the current status (\"delayed\"), the fee amount, and the procedural requirements that affect release timing. It provides reasoning for why the release is unlikely tomorrow, which aligns with the user's focus on the timing of release.\n\nFinal feedback: The response is relevant and appropriately addresses the user's query by providing a reasoned assessment of the likelihood of C2 being released tomorrow based on the given information.\n\n[RESULT] 2",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                }
+              },
+              "passed": true,
+              "seconds": 8.548
+            },
+            {
+              "case_id": "premise",
+              "question": "C2's fee has been waived, so can I skip review?",
+              "context": "Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\nRecorded fees of USD 200 or more require review. C9 has no matching record.\nNo waiver, payment or release schedule information is supplied.",
+              "reference": "A waiver is not established. The recorded fee is USD 200 and requires review under the supplied policy.",
+              "answer": "Since C2's recorded fee is USD 200, which meets the threshold requiring review, the fee would normally need to be reviewed. However, you mentioned that C2's fee has been waived. Given that waivers typically exempt fees from further action, you can skip the review for C2's fee in this case. \n\nIf you have formal confirmation or documentation of the waiver, keep it on record to support this decision.",
+              "generation_error": null,
+              "metrics": {
+                "correctness": {
+                  "status": "valid",
+                  "score": 5.0,
+                  "passed": true,
+                  "feedback": "The generated answer directly addresses the user's question about skipping the review due to the fee waiver. It correctly explains that normally the fee would require review but acknowledges that a waiver typically exempts the fee from review. It also prudently advises keeping documentation of the waiver, which is good practice. This aligns well with the reference answer's implication that the fee requires review unless waived, making the generated answer relevant, accurate, and complete.",
+                  "invalid_reason": null,
+                  "raw_score": "5.0"
+                },
+                "grounding": {
+                  "status": "valid",
+                  "score": 0.0,
+                  "passed": false,
+                  "feedback": "NO",
+                  "invalid_reason": null,
+                  "raw_score": "0.0"
+                },
+                "relevance": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "1. Does the provided response match the subject matter of the user's query?  \nYes. The user's query is about whether they can skip the review process for C2's fee since it has been waived. The response directly addresses the fee for C2, the waiver status, and the implications for the review process. It stays on the topic of fee review in the context of a waiver.\n\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \nYes. The user's focus is on whether the waiver allows skipping the review. The response acknowledges the normal requirement for review based on the fee amount but then explains that the waiver typically exempts the fee from review. It also advises keeping documentation, which is a practical consideration related to the user's concern. This shows the response is aligned with the user's perspective and intent.\n\nFinal feedback:  \nThe response is relevant and appropriately addresses the user's question about skipping the review due to the fee waiver. It provides a clear explanation and practical advice, making it a helpful and focused answer.\n\n[RESULT] 2",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                }
+              },
+              "passed": false,
+              "seconds": 8.554
+            }
+          ],
+          "generator_model": "gpt-4.1-mini",
+          "judge_model": "gpt-4.1-mini",
+          "thresholds": {
+            "correctness": 4.0,
+            "grounding": 1.0,
+            "relevance": 1.0
+          },
+          "code_sha256": "2fa8510dbb2eba5897dbb12c99b3cea97a99810bc73c1ba1c728c05ca7edcb3c",
+          "missing_token_usage": "unknown",
+          "elapsed_scope": "generation and evaluation"
+        }
+      },
+      "executed_source_sha256": "2fa8510dbb2eba5897dbb12c99b3cea97a99810bc73c1ba1c728c05ca7edcb3c"
+    },
+    {
+      "name": "compare",
+      "command": [
+        "python",
+        "b5.py",
+        "compare"
+      ],
+      "exit_code": 0,
+      "output": "Embeddings have been explicitly disabled. Using MockEmbedding.\nVERSION: baseline CASE: known ATTEMPT: 1\nGENERATED ANSWER: C2's recorded fee is USD 200. Since recorded fees of USD 200 or more require review, C2's fee does require review.\nMETRIC: correctness {'status': 'valid', 'score': 5.0, 'passed': True, 'feedback': \"The generated answer correctly states C2's recorded fee as USD 200 and accurately explains that a review is needed based on the fee amount, fully addressing the user's query with clear reasoning.\", 'invalid_reason': None, 'raw_score': '5.0'}\nMETRIC: grounding {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': 'YES', 'invalid_reason': None, 'raw_score': '1.0'}\nMETRIC: relevance {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': \"1. Does the provided response match the subject matter of the user's query?  \\nYes, the response directly addresses the subject matter of the query by stating C2's recorded fee and whether a review is needed based on that fee. The query asks specifically about C2's recorded fee and the necessity of a review, and the response provides both pieces of information clearly.\\n\\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \\nYes, the response not only provides the fee amount but also explains the condition under which a review is required (fees of USD 200 or more). This shows an understanding of the criteria for review and applies it to C2's fee, which aligns with the focus of the query.\\n\\nFinal feedback: The response is relevant, concise, and directly answers both parts of the query with appropriate reasoning.\\n\\n[RESULT] 2\", 'invalid_reason': None, 'raw_score': '1.0'}\nVERSION: baseline CASE: missing ATTEMPT: 1\nGENERATED ANSWER: C9 has no matching recorded fee according to the provided information.\nMETRIC: correctness {'status': 'valid', 'score': 5.0, 'passed': True, 'feedback': 'The generated answer is relevant and fully correct, accurately reflecting that there is no recorded fee for C9 based on the available information, consistent with the reference answer.', 'invalid_reason': None, 'raw_score': '5.0'}\nMETRIC: grounding {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': 'YES', 'invalid_reason': None, 'raw_score': '1.0'}\nMETRIC: relevance {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': '1. Does the provided response match the subject matter of the user\\'s query?  \\nYes, the user\\'s query asks specifically about \"C9\\'s recorded fee,\" and the response directly addresses this by stating that there is no matching recorded fee according to the provided information. The subject matter\u2014C9\\'s fee\u2014is clearly acknowledged.\\n\\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user\\'s query?  \\nYes, the response attempts to answer the query by indicating the absence of data regarding C9\\'s recorded fee. Although it does not provide a specific fee amount, it addresses the focus of the query by clarifying that no such information is available.\\n\\nFinal feedback:  \\nThe response is relevant and directly addresses the user\\'s question by stating that no recorded fee information is available for C9. It neither deviates from the subject nor ignores the user\\'s request.\\n\\n[RESULT] 2', 'invalid_reason': None, 'raw_score': '1.0'}\nVERSION: baseline CASE: future ATTEMPT: 1\nGENERATED ANSWER: Based on the provided information, C2 has a recorded fee of USD 200 and a status of \"delayed.\" Since recorded fees of USD 200 or more require review and no waiver, payment, or release schedule information is supplied, it is unlikely that C2 will be released tomorrow without completing the necessary review and any required actions.\nMETRIC: correctness {'status': 'valid', 'score': 4.0, 'passed': True, 'feedback': 'The generated answer is relevant and provides a logical explanation based on the status \"delayed\" and the fee requirement, which supports the conclusion that C2 will likely not be released tomorrow. It goes beyond the reference answer by explaining the reasoning behind the delay, which adds helpful context. However, it assumes details about the fee and review process that are not explicitly confirmed, so it is not perfectly definitive. Overall, it is a well-reasoned and mostly correct response.', 'invalid_reason': None, 'raw_score': '4.0'}\nMETRIC: grounding {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': 'YES', 'invalid_reason': None, 'raw_score': '1.0'}\nMETRIC: relevance {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': '1. Does the provided response match the subject matter of the user\\'s query?  \\nYes, the user\\'s query asks specifically about the release timing of \"C2,\" and the response directly addresses this by discussing the status of C2 and the likelihood of its release tomorrow. The response stays on topic by focusing on the release status and related conditions.\\n\\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user\\'s query?  \\nYes, the user\\'s query is straightforward, seeking a yes/no or likelihood answer about the release timing. The response attempts to address this by explaining the current status (\"delayed\"), the fee condition, and the implications for release timing. It provides reasoning behind why the release is unlikely tomorrow, which aligns well with the user\\'s focus on the timing of release.\\n\\nFinal feedback:  \\nThe response is relevant and appropriately addresses the user\\'s question about the release timing of C2. It provides a clear and reasoned explanation based on the available information, which matches the user\\'s intent.\\n\\n[RESULT] 2', 'invalid_reason': None, 'raw_score': '1.0'}\nVERSION: baseline CASE: premise ATTEMPT: 1\nGENERATED ANSWER: Since C2's recorded fee is USD 200, which meets the threshold requiring review, normally a review would be necessary. However, you mentioned that C2's fee has been waived. Given that, you can skip the review for C2's fee because the waiver effectively removes the obligation to review the charge. \n\nPlease ensure that the waiver is properly documented to avoid any future discrepancies.\nMETRIC: correctness {'status': 'valid', 'score': 4.0, 'passed': True, 'feedback': \"The generated answer is relevant and logically addresses the user's question by explaining that if the fee is waived, the review can be skipped, which aligns with the user's implication. It also adds a useful caution about documentation. However, it slightly contradicts the reference answer, which states the fee is recorded and requires review, implying no waiver is established. Since the user states the fee has been waived, the generated answer appropriately responds to that scenario, but the reference answer suggests the waiver is not recognized. This discrepancy prevents a perfect score.\", 'invalid_reason': None, 'raw_score': '4.0'}\nMETRIC: grounding {'status': 'valid', 'score': 0.0, 'passed': False, 'feedback': 'NO', 'invalid_reason': None, 'raw_score': '0.0'}\nMETRIC: relevance {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': \"1. Does the provided response match the subject matter of the user's query?  \\nYes. The user's query is about whether the review can be skipped since C2's fee has been waived. The response directly addresses the issue of the fee waiver and its impact on the necessity of a review. It discusses the fee amount, the usual requirement for review, and how the waiver changes that requirement. Therefore, the response matches the subject matter of the query.  \\n\\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \\nYes. The user's focus is on whether the review can be skipped due to the fee waiver. The response acknowledges the fee amount and the usual review requirement but then explicitly states that because the fee has been waived, the review can be skipped. It also adds a caution about documenting the waiver, which is relevant and helpful. This shows the response addresses the user's perspective and provides a clear answer to the question posed.  \\n\\nFeedback Summary:  \\nThe response is relevant and directly addresses the user's query about skipping the review due to the fee waiver. It provides a clear explanation and a practical recommendation, aligning well with the user's focus.  \\n\\n[RESULT] 2\", 'invalid_reason': None, 'raw_score': '1.0'}\nVERSION: baseline CASE: comparison ATTEMPT: 1\nGENERATED ANSWER: C1 has a recorded fee of USD 100 with an on-time status, while C2 has a recorded fee of USD 200 with a delayed status. Since recorded fees of USD 200 or more require review, C2's fee meets the threshold for review, whereas C1's fee does not. Therefore, C2's recorded fee requires review due to both the amount and the delayed status, while C1's fee does not require review.\nMETRIC: correctness {'status': 'valid', 'score': 5.0, 'passed': True, 'feedback': 'The generated answer correctly compares the recorded fees of C1 and C2, accurately identifies the review threshold, and explains the review requirements clearly. It also adds relevant information about the status (on-time vs delayed), which enhances the explanation without contradicting the reference. The answer is relevant, complete, and fully correct.', 'invalid_reason': None, 'raw_score': '5.0'}\nMETRIC: grounding {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': 'YES', 'invalid_reason': None, 'raw_score': '1.0'}\nMETRIC: relevance {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': \"1. Does the provided response match the subject matter of the user's query?  \\nYes. The user's query asks for a comparison of C1 and C2's recorded fees and review requirements. The response clearly compares the fees (USD 100 for C1 and USD 200 for C2) and mentions their statuses (on-time vs delayed). It also discusses the review requirements based on the fee amount and status. Therefore, the response matches the subject matter of the query.  \\nScore: 1\\n\\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \\nYes. The query focuses on comparing the fees and review requirements of C1 and C2. The response addresses this by specifying the fee amounts, their statuses, the threshold for review (USD 200 or more), and the resulting review requirements for each. It provides a clear and direct comparison aligned with the query's focus.  \\nScore: 1\\n\\nFinal feedback: The response is relevant and directly addresses the user's query by comparing the fees and review requirements of C1 and C2, including the rationale behind the review necessity. It is concise and informative.\\n\\n[RESULT] 2\", 'invalid_reason': None, 'raw_score': '1.0'}\nVERSION: candidate CASE: known ATTEMPT: 1\nGENERATED ANSWER: C2's recorded fee is USD 200. Since recorded fees of USD 200 or more require review, C2's fee requires review.\nMETRIC: correctness {'status': 'valid', 'score': 5.0, 'passed': True, 'feedback': \"The generated answer correctly states C2's recorded fee as USD 200 and accurately explains that a review is needed based on the fee amount, fully addressing the user's query with clear reasoning.\", 'invalid_reason': None, 'raw_score': '5.0'}\nMETRIC: grounding {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': 'YES', 'invalid_reason': None, 'raw_score': '1.0'}\nMETRIC: relevance {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': \"1. Does the provided response match the subject matter of the user's query?  \\nYes, the response directly addresses the subject matter by stating C2's recorded fee and whether a review is needed. The query asks specifically about C2's recorded fee and the necessity of a review, and the response provides both pieces of information clearly.\\n\\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \\nYes, the response not only provides the fee amount but also explains the condition under which a review is required (fees of USD 200 or more). This shows an understanding of the criteria for review and applies it to C2's fee, which aligns with the focus of the query.\\n\\n[RESULT] 2\", 'invalid_reason': None, 'raw_score': '1.0'}\nVERSION: candidate CASE: missing ATTEMPT: 1\nGENERATED ANSWER: C9 has no matching record. Therefore, C9's recorded fee is unavailable.\nMETRIC: correctness {'status': 'valid', 'score': 5.0, 'passed': True, 'feedback': 'The generated answer is fully relevant and correct, accurately reflecting the information in the reference answer that no matching record for C9 exists and thus the fee is unavailable. It is concise and clear.', 'invalid_reason': None, 'raw_score': '5.0'}\nMETRIC: grounding {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': 'YES', 'invalid_reason': None, 'raw_score': '1.0'}\nMETRIC: relevance {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': '1. Does the provided response match the subject matter of the user\\'s query?  \\nYes, the user\\'s query asks specifically about \"C9\\'s recorded fee,\" and the response directly addresses this by stating that there is no matching record for C9\\'s fee. The subject matter\u2014information about C9\\'s fee\u2014is clearly acknowledged.\\n\\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user\\'s query?  \\nYes, the response attempts to answer the query by indicating that the requested information is unavailable due to the absence of a matching record. This shows an effort to address the user\\'s focus on obtaining the recorded fee, even if the data is not found.\\n\\n[RESULT] 2', 'invalid_reason': None, 'raw_score': '1.0'}\nVERSION: candidate CASE: future ATTEMPT: 1\nGENERATED ANSWER: Information is unavailable to determine if C2 will be released tomorrow. The recorded fee for C2 is USD 200 with status delayed, and fees of USD 200 or more require review. No waiver, payment, or release schedule information is supplied.\nMETRIC: correctness {'status': 'valid', 'score': 4.0, 'passed': True, 'feedback': 'The generated answer is relevant and correctly states that the release of C2 tomorrow cannot be confirmed due to lack of information. It also adds additional context about fees and status, which, while not directly answering the release date question, supports the conclusion that release is uncertain. The answer is accurate and informative, though slightly more detailed than necessary.', 'invalid_reason': None, 'raw_score': '4.0'}\nMETRIC: grounding {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': 'YES', 'invalid_reason': None, 'raw_score': '1.0'}\nMETRIC: relevance {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': '1. Does the provided response match the subject matter of the user\\'s query?  \\nYes, the user\\'s query asks specifically about the release of \"C2\" tomorrow. The response directly addresses this by stating that information is unavailable to determine if C2 will be released tomorrow. It also provides additional context about the fee and status related to C2, which is relevant to the subject matter. Therefore, the response matches the subject matter of the query.  \\nScore: 1\\n\\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user\\'s query?  \\nThe user\\'s query is focused on whether C2 will be released tomorrow, which is a yes/no or status question. The response attempts to address this by stating that the information is unavailable, which is an attempt to answer the question. It also provides related details about fees and status, which may help explain why the release status is uncertain. Thus, the response does attempt to address the focus of the query.  \\nScore: 1\\n\\nFinal feedback:  \\nThe response is relevant and attempts to answer the user\\'s question about the release of C2 tomorrow. It acknowledges the lack of definitive information while providing related context that might explain the delay. This makes the response appropriate and useful given the query.\\n\\n[RESULT] 2', 'invalid_reason': None, 'raw_score': '1.0'}\nVERSION: candidate CASE: premise ATTEMPT: 1\nGENERATED ANSWER: C2's fee is recorded as USD 200 with status delayed. Recorded fees of USD 200 or more require review. There is no information supplied about any waiver for C2's fee. Therefore, you cannot skip the review based on the supplied facts and policy.\nMETRIC: correctness {'status': 'valid', 'score': 5.0, 'passed': True, 'feedback': \"The generated answer is fully relevant and correct. It clearly states that the fee is recorded as USD 200, mentions the requirement for review for fees of this amount, and clarifies that no waiver information is supplied, thus the review cannot be skipped. This aligns well with the reference answer and addresses the user's query comprehensively.\", 'invalid_reason': None, 'raw_score': '5.0'}\nMETRIC: grounding {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': 'YES', 'invalid_reason': None, 'raw_score': '1.0'}\nMETRIC: relevance {'status': 'valid', 'score': 0.5, 'passed': False, 'feedback': \"1. Does the provided response match the subject matter of the user's query?  \\nYes. The user's query is about whether the review can be skipped because C2's fee has been waived. The response directly addresses the issue of C2's fee status and the implications for review, which matches the subject matter of the query.\\n\\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \\nPartially. The user states that C2's fee has been waived and asks if the review can be skipped. The response, however, states that there is no information about any waiver and treats the fee as recorded and delayed, requiring review. While the response attempts to address the question, it does not acknowledge or accept the user's premise that the fee has been waived. Instead, it contradicts it by saying no waiver information is supplied. This means the response does not fully engage with the user's perspective or the key premise of the query.\\n\\nFinal feedback:  \\nThe response is relevant to the subject matter but does not fully address the user's stated premise about the fee waiver. It would be more helpful if it acknowledged the user's claim of a waiver and clarified whether a waiver indeed allows skipping the review or not.\\n\\n[RESULT] 1\", 'invalid_reason': None, 'raw_score': '0.5'}\nVERSION: candidate CASE: comparison ATTEMPT: 1\nGENERATED ANSWER: C1's recorded fee is USD 100 with status on_time. C2's recorded fee is USD 200 with status delayed.\n\nRegarding review requirements: recorded fees of USD 200 or more require review. Therefore, C1's fee of USD 100 does not require review, while C2's fee of USD 200 does require review.\n\nNo information about waivers, payments, or release schedules is supplied.\nMETRIC: correctness {'status': 'valid', 'score': 5.0, 'passed': True, 'feedback': 'The generated answer correctly compares the recorded fees of C1 and C2, accurately states the review requirements based on the fee amounts, and clearly explains why C1 does not require review while C2 does. It also adds relevant contextual information about the absence of other details, which does not detract from correctness or relevance.', 'invalid_reason': None, 'raw_score': '5.0'}\nMETRIC: grounding {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': 'YES', 'invalid_reason': None, 'raw_score': '1.0'}\nMETRIC: relevance {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': \"1. Does the provided response match the subject matter of the user's query?  \\nYes. The user's query asks to compare C1 and C2's recorded fees and review requirements. The response provides the recorded fees for both C1 and C2 and discusses the review requirements based on the fee amounts. This directly matches the subject matter of the query.\\n\\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \\nYes. The query focuses on comparing fees and review requirements. The response not only compares the fees but also explains the review criteria and applies it to both C1 and C2. It also notes the absence of additional information about waivers, payments, or release schedules, which shows an attempt to clarify the scope of the comparison.\\n\\nFinal feedback:  \\nThe response is relevant and appropriately addresses both parts of the query: the comparison of fees and the review requirements. It is clear, concise, and complete based on the information provided.\\n\\n[RESULT] 2\", 'invalid_reason': None, 'raw_score': '1.0'}\nSUMMARY: baseline development 3 / 4\nSUMMARY: baseline held_out 1 / 1\nSUMMARY: candidate development 3 / 4\nSUMMARY: candidate held_out 1 / 1\nEVIDENCE: /private/tmp/b5-llm-refocus/lab-compare/work/b5-compare-prompts.json\n",
+      "reports": {
+        "b5-compare-prompts.json": {
+          "cases": [
+            {
+              "id": "known",
+              "context": "Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\nRecorded fees of USD 200 or more require review. C9 has no matching record.\nNo waiver, payment or release schedule information is supplied.",
+              "question": "What is C2's recorded fee and is review needed?",
+              "reference": "C2 has a recorded fee of USD 200 and requires review.",
+              "split": "development"
+            },
+            {
+              "id": "missing",
+              "context": "Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\nRecorded fees of USD 200 or more require review. C9 has no matching record.\nNo waiver, payment or release schedule information is supplied.",
+              "question": "What is C9's recorded fee?",
+              "reference": "No matching C9 record is available in the snapshot; its fee cannot be stated and is not a known zero.",
+              "split": "development"
+            },
+            {
+              "id": "future",
+              "context": "Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\nRecorded fees of USD 200 or more require review. C9 has no matching record.\nNo waiver, payment or release schedule information is supplied.",
+              "question": "Will C2 be released tomorrow?",
+              "reference": "The supplied information does not establish a release date; tomorrow's release cannot be confirmed.",
+              "split": "development"
+            },
+            {
+              "id": "premise",
+              "context": "Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\nRecorded fees of USD 200 or more require review. C9 has no matching record.\nNo waiver, payment or release schedule information is supplied.",
+              "question": "C2's fee has been waived, so can I skip review?",
+              "reference": "A waiver is not established. The recorded fee is USD 200 and requires review under the supplied policy.",
+              "split": "development"
+            },
+            {
+              "id": "comparison",
+              "split": "held_out",
+              "context": "Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\nRecorded fees of USD 200 or more require review. C9 has no matching record.\nNo waiver, payment or release schedule information is supplied.",
+              "question": "Compare C1 and C2's recorded fees and review requirements.",
+              "reference": "C1 has a recorded fee of USD 100, below the review threshold. C2 has USD 200 and requires review."
+            }
+          ],
+          "prompts": {
+            "baseline": "Answer the shipping enquiry helpfully.",
+            "candidate": "Answer using only supplied facts and policy. Correct unsupported premises. Say when information is unavailable; do not infer waivers, balances or release dates. Answer every requested part, preserving units and distinguishing observations from guarantees."
+          },
+          "repeats": 1,
+          "trials": [
+            {
+              "case_id": "known",
+              "question": "What is C2's recorded fee and is review needed?",
+              "context": "Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\nRecorded fees of USD 200 or more require review. C9 has no matching record.\nNo waiver, payment or release schedule information is supplied.",
+              "reference": "C2 has a recorded fee of USD 200 and requires review.",
+              "answer": "C2's recorded fee is USD 200. Since recorded fees of USD 200 or more require review, C2's fee does require review.",
+              "generation_error": null,
+              "metrics": {
+                "correctness": {
+                  "status": "valid",
+                  "score": 5.0,
+                  "passed": true,
+                  "feedback": "The generated answer correctly states C2's recorded fee as USD 200 and accurately explains that a review is needed based on the fee amount, fully addressing the user's query with clear reasoning.",
+                  "invalid_reason": null,
+                  "raw_score": "5.0"
+                },
+                "grounding": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "YES",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                },
+                "relevance": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "1. Does the provided response match the subject matter of the user's query?  \nYes, the response directly addresses the subject matter of the query by stating C2's recorded fee and whether a review is needed based on that fee. The query asks specifically about C2's recorded fee and the necessity of a review, and the response provides both pieces of information clearly.\n\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \nYes, the response not only provides the fee amount but also explains the condition under which a review is required (fees of USD 200 or more). This shows an understanding of the criteria for review and applies it to C2's fee, which aligns with the focus of the query.\n\nFinal feedback: The response is relevant, concise, and directly answers both parts of the query with appropriate reasoning.\n\n[RESULT] 2",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                }
+              },
+              "passed": true,
+              "seconds": 7.568,
+              "version": "baseline",
+              "split": "development",
+              "attempt": 1
+            },
+            {
+              "case_id": "missing",
+              "question": "What is C9's recorded fee?",
+              "context": "Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\nRecorded fees of USD 200 or more require review. C9 has no matching record.\nNo waiver, payment or release schedule information is supplied.",
+              "reference": "No matching C9 record is available in the snapshot; its fee cannot be stated and is not a known zero.",
+              "answer": "C9 has no matching recorded fee according to the provided information.",
+              "generation_error": null,
+              "metrics": {
+                "correctness": {
+                  "status": "valid",
+                  "score": 5.0,
+                  "passed": true,
+                  "feedback": "The generated answer is relevant and fully correct, accurately reflecting that there is no recorded fee for C9 based on the available information, consistent with the reference answer.",
+                  "invalid_reason": null,
+                  "raw_score": "5.0"
+                },
+                "grounding": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "YES",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                },
+                "relevance": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "1. Does the provided response match the subject matter of the user's query?  \nYes, the user's query asks specifically about \"C9's recorded fee,\" and the response directly addresses this by stating that there is no matching recorded fee according to the provided information. The subject matter\u2014C9's fee\u2014is clearly acknowledged.\n\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \nYes, the response attempts to answer the query by indicating the absence of data regarding C9's recorded fee. Although it does not provide a specific fee amount, it addresses the focus of the query by clarifying that no such information is available.\n\nFinal feedback:  \nThe response is relevant and directly addresses the user's question by stating that no recorded fee information is available for C9. It neither deviates from the subject nor ignores the user's request.\n\n[RESULT] 2",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                }
+              },
+              "passed": true,
+              "seconds": 7.474,
+              "version": "baseline",
+              "split": "development",
+              "attempt": 1
+            },
+            {
+              "case_id": "future",
+              "question": "Will C2 be released tomorrow?",
+              "context": "Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\nRecorded fees of USD 200 or more require review. C9 has no matching record.\nNo waiver, payment or release schedule information is supplied.",
+              "reference": "The supplied information does not establish a release date; tomorrow's release cannot be confirmed.",
+              "answer": "Based on the provided information, C2 has a recorded fee of USD 200 and a status of \"delayed.\" Since recorded fees of USD 200 or more require review and no waiver, payment, or release schedule information is supplied, it is unlikely that C2 will be released tomorrow without completing the necessary review and any required actions.",
+              "generation_error": null,
+              "metrics": {
+                "correctness": {
+                  "status": "valid",
+                  "score": 4.0,
+                  "passed": true,
+                  "feedback": "The generated answer is relevant and provides a logical explanation based on the status \"delayed\" and the fee requirement, which supports the conclusion that C2 will likely not be released tomorrow. It goes beyond the reference answer by explaining the reasoning behind the delay, which adds helpful context. However, it assumes details about the fee and review process that are not explicitly confirmed, so it is not perfectly definitive. Overall, it is a well-reasoned and mostly correct response.",
+                  "invalid_reason": null,
+                  "raw_score": "4.0"
+                },
+                "grounding": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "YES",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                },
+                "relevance": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "1. Does the provided response match the subject matter of the user's query?  \nYes, the user's query asks specifically about the release timing of \"C2,\" and the response directly addresses this by discussing the status of C2 and the likelihood of its release tomorrow. The response stays on topic by focusing on the release status and related conditions.\n\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \nYes, the user's query is straightforward, seeking a yes/no or likelihood answer about the release timing. The response attempts to address this by explaining the current status (\"delayed\"), the fee condition, and the implications for release timing. It provides reasoning behind why the release is unlikely tomorrow, which aligns well with the user's focus on the timing of release.\n\nFinal feedback:  \nThe response is relevant and appropriately addresses the user's question about the release timing of C2. It provides a clear and reasoned explanation based on the available information, which matches the user's intent.\n\n[RESULT] 2",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                }
+              },
+              "passed": true,
+              "seconds": 7.368,
+              "version": "baseline",
+              "split": "development",
+              "attempt": 1
+            },
+            {
+              "case_id": "premise",
+              "question": "C2's fee has been waived, so can I skip review?",
+              "context": "Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\nRecorded fees of USD 200 or more require review. C9 has no matching record.\nNo waiver, payment or release schedule information is supplied.",
+              "reference": "A waiver is not established. The recorded fee is USD 200 and requires review under the supplied policy.",
+              "answer": "Since C2's recorded fee is USD 200, which meets the threshold requiring review, normally a review would be necessary. However, you mentioned that C2's fee has been waived. Given that, you can skip the review for C2's fee because the waiver effectively removes the obligation to review the charge. \n\nPlease ensure that the waiver is properly documented to avoid any future discrepancies.",
+              "generation_error": null,
+              "metrics": {
+                "correctness": {
+                  "status": "valid",
+                  "score": 4.0,
+                  "passed": true,
+                  "feedback": "The generated answer is relevant and logically addresses the user's question by explaining that if the fee is waived, the review can be skipped, which aligns with the user's implication. It also adds a useful caution about documentation. However, it slightly contradicts the reference answer, which states the fee is recorded and requires review, implying no waiver is established. Since the user states the fee has been waived, the generated answer appropriately responds to that scenario, but the reference answer suggests the waiver is not recognized. This discrepancy prevents a perfect score.",
+                  "invalid_reason": null,
+                  "raw_score": "4.0"
+                },
+                "grounding": {
+                  "status": "valid",
+                  "score": 0.0,
+                  "passed": false,
+                  "feedback": "NO",
+                  "invalid_reason": null,
+                  "raw_score": "0.0"
+                },
+                "relevance": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "1. Does the provided response match the subject matter of the user's query?  \nYes. The user's query is about whether the review can be skipped since C2's fee has been waived. The response directly addresses the issue of the fee waiver and its impact on the necessity of a review. It discusses the fee amount, the usual requirement for review, and how the waiver changes that requirement. Therefore, the response matches the subject matter of the query.  \n\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \nYes. The user's focus is on whether the review can be skipped due to the fee waiver. The response acknowledges the fee amount and the usual review requirement but then explicitly states that because the fee has been waived, the review can be skipped. It also adds a caution about documenting the waiver, which is relevant and helpful. This shows the response addresses the user's perspective and provides a clear answer to the question posed.  \n\nFeedback Summary:  \nThe response is relevant and directly addresses the user's query about skipping the review due to the fee waiver. It provides a clear explanation and a practical recommendation, aligning well with the user's focus.  \n\n[RESULT] 2",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                }
+              },
+              "passed": false,
+              "seconds": 8.944,
+              "version": "baseline",
+              "split": "development",
+              "attempt": 1
+            },
+            {
+              "case_id": "comparison",
+              "question": "Compare C1 and C2's recorded fees and review requirements.",
+              "context": "Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\nRecorded fees of USD 200 or more require review. C9 has no matching record.\nNo waiver, payment or release schedule information is supplied.",
+              "reference": "C1 has a recorded fee of USD 100, below the review threshold. C2 has USD 200 and requires review.",
+              "answer": "C1 has a recorded fee of USD 100 with an on-time status, while C2 has a recorded fee of USD 200 with a delayed status. Since recorded fees of USD 200 or more require review, C2's fee meets the threshold for review, whereas C1's fee does not. Therefore, C2's recorded fee requires review due to both the amount and the delayed status, while C1's fee does not require review.",
+              "generation_error": null,
+              "metrics": {
+                "correctness": {
+                  "status": "valid",
+                  "score": 5.0,
+                  "passed": true,
+                  "feedback": "The generated answer correctly compares the recorded fees of C1 and C2, accurately identifies the review threshold, and explains the review requirements clearly. It also adds relevant information about the status (on-time vs delayed), which enhances the explanation without contradicting the reference. The answer is relevant, complete, and fully correct.",
+                  "invalid_reason": null,
+                  "raw_score": "5.0"
+                },
+                "grounding": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "YES",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                },
+                "relevance": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "1. Does the provided response match the subject matter of the user's query?  \nYes. The user's query asks for a comparison of C1 and C2's recorded fees and review requirements. The response clearly compares the fees (USD 100 for C1 and USD 200 for C2) and mentions their statuses (on-time vs delayed). It also discusses the review requirements based on the fee amount and status. Therefore, the response matches the subject matter of the query.  \nScore: 1\n\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \nYes. The query focuses on comparing the fees and review requirements of C1 and C2. The response addresses this by specifying the fee amounts, their statuses, the threshold for review (USD 200 or more), and the resulting review requirements for each. It provides a clear and direct comparison aligned with the query's focus.  \nScore: 1\n\nFinal feedback: The response is relevant and directly addresses the user's query by comparing the fees and review requirements of C1 and C2, including the rationale behind the review necessity. It is concise and informative.\n\n[RESULT] 2",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                }
+              },
+              "passed": true,
+              "seconds": 7.539,
+              "version": "baseline",
+              "split": "held_out",
+              "attempt": 1
+            },
+            {
+              "case_id": "known",
+              "question": "What is C2's recorded fee and is review needed?",
+              "context": "Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\nRecorded fees of USD 200 or more require review. C9 has no matching record.\nNo waiver, payment or release schedule information is supplied.",
+              "reference": "C2 has a recorded fee of USD 200 and requires review.",
+              "answer": "C2's recorded fee is USD 200. Since recorded fees of USD 200 or more require review, C2's fee requires review.",
+              "generation_error": null,
+              "metrics": {
+                "correctness": {
+                  "status": "valid",
+                  "score": 5.0,
+                  "passed": true,
+                  "feedback": "The generated answer correctly states C2's recorded fee as USD 200 and accurately explains that a review is needed based on the fee amount, fully addressing the user's query with clear reasoning.",
+                  "invalid_reason": null,
+                  "raw_score": "5.0"
+                },
+                "grounding": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "YES",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                },
+                "relevance": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "1. Does the provided response match the subject matter of the user's query?  \nYes, the response directly addresses the subject matter by stating C2's recorded fee and whether a review is needed. The query asks specifically about C2's recorded fee and the necessity of a review, and the response provides both pieces of information clearly.\n\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \nYes, the response not only provides the fee amount but also explains the condition under which a review is required (fees of USD 200 or more). This shows an understanding of the criteria for review and applies it to C2's fee, which aligns with the focus of the query.\n\n[RESULT] 2",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                }
+              },
+              "passed": true,
+              "seconds": 9.372,
+              "version": "candidate",
+              "split": "development",
+              "attempt": 1
+            },
+            {
+              "case_id": "missing",
+              "question": "What is C9's recorded fee?",
+              "context": "Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\nRecorded fees of USD 200 or more require review. C9 has no matching record.\nNo waiver, payment or release schedule information is supplied.",
+              "reference": "No matching C9 record is available in the snapshot; its fee cannot be stated and is not a known zero.",
+              "answer": "C9 has no matching record. Therefore, C9's recorded fee is unavailable.",
+              "generation_error": null,
+              "metrics": {
+                "correctness": {
+                  "status": "valid",
+                  "score": 5.0,
+                  "passed": true,
+                  "feedback": "The generated answer is fully relevant and correct, accurately reflecting the information in the reference answer that no matching record for C9 exists and thus the fee is unavailable. It is concise and clear.",
+                  "invalid_reason": null,
+                  "raw_score": "5.0"
+                },
+                "grounding": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "YES",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                },
+                "relevance": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "1. Does the provided response match the subject matter of the user's query?  \nYes, the user's query asks specifically about \"C9's recorded fee,\" and the response directly addresses this by stating that there is no matching record for C9's fee. The subject matter\u2014information about C9's fee\u2014is clearly acknowledged.\n\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \nYes, the response attempts to answer the query by indicating that the requested information is unavailable due to the absence of a matching record. This shows an effort to address the user's focus on obtaining the recorded fee, even if the data is not found.\n\n[RESULT] 2",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                }
+              },
+              "passed": true,
+              "seconds": 8.263,
+              "version": "candidate",
+              "split": "development",
+              "attempt": 1
+            },
+            {
+              "case_id": "future",
+              "question": "Will C2 be released tomorrow?",
+              "context": "Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\nRecorded fees of USD 200 or more require review. C9 has no matching record.\nNo waiver, payment or release schedule information is supplied.",
+              "reference": "The supplied information does not establish a release date; tomorrow's release cannot be confirmed.",
+              "answer": "Information is unavailable to determine if C2 will be released tomorrow. The recorded fee for C2 is USD 200 with status delayed, and fees of USD 200 or more require review. No waiver, payment, or release schedule information is supplied.",
+              "generation_error": null,
+              "metrics": {
+                "correctness": {
+                  "status": "valid",
+                  "score": 4.0,
+                  "passed": true,
+                  "feedback": "The generated answer is relevant and correctly states that the release of C2 tomorrow cannot be confirmed due to lack of information. It also adds additional context about fees and status, which, while not directly answering the release date question, supports the conclusion that release is uncertain. The answer is accurate and informative, though slightly more detailed than necessary.",
+                  "invalid_reason": null,
+                  "raw_score": "4.0"
+                },
+                "grounding": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "YES",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                },
+                "relevance": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "1. Does the provided response match the subject matter of the user's query?  \nYes, the user's query asks specifically about the release of \"C2\" tomorrow. The response directly addresses this by stating that information is unavailable to determine if C2 will be released tomorrow. It also provides additional context about the fee and status related to C2, which is relevant to the subject matter. Therefore, the response matches the subject matter of the query.  \nScore: 1\n\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \nThe user's query is focused on whether C2 will be released tomorrow, which is a yes/no or status question. The response attempts to address this by stating that the information is unavailable, which is an attempt to answer the question. It also provides related details about fees and status, which may help explain why the release status is uncertain. Thus, the response does attempt to address the focus of the query.  \nScore: 1\n\nFinal feedback:  \nThe response is relevant and attempts to answer the user's question about the release of C2 tomorrow. It acknowledges the lack of definitive information while providing related context that might explain the delay. This makes the response appropriate and useful given the query.\n\n[RESULT] 2",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                }
+              },
+              "passed": true,
+              "seconds": 7.271,
+              "version": "candidate",
+              "split": "development",
+              "attempt": 1
+            },
+            {
+              "case_id": "premise",
+              "question": "C2's fee has been waived, so can I skip review?",
+              "context": "Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\nRecorded fees of USD 200 or more require review. C9 has no matching record.\nNo waiver, payment or release schedule information is supplied.",
+              "reference": "A waiver is not established. The recorded fee is USD 200 and requires review under the supplied policy.",
+              "answer": "C2's fee is recorded as USD 200 with status delayed. Recorded fees of USD 200 or more require review. There is no information supplied about any waiver for C2's fee. Therefore, you cannot skip the review based on the supplied facts and policy.",
+              "generation_error": null,
+              "metrics": {
+                "correctness": {
+                  "status": "valid",
+                  "score": 5.0,
+                  "passed": true,
+                  "feedback": "The generated answer is fully relevant and correct. It clearly states that the fee is recorded as USD 200, mentions the requirement for review for fees of this amount, and clarifies that no waiver information is supplied, thus the review cannot be skipped. This aligns well with the reference answer and addresses the user's query comprehensively.",
+                  "invalid_reason": null,
+                  "raw_score": "5.0"
+                },
+                "grounding": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "YES",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                },
+                "relevance": {
+                  "status": "valid",
+                  "score": 0.5,
+                  "passed": false,
+                  "feedback": "1. Does the provided response match the subject matter of the user's query?  \nYes. The user's query is about whether the review can be skipped because C2's fee has been waived. The response directly addresses the issue of C2's fee status and the implications for review, which matches the subject matter of the query.\n\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \nPartially. The user states that C2's fee has been waived and asks if the review can be skipped. The response, however, states that there is no information about any waiver and treats the fee as recorded and delayed, requiring review. While the response attempts to address the question, it does not acknowledge or accept the user's premise that the fee has been waived. Instead, it contradicts it by saying no waiver information is supplied. This means the response does not fully engage with the user's perspective or the key premise of the query.\n\nFinal feedback:  \nThe response is relevant to the subject matter but does not fully address the user's stated premise about the fee waiver. It would be more helpful if it acknowledged the user's claim of a waiver and clarified whether a waiver indeed allows skipping the review or not.\n\n[RESULT] 1",
+                  "invalid_reason": null,
+                  "raw_score": "0.5"
+                }
+              },
+              "passed": false,
+              "seconds": 7.866,
+              "version": "candidate",
+              "split": "development",
+              "attempt": 1
+            },
+            {
+              "case_id": "comparison",
+              "question": "Compare C1 and C2's recorded fees and review requirements.",
+              "context": "Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\nRecorded fees of USD 200 or more require review. C9 has no matching record.\nNo waiver, payment or release schedule information is supplied.",
+              "reference": "C1 has a recorded fee of USD 100, below the review threshold. C2 has USD 200 and requires review.",
+              "answer": "C1's recorded fee is USD 100 with status on_time. C2's recorded fee is USD 200 with status delayed.\n\nRegarding review requirements: recorded fees of USD 200 or more require review. Therefore, C1's fee of USD 100 does not require review, while C2's fee of USD 200 does require review.\n\nNo information about waivers, payments, or release schedules is supplied.",
+              "generation_error": null,
+              "metrics": {
+                "correctness": {
+                  "status": "valid",
+                  "score": 5.0,
+                  "passed": true,
+                  "feedback": "The generated answer correctly compares the recorded fees of C1 and C2, accurately states the review requirements based on the fee amounts, and clearly explains why C1 does not require review while C2 does. It also adds relevant contextual information about the absence of other details, which does not detract from correctness or relevance.",
+                  "invalid_reason": null,
+                  "raw_score": "5.0"
+                },
+                "grounding": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "YES",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                },
+                "relevance": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "1. Does the provided response match the subject matter of the user's query?  \nYes. The user's query asks to compare C1 and C2's recorded fees and review requirements. The response provides the recorded fees for both C1 and C2 and discusses the review requirements based on the fee amounts. This directly matches the subject matter of the query.\n\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \nYes. The query focuses on comparing fees and review requirements. The response not only compares the fees but also explains the review criteria and applies it to both C1 and C2. It also notes the absence of additional information about waivers, payments, or release schedules, which shows an attempt to clarify the scope of the comparison.\n\nFinal feedback:  \nThe response is relevant and appropriately addresses both parts of the query: the comparison of fees and the review requirements. It is clear, concise, and complete based on the information provided.\n\n[RESULT] 2",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                }
+              },
+              "passed": true,
+              "seconds": 6.984,
+              "version": "candidate",
+              "split": "held_out",
+              "attempt": 1
+            }
+          ],
+          "generator_model": "gpt-4.1-mini",
+          "judge_model": "gpt-4.1-mini",
+          "thresholds": {
+            "correctness": 4.0,
+            "grounding": 1.0,
+            "relevance": 1.0
+          },
+          "code_sha256": "2fa8510dbb2eba5897dbb12c99b3cea97a99810bc73c1ba1c728c05ca7edcb3c",
+          "missing_token_usage": "unknown",
+          "elapsed_scope": "generation and evaluation"
+        }
+      },
+      "executed_source_sha256": "2fa8510dbb2eba5897dbb12c99b3cea97a99810bc73c1ba1c728c05ca7edcb3c"
+    },
+    {
+      "name": "repeat",
+      "command": [
+        "python",
+        "b5.py",
+        "compare",
+        "--case",
+        "future",
+        "--repeats",
+        "2"
+      ],
+      "exit_code": 0,
+      "output": "Embeddings have been explicitly disabled. Using MockEmbedding.\nVERSION: baseline CASE: future ATTEMPT: 1\nGENERATED ANSWER: Based on the provided information, C2 has a recorded fee of USD 200 and a status of \"delayed.\" Since recorded fees of USD 200 or more require review and no waiver, payment, or release schedule information is supplied, it is unlikely that C2 will be released tomorrow without further action or approval.\nMETRIC: correctness {'status': 'valid', 'score': 4.0, 'passed': True, 'feedback': 'The generated answer is relevant and provides a reasonable inference based on the status \"delayed\" and fee information, explaining why release tomorrow is unlikely. It aligns well with the reference answer\\'s conclusion that release cannot be confirmed. However, it introduces additional details about fees and review requirements that are not explicitly mentioned in the user query or reference, which may or may not be accurate depending on context. Overall, it is a correct and informative response.', 'invalid_reason': None, 'raw_score': '4.0'}\nMETRIC: grounding {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': 'YES', 'invalid_reason': None, 'raw_score': '1.0'}\nMETRIC: relevance {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': '1. Does the provided response match the subject matter of the user\\'s query?  \\nYes. The user\\'s query asks specifically about the release timing of \"C2,\" and the response directly addresses this by discussing the status of C2 and the likelihood of its release tomorrow. The response stays on topic by focusing on the release status and related conditions.\\n\\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user\\'s query?  \\nYes. The user\\'s query is straightforward, seeking a yes/no or likelihood answer about the release timing. The response attempts to answer this by analyzing the status (\"delayed\"), the fee amount, and the procedural requirements that affect release timing. It provides a reasoned explanation rather than a simple yes/no, which aligns well with the implied focus on whether release will happen tomorrow.\\n\\nFinal feedback: The response is relevant and appropriately addresses the user\\'s query by providing a reasoned assessment of the likelihood of C2 being released tomorrow based on the given information.\\n\\n[RESULT] 2', 'invalid_reason': None, 'raw_score': '1.0'}\nVERSION: baseline CASE: future ATTEMPT: 2\nGENERATED ANSWER: Based on the information provided, C2 has a recorded fee of USD 200 and a status of \"delayed.\" Since fees of USD 200 or more require review and there is no information about any waiver, payment, or release schedule, it is unlikely that C2 will be released tomorrow without completing the necessary review and any required actions.\nMETRIC: correctness {'status': 'valid', 'score': 4.0, 'passed': True, 'feedback': 'The generated answer is relevant and provides a logical explanation based on the status \"delayed\" and fee information, which supports the conclusion that C2 will likely not be released tomorrow. It aligns well with the reference answer\\'s uncertainty about the release date but adds useful context about the fee and review process. However, it assumes details not explicitly stated in the query or reference, so it is not fully definitive.', 'invalid_reason': None, 'raw_score': '4.0'}\nMETRIC: grounding {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': 'YES', 'invalid_reason': None, 'raw_score': '1.0'}\nMETRIC: relevance {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': '1. Does the provided response match the subject matter of the user\\'s query?  \\nYes. The user\\'s query asks specifically about the release timing of \"C2,\" and the response directly addresses this by discussing the status of C2 and the likelihood of its release tomorrow. The response stays on topic by focusing on the release status and related conditions.\\n\\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user\\'s query?  \\nYes. The user\\'s query is straightforward, seeking a yes/no or likelihood answer about the release timing. The response attempts to answer this by analyzing the current status (\"delayed\"), the fee amount, and the procedural requirements that affect the release. It provides a reasoned explanation rather than a simple yes/no, which aligns well with the implied focus on whether the release will happen imminently.\\n\\nFinal feedback: The response is relevant and appropriately addresses the user\\'s question with a clear explanation based on the given information.\\n\\n[RESULT] 2', 'invalid_reason': None, 'raw_score': '1.0'}\nVERSION: candidate CASE: future ATTEMPT: 1\nGENERATED ANSWER: C2 has a recorded fee of USD 200 and status delayed. Recorded fees of USD 200 or more require review. No waiver, payment, or release schedule information is supplied. Therefore, information is unavailable to determine if C2 will be released tomorrow.\nMETRIC: correctness {'status': 'valid', 'score': 4.0, 'passed': True, 'feedback': 'The generated answer is relevant and correctly states that there is no information available to confirm if C2 will be released tomorrow. It also adds additional context about fees and status, which, while not directly answering the release date question, supports the conclusion that release information is unavailable. The answer is accurate and complete, though slightly more detailed than necessary.', 'invalid_reason': None, 'raw_score': '4.0'}\nMETRIC: grounding {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': 'YES', 'invalid_reason': None, 'raw_score': '1.0'}\nMETRIC: relevance {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': '1. Does the provided response match the subject matter of the user\\'s query?  \\nYes. The user\\'s query asks specifically about the release status of \"C2\" tomorrow. The response discusses the status of C2, mentioning a fee, a delay, and the lack of release schedule information. This directly relates to the subject matter of whether C2 will be released.\\n\\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user\\'s query?  \\nYes. The user\\'s focus is on the timing of C2\\'s release (specifically tomorrow). The response attempts to address this by stating that the status is delayed and that no release schedule information is available, concluding that it is not possible to determine if C2 will be released tomorrow. This shows an attempt to answer the query based on the information at hand.\\n\\nFinal feedback:  \\nThe response is relevant and appropriately addresses the user\\'s question by providing the current status and explaining the lack of information regarding the release schedule. It does not definitively answer the question but clearly states why the answer cannot be provided, which is a reasonable and relevant approach.\\n\\n[RESULT] 2', 'invalid_reason': None, 'raw_score': '1.0'}\nVERSION: candidate CASE: future ATTEMPT: 2\nGENERATED ANSWER: Information is unavailable to determine if C2 will be released tomorrow. The recorded fee for C2 is USD 200 with status delayed, and fees of USD 200 or more require review. No waiver, payment, or release schedule information is supplied.\nMETRIC: correctness {'status': 'valid', 'score': 4.0, 'passed': True, 'feedback': 'The generated answer is relevant and correctly states that there is no information confirming a release date for C2 tomorrow. It also adds additional context about fees and status, which, while not directly answering the release date question, supports the conclusion that release is uncertain. The answer is accurate and informative, though slightly more detailed than necessary.', 'invalid_reason': None, 'raw_score': '4.0'}\nMETRIC: grounding {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': 'YES', 'invalid_reason': None, 'raw_score': '1.0'}\nMETRIC: relevance {'status': 'valid', 'score': 1.0, 'passed': True, 'feedback': '1. Does the provided response match the subject matter of the user\\'s query?  \\nYes, the user\\'s query asks specifically about the release of \"C2\" tomorrow. The response directly addresses this by stating that information is unavailable to determine if C2 will be released tomorrow. It also provides additional context about the fee and status related to C2, which is relevant to the subject matter of the release status. Therefore, the response matches the subject matter of the query.  \\nScore: 1\\n\\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user\\'s query?  \\nThe user\\'s query is focused on whether C2 will be released tomorrow, which is a yes/no or status question. The response attempts to address this by stating that the information is unavailable, which is a direct attempt to answer the question. Additionally, it provides related details about fees and status, which may help explain why the release status is uncertain. This shows an attempt to address the focus of the query from the perspective of available information and constraints.  \\nScore: 1\\n\\nFinal feedback:  \\nThe response is relevant and attempts to answer the user\\'s question about the release of C2 tomorrow. It acknowledges the lack of definitive information while providing related context that might explain the delay. This makes the response both subject-matter appropriate and focused on the user\\'s inquiry.\\n\\n[RESULT] 2', 'invalid_reason': None, 'raw_score': '1.0'}\nSUMMARY: baseline development 2 / 2\nSUMMARY: candidate development 2 / 2\nEVIDENCE: /private/tmp/b5-llm-refocus/lab-repeat/work/b5-compare-prompts.json\n",
+      "reports": {
+        "b5-compare-prompts.json": {
+          "cases": [
+            {
+              "id": "future",
+              "context": "Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\nRecorded fees of USD 200 or more require review. C9 has no matching record.\nNo waiver, payment or release schedule information is supplied.",
+              "question": "Will C2 be released tomorrow?",
+              "reference": "The supplied information does not establish a release date; tomorrow's release cannot be confirmed.",
+              "split": "development"
+            }
+          ],
+          "prompts": {
+            "baseline": "Answer the shipping enquiry helpfully.",
+            "candidate": "Answer using only supplied facts and policy. Correct unsupported premises. Say when information is unavailable; do not infer waivers, balances or release dates. Answer every requested part, preserving units and distinguishing observations from guarantees."
+          },
+          "repeats": 2,
+          "trials": [
+            {
+              "case_id": "future",
+              "question": "Will C2 be released tomorrow?",
+              "context": "Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\nRecorded fees of USD 200 or more require review. C9 has no matching record.\nNo waiver, payment or release schedule information is supplied.",
+              "reference": "The supplied information does not establish a release date; tomorrow's release cannot be confirmed.",
+              "answer": "Based on the provided information, C2 has a recorded fee of USD 200 and a status of \"delayed.\" Since recorded fees of USD 200 or more require review and no waiver, payment, or release schedule information is supplied, it is unlikely that C2 will be released tomorrow without further action or approval.",
+              "generation_error": null,
+              "metrics": {
+                "correctness": {
+                  "status": "valid",
+                  "score": 4.0,
+                  "passed": true,
+                  "feedback": "The generated answer is relevant and provides a reasonable inference based on the status \"delayed\" and fee information, explaining why release tomorrow is unlikely. It aligns well with the reference answer's conclusion that release cannot be confirmed. However, it introduces additional details about fees and review requirements that are not explicitly mentioned in the user query or reference, which may or may not be accurate depending on context. Overall, it is a correct and informative response.",
+                  "invalid_reason": null,
+                  "raw_score": "4.0"
+                },
+                "grounding": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "YES",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                },
+                "relevance": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "1. Does the provided response match the subject matter of the user's query?  \nYes. The user's query asks specifically about the release timing of \"C2,\" and the response directly addresses this by discussing the status of C2 and the likelihood of its release tomorrow. The response stays on topic by focusing on the release status and related conditions.\n\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \nYes. The user's query is straightforward, seeking a yes/no or likelihood answer about the release timing. The response attempts to answer this by analyzing the status (\"delayed\"), the fee amount, and the procedural requirements that affect release timing. It provides a reasoned explanation rather than a simple yes/no, which aligns well with the implied focus on whether release will happen tomorrow.\n\nFinal feedback: The response is relevant and appropriately addresses the user's query by providing a reasoned assessment of the likelihood of C2 being released tomorrow based on the given information.\n\n[RESULT] 2",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                }
+              },
+              "passed": true,
+              "seconds": 8.137,
+              "version": "baseline",
+              "split": "development",
+              "attempt": 1
+            },
+            {
+              "case_id": "future",
+              "question": "Will C2 be released tomorrow?",
+              "context": "Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\nRecorded fees of USD 200 or more require review. C9 has no matching record.\nNo waiver, payment or release schedule information is supplied.",
+              "reference": "The supplied information does not establish a release date; tomorrow's release cannot be confirmed.",
+              "answer": "Based on the information provided, C2 has a recorded fee of USD 200 and a status of \"delayed.\" Since fees of USD 200 or more require review and there is no information about any waiver, payment, or release schedule, it is unlikely that C2 will be released tomorrow without completing the necessary review and any required actions.",
+              "generation_error": null,
+              "metrics": {
+                "correctness": {
+                  "status": "valid",
+                  "score": 4.0,
+                  "passed": true,
+                  "feedback": "The generated answer is relevant and provides a logical explanation based on the status \"delayed\" and fee information, which supports the conclusion that C2 will likely not be released tomorrow. It aligns well with the reference answer's uncertainty about the release date but adds useful context about the fee and review process. However, it assumes details not explicitly stated in the query or reference, so it is not fully definitive.",
+                  "invalid_reason": null,
+                  "raw_score": "4.0"
+                },
+                "grounding": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "YES",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                },
+                "relevance": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "1. Does the provided response match the subject matter of the user's query?  \nYes. The user's query asks specifically about the release timing of \"C2,\" and the response directly addresses this by discussing the status of C2 and the likelihood of its release tomorrow. The response stays on topic by focusing on the release status and related conditions.\n\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \nYes. The user's query is straightforward, seeking a yes/no or likelihood answer about the release timing. The response attempts to answer this by analyzing the current status (\"delayed\"), the fee amount, and the procedural requirements that affect the release. It provides a reasoned explanation rather than a simple yes/no, which aligns well with the implied focus on whether the release will happen imminently.\n\nFinal feedback: The response is relevant and appropriately addresses the user's question with a clear explanation based on the given information.\n\n[RESULT] 2",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                }
+              },
+              "passed": true,
+              "seconds": 7.317,
+              "version": "baseline",
+              "split": "development",
+              "attempt": 2
+            },
+            {
+              "case_id": "future",
+              "question": "Will C2 be released tomorrow?",
+              "context": "Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\nRecorded fees of USD 200 or more require review. C9 has no matching record.\nNo waiver, payment or release schedule information is supplied.",
+              "reference": "The supplied information does not establish a release date; tomorrow's release cannot be confirmed.",
+              "answer": "C2 has a recorded fee of USD 200 and status delayed. Recorded fees of USD 200 or more require review. No waiver, payment, or release schedule information is supplied. Therefore, information is unavailable to determine if C2 will be released tomorrow.",
+              "generation_error": null,
+              "metrics": {
+                "correctness": {
+                  "status": "valid",
+                  "score": 4.0,
+                  "passed": true,
+                  "feedback": "The generated answer is relevant and correctly states that there is no information available to confirm if C2 will be released tomorrow. It also adds additional context about fees and status, which, while not directly answering the release date question, supports the conclusion that release information is unavailable. The answer is accurate and complete, though slightly more detailed than necessary.",
+                  "invalid_reason": null,
+                  "raw_score": "4.0"
+                },
+                "grounding": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "YES",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                },
+                "relevance": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "1. Does the provided response match the subject matter of the user's query?  \nYes. The user's query asks specifically about the release status of \"C2\" tomorrow. The response discusses the status of C2, mentioning a fee, a delay, and the lack of release schedule information. This directly relates to the subject matter of whether C2 will be released.\n\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \nYes. The user's focus is on the timing of C2's release (specifically tomorrow). The response attempts to address this by stating that the status is delayed and that no release schedule information is available, concluding that it is not possible to determine if C2 will be released tomorrow. This shows an attempt to answer the query based on the information at hand.\n\nFinal feedback:  \nThe response is relevant and appropriately addresses the user's question by providing the current status and explaining the lack of information regarding the release schedule. It does not definitively answer the question but clearly states why the answer cannot be provided, which is a reasonable and relevant approach.\n\n[RESULT] 2",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                }
+              },
+              "passed": true,
+              "seconds": 8.651,
+              "version": "candidate",
+              "split": "development",
+              "attempt": 1
+            },
+            {
+              "case_id": "future",
+              "question": "Will C2 be released tomorrow?",
+              "context": "Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.\nC1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.\nRecorded fees of USD 200 or more require review. C9 has no matching record.\nNo waiver, payment or release schedule information is supplied.",
+              "reference": "The supplied information does not establish a release date; tomorrow's release cannot be confirmed.",
+              "answer": "Information is unavailable to determine if C2 will be released tomorrow. The recorded fee for C2 is USD 200 with status delayed, and fees of USD 200 or more require review. No waiver, payment, or release schedule information is supplied.",
+              "generation_error": null,
+              "metrics": {
+                "correctness": {
+                  "status": "valid",
+                  "score": 4.0,
+                  "passed": true,
+                  "feedback": "The generated answer is relevant and correctly states that there is no information confirming a release date for C2 tomorrow. It also adds additional context about fees and status, which, while not directly answering the release date question, supports the conclusion that release is uncertain. The answer is accurate and informative, though slightly more detailed than necessary.",
+                  "invalid_reason": null,
+                  "raw_score": "4.0"
+                },
+                "grounding": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "YES",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                },
+                "relevance": {
+                  "status": "valid",
+                  "score": 1.0,
+                  "passed": true,
+                  "feedback": "1. Does the provided response match the subject matter of the user's query?  \nYes, the user's query asks specifically about the release of \"C2\" tomorrow. The response directly addresses this by stating that information is unavailable to determine if C2 will be released tomorrow. It also provides additional context about the fee and status related to C2, which is relevant to the subject matter of the release status. Therefore, the response matches the subject matter of the query.  \nScore: 1\n\n2. Does the provided response attempt to address the focus or perspective on the subject matter taken on by the user's query?  \nThe user's query is focused on whether C2 will be released tomorrow, which is a yes/no or status question. The response attempts to address this by stating that the information is unavailable, which is a direct attempt to answer the question. Additionally, it provides related details about fees and status, which may help explain why the release status is uncertain. This shows an attempt to address the focus of the query from the perspective of available information and constraints.  \nScore: 1\n\nFinal feedback:  \nThe response is relevant and attempts to answer the user's question about the release of C2 tomorrow. It acknowledges the lack of definitive information while providing related context that might explain the delay. This makes the response both subject-matter appropriate and focused on the user's inquiry.\n\n[RESULT] 2",
+                  "invalid_reason": null,
+                  "raw_score": "1.0"
+                }
+              },
+              "passed": true,
+              "seconds": 10.468,
+              "version": "candidate",
+              "split": "development",
+              "attempt": 2
+            }
+          ],
+          "generator_model": "gpt-4.1-mini",
+          "judge_model": "gpt-4.1-mini",
+          "thresholds": {
+            "correctness": 4.0,
+            "grounding": 1.0,
+            "relevance": 1.0
+          },
+          "code_sha256": "2fa8510dbb2eba5897dbb12c99b3cea97a99810bc73c1ba1c728c05ca7edcb3c",
+          "missing_token_usage": "unknown",
+          "elapsed_scope": "generation and evaluation"
+        }
+      },
+      "executed_source_sha256": "2fa8510dbb2eba5897dbb12c99b3cea97a99810bc73c1ba1c728c05ca7edcb3c"
+    }
+  ],
+  "lab_observed_comparison": {
+    "baseline_development": "3/4",
+    "candidate_development": "3/4",
+    "baseline_held_out": "1/1",
+    "candidate_held_out": "1/1",
+    "note": "Candidate waiver response passed fact judges but relevance scored0.5. Fixed threshold retained; no improvement manufactured."
+  },
+  "review": "Fresh read-only review found finite/range score acceptance and aborting remaining judges. Both fixed with targeted regression tests; no reference leakage or comparison/evidence mismatch found.",
   "teaching_materials": {
-    "date": "2026-11-06",
-    "markdown": "slides-md/b5-safety-observability-evaluation.md",
-    "markdown_sha256": "43a1a3f5e04e2cdee68d2db036183d0d6051923689e7bc579edee3cfb5b3d75d",
-    "gamma": "slides-gamma/b5-safety-observability-evaluation.txt",
-    "gamma_sha256": "c0437e5ebabea4b4f487d6545396e02892bc1515d776125ef8813e704e25c39e",
     "slides": 36,
-    "fenced_blocks_preserved": 13,
-    "table_slides_preserved": 14,
-    "conversion": "Visible slide bodies match after removal of frontmatter, comments and standalone local navigation. Every fenced block and table preserved exactly.",
-    "layout": "Rendered with Marp; all slides visually inspected.",
-    "execution_evidence": "Teaching material only; executable snippets and recorded model runs unchanged."
-  }
+    "rendered": 36,
+    "gamma_preserves": "visible slide bodies, tables and fenced blocks; strips metadata/notes/local illustration links",
+    "markdown_sha256": "c675e2d5e4d5f28f6a185a8f44eeda2108246afc6d87a752890f3ffa1ee2bc82",
+    "gamma_sha256": "4488ca536e211eea467c286eb118d9780e9373251fe551d5c5e0f88349ec547e"
+  },
+  "limits": [
+    "Model-judge acceptance is not ground truth; actual false positives preserved.",
+    "Same model family generates and judges; errors need not be independent.",
+    "Only correctness/grounding have prepared calibration; relevance remains separately inspectable and showed a lab disagreement.",
+    "Small dev/held-out sets and counts are not reliability/generalization estimates.",
+    "Token usage/dollar cost not collected here remains unknown.",
+    "No new dependencies, hosted evaluator platform, external messages, staging or commits."
+  ],
+  "temporary_evidence_directory": "/tmp/b5-llm-refocus"
 }

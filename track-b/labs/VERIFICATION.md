@@ -1,92 +1,41 @@
-# Standalone lab verification · 5 November 2026
+# Standalone lab verification · 6 November 2026
 
-Current distribution: only `container_help_desk/`. The PortOps copy has been
-removed. Its checks have been removed from the active scaffold suite.
+Current pack: B1–B5 learner drafts. B4's database lab is unchanged. B5 now evaluates actual generated answers: cases, generation, evaluator configuration/invocation and a candidate prompt. Its former rule-testing lab is a [supporting reference](container_help_desk/B5-APPLICATION-CHECKS-REFERENCE.md), with [historical verification](reference/VERIFICATION-APPLICATION-CHECKS.md).
 
-After that change, `.venv/bin/python -m unittest discover -s labs/tests -v`
-from `track-b` passed **5 tests**: CLI help from another directory, visible
-unfinished TODO behavior, known/unknown fixtures, exact outbox payloads and
-the repeat-review regression. These are supplied-scaffold checks, not a
-curriculum assessment or completed learner answers.
+## Current checks
 
-No live model, local inference, MCP or backend call was repeated for this
-documentation reconciliation. The starter implementations remain unfinished.
-
-## Historical verification before removal of the PortOps copy
-
-The following record describes the earlier two-copy distribution. It is
-historical evidence, not a claim that both copies are available now.
-
-### Earlier check · 5 November 2026
-
-Both lab paths were checked with learner implementations applied only to
-disposable copies. The delivered starters retain all 14 empty TODO functions
-per version: 12 core functions and two optional B3 extensions.
-
-## Executed checks
-
-| Check | Result |
-| --- | --- |
-| Supplied scaffold suite | 7 tests passed, including both copies and repeat-review regressions |
-| Existing PortOps suite, run from its project directory | 23 tests passed; one existing Starlette/httpx deprecation warning |
-| Initial B1–B3 help from another working directory | Passed for both copies |
-| Unfinished first model call | Reports TODO B1.1, exit 2, no invented reply |
-| PortOps adapter | Actual HTTP GETs against existing routes, with CSV seeds in an in-memory DB |
-| PortOps fixture date | Fixed at 2026-09-22: MSKU1234567 is OVERDUE with USD 1500 net; MSCU7654321 is GATED_OUT |
-| Scripted model with real SDK execution | Tool observations, task JSON and actual RunState save/restore passed |
-| Human review with scripted model output | Approve, reject and invalid input exercised for both copies; exact payload retained |
-| Real MCP transport | Both completed copies discovered and invoked read tools over local HTTP |
-| Unfinished MCP read | Actual is_error result detected; runner raised instead of printing a completed answer |
-| Live GPT-4.1-mini smoke checks | B1 instruction call, B2 status/fee tool answer, B3 investigation and rejection passed for both copies |
-| Local lab document links | 37 links resolved |
-| Python syntax and empty TODO bodies | All starter/scaffold files parsed; 14 learner functions per version remain unimplemented |
-
-The temporary PortOps server used the existing route/service/engine code with
-an in-memory seeded database. It did not reset or modify the capstone's working
-database. Live review rejected the local outbox proposal; no customer message
-was sent. Scripted output was used explicitly to verify scaffold behavior,
-separately from the live model smoke checks.
-
-Two review findings were fixed: a rejected new draft cannot inherit an older
-identical outbox entry's queued outcome, and MCP tool-error results cannot
-silently count as a completed checkpoint. The former has a persisted
-regression test; the latter was exercised through an actual MCP connection.
-
-## Commands
-
-From the repository root, with the lab dependencies available:
+From the repository root:
 
 ```bash
-python -m unittest discover -s track-b/labs/tests -v
+track-b/.venv/bin/python -m unittest discover -s track-b/labs/tests -v
 ```
 
-From `project-supplychain-sandbox-PortOps`, with its environment active:
+**24 tests passed.** These cover existing B1–B3 behavior, B4 scope/policy/query failure, preserved application-reference controls, the current B5 runner and five new snippet-control regressions. The new regressions were observed failing before the guard/error-handling fixes and passing afterward. They use controlled model/evaluator IO and make no real model calls; they verify application behavior, not judge accuracy or a provider outage.
 
-```bash
-python -m pytest
-```
+Current B5 runner checks establish that references are not forwarded to generation, invalid/missing/nonfinite/out-of-range scores cannot pass, normalized relevance is handled without a `passing` field, one judge error does not erase later judgments, every generation failure remains in both comparison versions, and unfinished learner work stops as a TODO.
 
-The disposable integration/live scripts and logs are local review artifacts at
-`/private/tmp/maersk-b1-b3-lab-verification-20261105/`; they are not learner
-solutions in the teaching pack.
+The delivered B4 and B5 starters each retain **five unimplemented functions**. Formal assessments and B6's lab remain deferred. [Current structured evidence](verification-b4-b5.json) contains hashes, actual run reports and limits.
 
-## Limits and unrelated collection failures
+## Revised B5 actual-model checks
 
-This verifies runnable scaffolding and representative completed paths. It is
-not a guarantee that a participant's implementation or every model response
-meets the lesson requirements. Follow-ups with a new session, optional local
-inference, coordinator and handoff extensions were not live-tested as part
-of this lab check; their source mechanisms remain in the existing snippets.
+Temporary completed copies exercised seven checkpoints/variations: offline cases, actual generation, one-answer evaluation, two-judge calibration, development dataset, full prompt comparison and selected-case repetition. All exited successfully, with actual text and evaluator feedback retained. The copies inherit the key from the existing repository environment; no key was copied into starters/reports. An initial temporary-runner key-loading mistake stopped before model work and was corrected without modifying the learner code.
 
-An initial pytest invocation from the wider repository root also discovered
-unrelated archived BFSI material and stopped on five collection errors:
+The full comparison retained ten generated answers under fixed cases/judges/thresholds. Development acceptance tied at **3/4 for both prompts**, with held-out **1/1 for each**. Candidate's waiver answer passed correctness/grounding but received relevance 0.5 because the judge criticised not accepting the user's premise. It sees question/answer, not source context. The fixed pass threshold of 1 was retained; no higher score was manufactured.
 
-- `CODEALONGS/tests/test_m0_section_1_materials.py`: missing `nbformat`.
-- `CODEALONGS/tests/test_m0_section_2_materials.py`: missing `nbformat`.
-- `CODEALONGS/tests/test_m0_section_3_materials.py`: missing `nbformat`.
-- `CODEALONGS/tests/test_m1_model_access_materials.py`: missing `nbformat`.
-- `M13-M15-OFFLINE-HARDENING-DRAFT/m15_observability_deployment/04_api_smoke_test.py`:
-  its local server could not become healthy in the restricted execution environment.
+A future-case repetition retained four attempts, two per prompt. Dataset/report evidence is separate from the core snippets' earlier comparison, which observed development 3/4→4/4. These are different actual generations and not pooled quality rates. Judge false positives, same-family correlation and small counts remain explicit limitations.
 
-These were outside the lab change. Running the actual PortOps project suite
-from its documented directory passed all 23 tests.
+The lab saves actual answers, context/reference, per-metric score/status/feedback, errors, code hash, model IDs, thresholds and elapsed scope. Generation and judging both take resources; missing token usage stays unknown. A score of 0 is different from an invalid/error judgment with no score.
+
+## Retained B4 verification
+
+B4's nine completed-copy offline/variation checks and six actual-model checks remain in the structured record: metadata, owner-scoped reads, SQL-looking IDs, correct150/200 grain totals, policy/row-cap behavior, actual total/maximum/empty SQL results, agent evidence and one-turn stopping. A supplied unsafe SQL candidate was rejected by the actual database while public rows remained unchanged; that probe made no model call.
+
+The trusted A projection and SQLite policy are classroom controls, not an identity-provider implementation or portable production isolation. Output caps, instruction budgets and agent turns constrain different work. No B4 implementation or model behavior changed during the B5 refocus.
+
+## Environment and teaching limits
+
+The existing Python 3.12.2 / SQLite 3.51.1 shared environment was reused. Lab requirement constraints match installed packages, including SQLAlchemy 2.1.8, Pydantic 2.14.2, openai-agents 0.20.0, openai 2.54.0, llama-index-core 0.14.25 and llama-index-llms-openai 0.8.3. No dependency upgrade was needed. A fresh isolated pip installation and Python 3.11 were not tested.
+
+A fresh read-only review checked the core snippets, lab and teaching/evidence alignment. Its material score-range and per-judge-error findings were fixed with targeted regressions. B5's 36-slide deck was rendered/visually inspected and its Gamma text preserves visible content. Source syntax, command paths, local links and current evidence hashes were checked.
+
+The proposed 60-minute lab timing remains unvalidated by an instructor dry run. Current generation/reference separation does not establish broad production reliability, permissions, concurrent recovery or delivery. No external messages, production records, commits or staging operations were involved.

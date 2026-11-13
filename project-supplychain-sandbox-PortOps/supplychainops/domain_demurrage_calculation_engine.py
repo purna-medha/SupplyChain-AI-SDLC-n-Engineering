@@ -3,11 +3,6 @@
 from datetime import date
 
 
-def get_current_calculation_date() -> date:
-    """Return today's date for live dwell calculations (patchable in tests)."""
-    return date.today()
-
-
 def calculate_container_dwell_days(
     vessel_discharge_date: date,
     gate_out_date: date | None,
@@ -73,12 +68,11 @@ def build_demurrage_calculation_breakdown(
     tier_2_daily_penalty_rate_usd: float,
     tier_discount_percentage: float,
     approved_waiver_amount_usd: float,
-    current_calculation_date: date | None = None,
+    current_calculation_date: date,
 ) -> dict:
     """Compose the full demurrage breakdown dictionary for API responses."""
-    calculation_date = current_calculation_date or get_current_calculation_date()
     dwell_days = calculate_container_dwell_days(
-        vessel_discharge_date, gate_out_date, calculation_date
+        vessel_discharge_date, gate_out_date, current_calculation_date
     )
     overdue_days = calculate_overdue_days_count(dwell_days, free_days_allowed)
     tier_1_days, tier_2_days = split_tier_overdue_days(overdue_days)

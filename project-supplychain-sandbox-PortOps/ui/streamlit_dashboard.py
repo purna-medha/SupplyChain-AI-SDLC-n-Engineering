@@ -1,5 +1,6 @@
 """PortOps dual-persona dashboard — HTTP-only, no direct database access."""
 
+import requests
 import streamlit as st
 
 from ui.api_http_client import SupplyChainOpsApiClient
@@ -10,12 +11,27 @@ st.title("PortOps — Jebel Ali Container Terminal")
 api_base_url = st.sidebar.text_input("API Base URL", value="http://localhost:8002")
 client = SupplyChainOpsApiClient(api_base_url)
 
+
+def show_api_error(error: requests.RequestException) -> None:
+    """Show the API's business-rule message instead of a Python traceback."""
+    message = str(error)
+    if error.response is not None:
+        try:
+            message = error.response.json().get("detail", message)
+        except ValueError:
+            pass
+    st.error(message)
+
+
 try:
     health = client.health_check()
     st.sidebar.success(f"{health['application_name']} — {health['status']}")
 except Exception as exc:
     st.sidebar.error(f"API unreachable: {exc}")
     st.stop()
+
+if message := st.session_state.pop("action_message", None):
+    st.success(message)
 
 importer_tab, port_ops_tab = st.tabs(
     ["Importer & Cargo Owner Portal", "Port Operations & Logistics Workspace"]
@@ -63,23 +79,35 @@ with importer_tab:
             )
             submitted = st.form_submit_button("Submit Claim")
             if submitted:
-                claim = client.submit_dispute_claim(
-                    {
-                        "container_identifier": selected_container,
-                        "importer_identifier": importer_identifier,
-                        "disputed_amount_usd": disputed_amount,
-                        "dispute_reason_category": dispute_reason,
-                    }
-                )
-                st.success(
-                    f"Claim #{claim['dispute_claim_identifier']} — "
-                    f"{claim['claim_decision_status']} "
-                    f"(Waiver: ${claim['approved_waiver_amount_usd']:,.2f})"
-                )
+                try:
+                    claim = client.submit_dispute_claim(
+                        {
+                            "container_identifier": selected_container,
+                            "importer_identifier": importer_identifier,
+                            "disputed_amount_usd": disputed_amount,
+                            "dispute_reason_category": dispute_reason,
+                        }
+                    )
+                    st.session_state["action_message"] = (
+                        f"Claim #{claim['dispute_claim_identifier']} — "
+                        f"{claim['claim_decision_status']} "
+                        f"(Waiver: ${claim['approved_waiver_amount_usd']:,.2f})"
+                    )
+                    st.rerun()
+                except requests.RequestException as exc:
+                    show_api_error(exc)
 
-        if st.button("Execute Gate Out", key="importer_gate_out"):
-            result = client.execute_gate_out(selected_container)
-            st.success(f"Gated out on {result['gate_out_date']}")
+        selected_row = next(
+            row for row in containers if row["container_identifier"] == selected_container
+        )
+        gated_out = selected_row["gate_out_date"] is not None
+        if st.button("Execute Gate Out", key="importer_gate_out", disabled=gated_out):
+            try:
+                result = client.execute_gate_out(selected_container)
+                st.session_state["action_message"] = f"Gated out on {result['gate_out_date']}"
+                st.rerun()
+            except requests.RequestException as exc:
+                show_api_error(exc)
 
 with port_ops_tab:
     st.header("Port Operations & Logistics Workspace")
@@ -94,7 +122,7 @@ with port_ops_tab:
     st.subheader("Dispute Claims Audit")
     claim_filter = st.selectbox(
         "Filter by Decision Status",
-        ["ALL", "AUTO_APPROVED", "ESCALATED_TO_MANAGER", "REJECTED"],
+        ["ALL", "AUTO_APPROVED", "MANAGER_APPROVED", "ESCALATED_TO_MANAGER", "REJECTED"],
     )
     claims = client.list_dispute_claims(
         None if claim_filter == "ALL" else claim_filter
@@ -120,12 +148,18 @@ with port_ops_tab:
             override_note = st.text_input("Manager Override Note", value="Approved after review")
             override_submitted = st.form_submit_button("Approve Override")
             if override_submitted:
-                updated = client.approve_claim_override(
-                    selected_claim["dispute_claim_identifier"],
-                    waiver_amount,
-                    override_note,
-                )
-                st.success(f"Claim updated — waiver ${updated['approved_waiver_amount_usd']:,.2f}")
+                try:
+                    updated = client.approve_claim_override(
+                        selected_claim["dispute_claim_identifier"],
+                        waiver_amount,
+                        override_note,
+                    )
+                    st.session_state["action_message"] = (
+                        f"Claim updated — waiver ${updated['approved_waiver_amount_usd']:,.2f}"
+                    )
+                    st.rerun()
+                except requests.RequestException as exc:
+                    show_api_error(exc)
 
     st.subheader("Drayage Dispatch Jobs")
     drivers = sorted(

@@ -156,7 +156,9 @@ A fluent final answer and a completed runtime call are different evidence from a
 | Missing information | Clarify, obtain evidence or report the gap |
 | Turn limit reached | Retain an incomplete outcome |
 
-A turn can contain several tool calls. Its limit is not a total tool-call, token or spending limit.
+Turn limits do not bound total tool calls, tokens or spend.
+
+**Predict:** the last allowed model call requests a lookup. The tool returns, but no call remains. Is the task complete?
 
 ---
 
@@ -224,7 +226,7 @@ User → Triage → Charges specialist → user-facing answer
 
 The specialist becomes the active agent for that branch.
 
-A handoff fits when the specialist should own the response. Calling a specialist as a tool fits when a coordinator should combine its result.
+**Predict:** a specialist returns findings as a tool; another receives a handoff. Who should own the final answer in each arrangement?
 
 ---
 

@@ -1,0 +1,457 @@
+# B4 · Querying enterprise data with AI agents
+
+A business question, an approved database path and a checked answer
+
+Schema · SQLAlchemy Core · LlamaIndex · Agent tools
+
+---
+
+# The business question
+
+> What is the total recorded USD fee for my delayed containers?
+
+We need to identify the caller's permitted records, select delayed containers and add each recorded fee once.
+
+**Predict:** what information must the application obtain before it can answer?
+
+---
+
+# The next capability after B1–B3
+
+| Earlier capability | What B4 adds |
+| --- | --- |
+| B1: use a model | Supply authoritative structured facts |
+| B2: obtain facts through tools | Back a capability with a database |
+| B3: coordinate a task | Query and interpret permitted business data |
+
+The agent loop stays familiar. The data capability becomes richer.
+
+---
+
+# Known lookups and analytical questions
+
+| Request | Suitable starting point |
+| --- | --- |
+| “What is C1's recorded fee?” | Fixed query with a container-ID parameter |
+| “What is the total for delayed containers?” | Analytical query over approved data |
+
+Use an existing approved business API or semantic interface when it provides the needed capability.
+
+---
+
+# The synthetic business records
+
+| Container | Owner | Recorded status | Fee |
+| --- | --- | --- | --- |
+| C1 | A | delayed | USD 100 |
+| C2 | B | delayed | USD 200 |
+| C4 | A | delayed | USD 50 |
+| C5 | A | on_time | USD 75 |
+
+Lookup examples use C1/C2. Analytics uses A's C1/C4/C5 snapshot.
+
+---
+
+# Tables describe rows and relationships
+
+The first example separates containers from their fees:
+
+```text
+containers: id, owner, status       one row per container
+fees: container_id, fee, currency   one fee row per container
+
+fees.container_id → containers.id
+```
+
+A **primary key** identifies a row. A **foreign key** declares a relationship to another table.
+
+---
+
+# Inspect the actual schema
+
+SQLAlchemy's Inspector reads database metadata.
+
+```python
+inspector = inspect(engine)
+print(inspector.get_table_names())
+print(inspector.get_columns("fees"))
+print(inspector.get_foreign_keys("fees"))
+```
+
+---
+
+# Schema and business meaning
+
+Metadata can tell us that a column is called `fee`.
+
+It cannot establish whether that amount is recorded, invoiced or outstanding, or which date/status defines “delayed this week”.
+
+Agree on the calculation, units and time window before querying.
+
+---
+
+# The fixed lookup's contract
+
+```text
+User input:      requested container ID
+Trusted context: caller A
+Read:            matching ID AND matching owner
+Return:          ID, fee, currency and observation time
+```
+
+The lookup fixture keeps these fields in one `container_fees` table.
+
+The host supplies the caller identity; the model does not choose it.
+
+---
+
+# SQL selects fields and matching rows
+
+For A's request about C1, the intended read is:
+
+```sql
+SELECT container_id, fee, currency, as_of
+FROM container_fees
+WHERE container_id = 'C1' AND owner = 'A'
+LIMIT 1
+```
+
+`SELECT` chooses fields. `WHERE` filters rows. `LIMIT` caps output.
+
+**Predict:** what should this read return if the requested ID is C2?
+
+---
+
+# SQLAlchemy executes the database operation
+
+```text
+Engine       manages connectivity to a database
+    ↓
+Connection   executes a SQL statement with supplied values
+    ↓
+Result       exposes the returned rows
+```
+
+Creating an engine does not perform the business read. Executing the statement does.
+
+---
+
+# Bound values inside a fixed query
+
+```python
+row = connection.execute(text(
+    "SELECT container_id, fee, currency, as_of FROM container_fees "
+    "WHERE container_id = :id AND owner = :owner LIMIT 1"
+), {"id": container_id, "owner": trusted_owner}).mappings().first()
+```
+
+`:id` and `:owner` receive values without rewriting the statement.
+
+`mappings()` exposes named fields; `first()` obtains the first row, if any.
+
+---
+
+# Scope and bound values have separate jobs
+
+Observed lookup variations for caller A:
+
+| Requested ID | Public result |
+| --- | --- |
+| C1 | Recorded fee 100 USD |
+| C2 | Unavailable |
+| C9 | Unavailable |
+| `C1' OR 1=1 --` | Unavailable |
+
+The owner condition restricts membership. Binding keeps an input a value.
+
+---
+
+# A typed business result
+
+Pydantic checks the declared result fields and types:
+
+```python
+class FeeRecord(BaseModel):
+    container_id: str
+    fee: StrictInt
+    currency: str
+    as_of: datetime
+```
+
+Correct shape still needs factual, permission and freshness checks.
+
+---
+
+# The approved analytics snapshot
+
+For analytics, the later examples start with this separate approved input:
+
+| Container | Recorded status | Recorded USD fee |
+| --- | --- | --- |
+| C1 | delayed | 100 |
+| C4 | delayed | 50 |
+| C5 | on_time | 75 |
+
+C2, owner fields and private notes are absent before model access.
+
+---
+
+# Establish the answer before generating SQL
+
+For the delayed-container question:
+
+```text
+C1: delayed → contributes 100
+C4: delayed → contributes  50
+C5: on_time → excluded
+
+Independent expected total: 150 USD
+```
+
+**Predict:** what would the total become if the status condition were omitted?
+
+---
+
+# SQL expresses the intended calculation
+
+```sql
+SELECT SUM(fee)
+FROM container_fees
+WHERE status = 'delayed' AND currency = 'USD'
+```
+
+`WHERE` selects eligible rows. `SUM` adds their fee values.
+
+This hand-understood query describes what a generated proposal must achieve.
+
+---
+
+# The model proposes the query
+
+```text
+Question + approved schema + business definitions
+                         ↓
+                  Model proposes SQL
+                         ↓
+             Restricted database executes
+                         ↓
+                    Actual rows
+```
+
+The application still checks permission and business meaning.
+
+---
+
+# LlamaIndex supplies the query capability
+
+```python
+database = SQLDatabase(
+    engine, include_tables=["container_fees"], sample_rows_in_table_info=0
+)
+query_engine = NLSQLTableQueryEngine(
+    sql_database=database, tables=["container_fees"],
+    llm=llm, synthesize_response=False,
+)
+```
+
+The selected table supplies schema context. Database policy separately enforces access.
+
+---
+
+# Inspect the proposal and actual result
+
+Observed model proposal, formatted:
+
+```sql
+SELECT SUM(container_fees.fee) FROM container_fees
+WHERE container_fees.status = 'delayed'
+  AND container_fees.currency = 'USD';
+```
+
+```text
+ROWS: [(150,)]
+INDEPENDENT EXPECTATION: [(150,)]
+```
+
+---
+
+# A valid join can repeat a fee
+
+New question: total fees for delayed containers **with at least one event**.
+
+Joining tracking events introduces several rows per container:
+
+```text
+C1, fee 100, scan
+C1, fee 100, hold
+C4, fee  50, hold
+```
+
+**Predict:** sum these joined rows. Does the result still represent one fee per eligible container?
+
+---
+
+# Preserve one contribution per container
+
+`EXISTS` checks event membership without multiplying fee rows:
+
+```sql
+SELECT SUM(f.fee)
+FROM container_fees f
+WHERE f.status='delayed'
+AND EXISTS (
+    SELECT 1 FROM events e WHERE e.container_id=f.container_id
+)
+```
+
+Wrong join: **250**. Intended grain: **150**.
+
+---
+
+# Equal amounts expose a false repair
+
+Give C1 and C4 a recorded fee of USD 100 each.
+
+| Approach | Result |
+| --- | --- |
+| Intended one fee per eligible container | 200 |
+| Join over all event rows | 300 |
+| SUM of DISTINCT fee amounts | 100 |
+
+Distinct amounts do not identify distinct containers.
+
+---
+
+# The database enforces execution boundaries
+
+| Attempt | Observed outcome |
+| --- | --- |
+| Read the approved fee table | Permitted |
+| Read private_contacts | Rejected |
+| Delete fee records | Rejected |
+
+A model instruction alone cannot supply this enforcement.
+
+---
+
+# Partial output and database work
+
+With three approved rows and a display cap of two:
+
+```text
+VISIBLE: [('C1', 100), ('C4', 50)]
+TRUNCATED: True
+```
+
+Fetching one extra row detects incomplete output.
+
+A separate progress callback limits query instructions. A row cap does not bound earlier database work.
+
+---
+
+# Empty, zero and failed results
+
+| Observation | Meaning depends on the contract |
+| --- | --- |
+| Empty rows | No matching visible records |
+| NULL SUM over no matches | No non-NULL amount contributed |
+| Recorded fee of 0 | A supplied zero amount |
+| Query rejected or failed | No successful result to answer from |
+
+A failed read must not become a fabricated zero fee.
+
+---
+
+# A query capability inside the familiar agent loop
+
+```text
+User asks a fee question
+    SDK agent selects query_fees(question)
+    LlamaIndex proposes SQL; restricted database executes
+    Tool returns rows, columns, source/time and truncation
+    SDK agent explains that evidence
+```
+
+B2's tool interaction now contains a governed database query.
+
+---
+
+# The query tool returns database evidence
+
+```python
+@function_tool
+async def query_fees(question: str) -> dict:
+    response = await query_engine.aquery(question)
+    # Check failure; return actual rows and source/snapshot metadata.
+```
+
+An empty result, a failed query and truncated output need explicit reporting.
+
+---
+
+# Inspect the complete evidence path
+
+Observed highest-delayed-fee request:
+
+```text
+Question: highest recorded USD fee among delayed containers
+SQL: ... WHERE status='delayed' AND currency='USD'
+     ORDER BY fee DESC LIMIT 1
+ROWS: [('C1', 100)]
+Answer: C1, USD 100, with source and snapshot time
+```
+
+**Predict:** what should the agent report when asked for absent C2?
+
+---
+
+# Preserve the observation's scope and time
+
+A useful answer retains the record identity, currency, source and observation time.
+
+A partial result must remain visibly partial.
+
+**Predict:** does querying a midnight snapshot at noon make its observations current at noon?
+
+---
+
+# Extension · Larger schemas and accepted metrics
+
+Retrieve only relevant, approved table descriptions and relationships when a schema becomes large.
+
+A governed view or semantic interface can define an accepted measure instead of asking the agent to invent its calculation.
+
+The organisation still owns definitions, data quality and access policy.
+
+---
+
+# Extension · Separate controlled writes
+
+An analytical query does not authorise changing a business record.
+
+Reuse B3's exact-payload review and recheck permission within a transaction.
+
+A retry after a lost reply needs the same operation identity and compatible payload.
+
+---
+
+# The libraries implement distinct responsibilities
+
+| Library | Responsibility |
+| --- | --- |
+| SQLAlchemy Core | Metadata, connections and SQL execution |
+| LlamaIndex | Schema-grounded question-to-SQL capability |
+| Pydantic | Declared fields/types for a business result |
+| Agents SDK | Model decisions and tool feedback |
+
+Business meaning and permitted access remain explicit application requirements.
+
+---
+
+# An inspectable answer to the business question
+
+Select the caller's permitted delayed records, add each fee once and compare the actual result with the intended calculation.
+
+Retain the source, observation time and any failure or output limit.
+
+Next, B6 supplies document evidence when rows cannot answer the question.

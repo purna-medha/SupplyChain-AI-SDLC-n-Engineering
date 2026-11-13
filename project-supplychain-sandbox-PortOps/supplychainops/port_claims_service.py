@@ -1,15 +1,18 @@
 """Dispute claim write operations — auto-waiver engine and manager overrides."""
 
+from datetime import date
+from math import isfinite
+
 from sqlmodel import Session, select
 
 from supplychainops.database_models import Claim, Importer, PortExceptionLog
 from supplychainops.domain_dispute_claims_engine import (
+    CLAIM_STATUS_MANAGER_APPROVED,
     evaluate_dispute_claim_decision,
     validate_manual_waiver_override,
     verify_port_exception_overlap,
 )
-from supplychainops.domain_demurrage_calculation_engine import get_current_calculation_date
-from supplychainops.port_read_service import ContainerContextNotFoundError, load_container_context
+from supplychainops.port_read_service import load_container_context
 
 
 class ClaimValidationError(ValueError):
@@ -20,13 +23,23 @@ class ClaimNotFoundError(LookupError):
     """Raised when dispute claim identifier does not exist."""
 
 
+class DuplicateClaimError(Exception):
+    """A claim already exists for this container and reason."""
+
+
 def submit_dispute_claim(
     session: Session,
     container_identifier: str,
     importer_identifier: str,
     disputed_amount_usd: float,
     dispute_reason_category: str,
+    current_calculation_date: date,
 ) -> Claim:
+    dispute_reason_category = dispute_reason_category.strip().upper()
+    if not dispute_reason_category or len(dispute_reason_category) > 64:
+        raise ClaimValidationError("A dispute reason of 1–64 characters is required")
+    if not isfinite(disputed_amount_usd) or disputed_amount_usd <= 0:
+        raise ClaimValidationError("Disputed amount must be positive and finite")
     if session.get(Importer, importer_identifier) is None:
         raise ClaimValidationError("Importer not found")
 
@@ -34,8 +47,16 @@ def submit_dispute_claim(
     if container_context.shipment.importer_identifier != importer_identifier:
         raise ClaimValidationError("Container does not belong to importer")
 
-    calculation_date = get_current_calculation_date()
-    dwell_end = container_context.container.gate_out_date or calculation_date
+    existing_claim = session.exec(
+        select(Claim).where(
+            Claim.container_identifier == container_identifier,
+            Claim.dispute_reason_category == dispute_reason_category,
+        )
+    ).first()
+    if existing_claim is not None:
+        raise DuplicateClaimError("A claim already exists for this container and reason")
+
+    dwell_end = container_context.container.gate_out_date or current_calculation_date
     exception_logs = session.exec(select(PortExceptionLog)).all()
     verified = verify_port_exception_overlap(
         container_context.vessel.berth_terminal_name,
@@ -72,6 +93,11 @@ def approve_manager_override(
     if claim is None:
         raise ClaimNotFoundError("Dispute claim not found")
 
+    manager_override_note = manager_override_note.strip()
+    if not manager_override_note or len(manager_override_note) > 256:
+        raise ClaimValidationError("A manager note of 1–256 characters is required")
+    if not isfinite(approved_waiver_amount_usd):
+        raise ClaimValidationError("Approved waiver must be finite")
     validation_error = validate_manual_waiver_override(
         approved_waiver_amount_usd,
         claim.disputed_amount_usd,
@@ -81,7 +107,8 @@ def approve_manager_override(
         raise ClaimValidationError(validation_error)
 
     claim.approved_waiver_amount_usd = approved_waiver_amount_usd
-    claim.claim_decision_status = "AUTO_APPROVED"
+    claim.claim_decision_status = CLAIM_STATUS_MANAGER_APPROVED
+    claim.manager_override_note = manager_override_note
     session.add(claim)
     session.commit()
     session.refresh(claim)

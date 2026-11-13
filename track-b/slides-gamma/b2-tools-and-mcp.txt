@@ -70,7 +70,7 @@ To make the function selectable, the application describes its contract:
 | Argument schema | `container_id`, a required string |
 | Result | A status or an unknown-container result |
 
-The runtime retains the executable function. Its description helps the model decide when and how to request it.
+**Predict:** after advertising this contract, how many status reads have occurred? What must happen before a record is obtained?
 
 ---
 
@@ -182,7 +182,7 @@ Inspect the execution print and returned answer together.
 
 For C1, did the function execute with the intended identifier? Does the answer preserve the returned status?
 
-For unknown C9, the function returns “Unknown container.” The application has obtained no evidence for a real status.
+**Predict:** C9 is a valid string. Does passing the argument schema establish that the container exists? What observation should the function return?
 
 ---
 
@@ -386,17 +386,16 @@ The agent decides what to request. The executing capability supplies the observa
 
 # Lab · A tool-using assistant and a shared server
 
-| Time | Extend the understood application |
+Working draft: standalone B2 lab.
+
+| Step | Learner implementation |
 | --- | --- |
-| 0–10 min | Call the function directly, then through the SDK agent |
-| 10–25 min | Compare general/status questions; run LlamaIndex |
-| 25–40 min | Start the MCP server and connect the OpenAI agent |
-| 40–55 min | Add C3 on the server; test the client and unknown C9 |
-| 55–60 min | Explain who decides, executes and owns the records |
+| Direct reads | Return recorded status and supplied net fee |
+| Tool agent | Register the two read functions |
+| Shared tools | Connect to the supplied MCP server |
+| Observation | Inspect reads, discovery and unknown IDs |
 
-Extension: connect the supplied second MCP client.
-
-Use the B2 snippets and setup.
+A second framework is optional. Scope and timing remain provisional.
 
 ---
 

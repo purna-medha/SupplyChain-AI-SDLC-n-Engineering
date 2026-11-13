@@ -10,12 +10,12 @@ Start with [SETUP.md](SETUP.md). This is the course map; folder READMEs explain 
 | 3 | B3 | Workflows, specialists, state and approval | [Slides](slides-md/b3-agentic-workflows.md) · [Snippets](snippets/b3/README.md) | Revised draft |
 | 4 | B4 | Querying enterprise data with AI agents | [Slides](slides-md/b4-enterprise-data.md) · [Snippets](snippets/b4/README.md) | Revised teaching draft; live examples verified |
 | 5 | B6 | RAG and agentic RAG | [Slides](slides-md/b6-rag-and-agentic-rag.md) · [Snippets](snippets/b6/README.md) | Scope review pending |
-| 6 | B5 | Evaluation, tracing and improvement | [Slides](slides-md/b5-safety-observability-evaluation.md) · [Snippets](snippets/b5/README.md) | Revised teaching draft; live examples verified |
+| 6 | B5 | Generated-answer evaluation and prompt improvement | [Slides](slides-md/b5-safety-observability-evaluation.md) · [Snippets](snippets/b5/README.md) | Five actual-generation/judgment examples; aligned lab draft |
 
-Module IDs are retained: teach B6 before B5. [B4](B4-OUTLINE.md) and [B5](B5-OUTLINE.md) have one-hour teaching drafts; labs and assessments remain deferred. B6 still needs scope review.
+Module IDs are retained: teach B6 before B5. [B4](B4-OUTLINE.md) and [B5](B5-OUTLINE.md) have one-hour teaching drafts and standalone learner lab drafts. Formal assessments remain deferred. B6 still needs scope review and a lab.
 
 - **Explore:** [B1–B3 notebooks](notebooks/README.md), with complete experiments.
-- **Practise:** [B1–B3 standalone lab drafts](labs/README.md), with unfinished learner functions. No PortOps lab variant or B4–B6 lab pack is currently available.
+- **Practise:** [B1–B5 standalone lab drafts](labs/README.md), with unfinished learner functions. B4/B5 align with the refined slides; B6 and the PortOps variant are not included.
 - **Present:** [Gamma copies for B0–B5](slides-gamma/README.md).
 - **Reference:** [Archived older decks](archive/module-slide-decks/README.md), preserved locally.
 

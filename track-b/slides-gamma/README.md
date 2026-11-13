@@ -43,6 +43,6 @@ readable body text. Improve the visual layout while preserving the content.
 
 ## Conversion details
 
-The six copies contain 208 slides and 105 code/diagram blocks. B4/B5's 70 slides and 32 fenced blocks match their refined Markdown sources in order and content, including every table. Marp configuration, CSS, presenter notes and presentation directives were removed. Local illustration-link lines were removed, and remaining local links became plain descriptive text. No machine-local file paths are required by the pasted material.
+The six copies contain 208 slides and 103 code/diagram blocks. B4/B5's 70 slides and 30 fenced blocks match their refined Markdown sources in order and content, including every table. Marp configuration, CSS, presenter notes and presentation directives were removed. Local illustration-link lines were removed, and remaining local links became plain descriptive text. No machine-local file paths are required by the pasted material.
 
 The original Markdown decks retain their presenter notes and runnable-example links. These text files are separate copies; regenerate them after changing the originals.

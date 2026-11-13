@@ -1,255 +1,240 @@
-"""B5 starter: diagnose a fee-decision failure and compare one rule repair.
+"""B5 learner starter: evaluate actual generated answers and compare prompts.
 
-Four learner TODOs; actual source reads, SDK tracing and trial runners are supplied.
-The B5 fixtures are independent: caller A owns C1/USD 100 and C2/USD 200.
+Five TODO functions. No reference answer is passed to the generation function.
+Supplied runners retain raw answers, judge feedback, errors and fixed denominators.
 """
 
 import argparse
 import hashlib
 import json
+import math
+import os
 from pathlib import Path
 from time import perf_counter
 
-from agents import Agent, MaxTurnsExceeded, ModelSettings, Runner, function_tool
-from agents import set_trace_processors, set_tracing_disabled
-from agents.tracing import Span
-from agents.tracing.processors import BatchTraceProcessor, ConsoleSpanExporter
+from llama_index.core import Settings
+from llama_index.core.evaluation import AnswerRelevancyEvaluator, CorrectnessEvaluator, FaithfulnessEvaluator
+from llama_index.llms.openai import OpenAI
 
-from support import WORK, configure_sdk, run_cli
+from support import WORK, run_cli
 
 MODEL = "gpt-4.1-mini"
-SOURCE = "synthetic-b5-fees-v1"
-INSTRUCTION = (
-    "Call read_fee for the requested ID. Report its decision unchanged. "
-    "Your final answer must be exactly its one-word label: clear, review, unknown, "
-    "denied, or unavailable. Add no other words or punctuation."
-)
+BASELINE = "Answer the shipping enquiry helpfully."
+CONTEXT = """Synthetic snapshot fees-v1, observed 2026-11-06T00:00:00Z.
+C1: recorded fee USD 100; status on_time. C2: recorded fee USD 200; status delayed.
+Recorded fees of USD 200 or more require review. C9 has no matching record.
+No waiver, payment or release schedule information is supplied."""
+THRESHOLDS = {"correctness":4.0, "grounding":1.0, "relevance":1.0}
+RANGES = {"correctness":(1.0,5.0), "grounding":(0.0,1.0), "relevance":(0.0,1.0)}
+HELD_OUT = {
+    "id":"comparison", "split":"held_out", "context":CONTEXT,
+    "question":"Compare C1 and C2's recorded fees and review requirements.",
+    "reference":"C1 has a recorded fee of USD 100, below the review threshold. C2 has USD 200 and requires review.",
+}
 
 
 def make_cases() -> list[dict]:
-    """B5.1: five independent policy cases: below, boundary, missing, denied, dependency."""
-    # TODO: each dict has name, caller, container_id, unavailable, expected_fee,
-    # expected_decision. At least USD 200 requires review; absence has fee None.
+    """B5.1: four development cases, with independent reference answers."""
+    # TODO: dictionaries with id, question, context and reference.
+    # Cover a known fee, missing C9, tomorrow's release, and an unsupported waiver premise.
+    # Use CONTEXT. Derive references from those facts/policy, not from generated answers.
     raise NotImplementedError("TODO B5.1: implement make_cases")
 
 
-def grade_observation(expected: dict, actual: dict) -> bool:
-    """B5.2: check ID, exact fee/type and decision; do not grade prose clarity here."""
-    # TODO: expected has container_id, fee, decision. Return a bool.
-    # Require the fields; integer amounts must not accept text/bool values.
-    # A missing amount is None, not zero. Ignore additional source metadata.
-    raise NotImplementedError("TODO B5.2: implement grade_observation")
+def generate_answer(generator, instruction: str, question: str, context: str) -> str:
+    """B5.2: generate a real answer using ONLY instruction, question and context."""
+    # TODO: generator.complete(your prompt).text. No reference argument is supplied here.
+    raise NotImplementedError("TODO B5.2: implement generate_answer")
 
 
-def candidate_decision(fee: int) -> str:
-    """B5.3: implement the corrected classroom rule; baseline below remains unchanged."""
-    # TODO: return review for fee >= 200, otherwise clear.
-    raise NotImplementedError("TODO B5.3: implement candidate_decision")
+def make_evaluators(judge) -> dict:
+    """B5.3: configure separate correctness, grounding and relevance evaluators."""
+    # TODO: return {"correctness":CorrectnessEvaluator(llm=judge),
+    # "grounding":FaithfulnessEvaluator(llm=judge),
+    # "relevance":AnswerRelevancyEvaluator(llm=judge)}.
+    raise NotImplementedError("TODO B5.3: implement make_evaluators")
 
 
-def make_agent(read_tool) -> Agent:
-    """B5.4: same agent/instruction/settings for baseline and candidate trials."""
-    # TODO: Agent(name=..., model=MODEL, tools=[read_tool], instructions=INSTRUCTION,
-    #             model_settings=ModelSettings(temperature=0)).
-    raise NotImplementedError("TODO B5.4: implement make_agent")
+def evaluate_answer(evaluator, case: dict, answer: str):
+    """B5.4: give the evaluator the actual answer and appropriate evidence/reference."""
+    # TODO: evaluator.evaluate(query=case["question"], response=answer,
+    #                         reference=case["reference"], contexts=[case["context"]]).
+    # Each evaluator uses its relevant inputs; references never go to generation.
+    raise NotImplementedError("TODO B5.4: implement evaluate_answer")
 
 
-# Supplied source and runners: inspect these when locating the first incorrect result.
-def observe_fee(case, container_id, repaired=False):
-    fee = {"C1":100, "C2":200}.get(container_id)
-    if fee is None:
-        decision = "unknown"
-    elif case["caller"] != "A":
-        fee, decision = None, "denied"
-    elif case["unavailable"]:
-        fee, decision = None, "unavailable"
+def candidate_instruction() -> str:
+    """B5.5: write one prompt change addressing failures in DEVELOPMENT answers."""
+    # TODO: explicit evidence use, uncertainty and unsupported-premise handling.
+    # Keep questions, contexts, references, judges and thresholds fixed for comparison.
+    raise NotImplementedError("TODO B5.5: implement candidate_instruction")
+
+
+# Supplied execution/reporting below. Learners work in the five functions above.
+def metric_record(name, result):
+    score = result.score
+    low, high = RANGES[name]
+    valid = (not result.invalid_result and type(score) in (int,float)
+             and math.isfinite(score) and low <= score <= high)
+    return {"status":"valid" if valid else "invalid", "score":score if valid else None,
+            "passed":valid and score >= THRESHOLDS[name], "feedback":result.feedback,
+            "invalid_reason":getattr(result,"invalid_reason",None), "raw_score":str(score)}
+
+
+def run_case(generator, evaluators, case, instruction):
+    started = perf_counter()
+    trial = {"case_id":case["id"], "question":case["question"], "context":case["context"],
+             "reference":case["reference"], "answer":None, "generation_error":None,
+             "metrics":{}, "passed":False}
+    try:
+        trial["answer"] = generate_answer(generator,instruction,case["question"],case["context"])
+        if not isinstance(trial["answer"],str) or not trial["answer"].strip():
+            raise RuntimeError("Generation returned no usable answer.")
+        print("GENERATED ANSWER:",trial["answer"])
+    except NotImplementedError:
+        raise
+    except Exception as error:
+        trial["generation_error"] = {"type":type(error).__name__, "message":str(error)}
+    if trial["generation_error"] is None:
+        for name in THRESHOLDS:
+            try:
+                result = evaluate_answer(evaluators[name],case,trial["answer"])
+                trial["metrics"][name] = metric_record(name,result)
+            except NotImplementedError:
+                raise
+            except Exception as error:
+                trial["metrics"][name] = {"status":"error", "score":None, "passed":False,
+                                          "error":{"type":type(error).__name__,"message":str(error)}}
+            print("METRIC:",name,trial["metrics"][name])
+        trial["passed"] = all(item["passed"] for item in trial["metrics"].values())
     else:
-        decision = candidate_decision(fee) if repaired else "review" if fee > 200 else "clear"
-    return {"container_id":container_id, "fee":fee, "decision":decision, "source":SOURCE}
+        print("GENERATION ERROR:",trial["generation_error"])
+    trial["seconds"] = round(perf_counter()-started,3)  # Generation plus judge work.
+    return trial
 
 
-def expected_observation(case):
-    return {"container_id":case["container_id"], "fee":case["expected_fee"],
-            "decision":case["expected_decision"]}
+def compare_prompts(generator, evaluators, cases, candidate, repeats):
+    if repeats < 1 or not cases or not isinstance(candidate,str) or not candidate.strip():
+        raise ValueError("Provide cases, a nonempty candidate and positive repeats.")
+    trials = []
+    for version,instruction in [("baseline",BASELINE),("candidate",candidate)]:
+        for case in cases:
+            for attempt in range(repeats):
+                print("VERSION:",version,"CASE:",case["id"],"ATTEMPT:",attempt+1)
+                trial = run_case(generator,evaluators,case,instruction)
+                trial.update(version=version,split=case["split"],attempt=attempt+1)
+                trials.append(trial)  # No failure/invalid judgment is removed.
+    for version in ["baseline","candidate"]:
+        for split in ["development","held_out"]:
+            selected = [t for t in trials if t["version"]==version and t["split"]==split]
+            if selected:
+                print("SUMMARY:",version,split,sum(t["passed"] for t in selected),"/",len(selected))
+    return trials
 
 
 def cases_for_run():
     cases = make_cases()
-    if not cases or len({case["name"] for case in cases}) != len(cases):
-        raise ValueError("Provide a nonempty case set with unique names.")
+    if not cases or len({case["id"] for case in cases}) != len(cases):
+        raise ValueError("Provide a nonempty development set with unique IDs.")
     for case in cases:
-        for field in ["name","caller","container_id","unavailable","expected_fee","expected_decision"]:
-            if field not in case:
-                raise ValueError(f"Case is missing {field}.")
-    return cases
+        if not all(isinstance(case.get(key),str) and case[key].strip()
+                   for key in ["id","question","context","reference"]):
+            raise ValueError("Each case needs nonempty id/question/context/reference strings.")
+        if case["id"] == HELD_OUT["id"]:
+            raise ValueError("Keep the supplied held-out case separate from development.")
+    return [dict(case,split="development") for case in cases]
 
 
-def probe_grader():
-    expected = {"container_id":"C2", "fee":200, "decision":"review"}
-    probes = [
-        ("known correct", dict(expected), True),
-        ("wrong amount", dict(expected, fee=999), False),
-        ("wrong ID", dict(expected, container_id="C1"), False),
-        ("wrong decision", dict(expected, decision="clear"), False),
-        ("text amount", dict(expected, fee="200"), False),
-        ("boolean amount", dict(expected, fee=True), False),
-        ("missing fee", {"container_id":"C2", "decision":"review"}, False),
-    ]
-    for name, actual, reference in probes:
-        accepted = grade_observation(expected, actual)
-        print("PROBE:", name, "EXPECTED:", reference, "ACCEPTED:", accepted)
-        if type(accepted) is not bool or accepted != reference:
-            raise RuntimeError(f"Grader defect: {name}. Inspect the checker before trusting its scores.")
-
-
-def direct_cases(cases, repaired):
-    results = []
-    for case in cases:
-        actual = observe_fee(case, case["container_id"], repaired)
-        passed = grade_observation(expected_observation(case), actual)
-        print(case["name"], "EXPECTED:", expected_observation(case), "ACTUAL:", actual,
-              "PASS" if passed else "FAIL")
-        results.append({"case":case["name"], "actual":actual, "passed":passed})
-    print("DIRECT PASSES:", sum(row["passed"] for row in results), "/", len(results))
-    return results
-
-
-class ReadableSpans(ConsoleSpanExporter):
-    def export(self, items):
-        for item in items:
-            if isinstance(item, Span):
-                print("SPAN:", item.span_data.type, item.span_id, "parent:", item.parent_id)
-                if item.span_data.type == "function":
-                    print("  ARGUMENTS:", item.span_data.input)
-                    print("  OBSERVATION:", item.span_data.output)
-
-
-def run_trial(case, repaired, max_turns, trace=False):
-    calls, observations = [], []  # Fresh application state for THIS independent trial.
-
-    @function_tool(failure_error_function=None)
-    def read_fee(container_id: str) -> dict:
-        """Read the recorded fee and application decision for a synthetic container."""
-        calls.append(container_id)
-        observation = observe_fee(case, container_id, repaired)
-        observations.append(observation)
-        print("TOOL OBSERVATION:", observation)
-        return observation
-
-    agent = make_agent(read_fee)  # A new Agent and conversation for every trial.
-    trial = {"answer":None, "observation":None, "calls":calls, "error":None,
-             "repaired":repaired, "input_tokens":None, "output_tokens":None}
-    processor = None
-    started = perf_counter()
-    try:
-        configure_sdk()
-        if trace:
-            processor = BatchTraceProcessor(ReadableSpans())
-            set_trace_processors([processor])  # Local export replaces hosted tracing.
-            set_tracing_disabled(False)
-        result = Runner.run_sync(agent, f"Check {case['container_id']}.", max_turns=max_turns)
-        trial["answer"] = result.final_output.strip()
-        usage = result.context_wrapper.usage
-        trial["input_tokens"], trial["output_tokens"] = usage.input_tokens, usage.output_tokens
-    except NotImplementedError:
-        raise
-    except Exception as error:
-        trial["error"] = {"type":type(error).__name__, "message":str(error)}
-        print("INCOMPLETE:" if isinstance(error, MaxTurnsExceeded) else "ERROR:", type(error).__name__)
-    finally:
-        trial["seconds"] = round(perf_counter()-started, 3)
-        trial["observation"] = observations[-1] if observations else None
-        if processor:
-            processor.force_flush()
-        set_tracing_disabled(True)
-    return trial
-
-
-def trial_passed(case, trial):
-    # These supplied task checks are separate from the learner's field grader.
-    if trial["error"] or not trial["observation"] or not trial["calls"]:
-        return False
-    return (trial["answer"] == case["expected_decision"]
-            and all(cid == case["container_id"] for cid in trial["calls"])
-            and grade_observation(expected_observation(case), trial["observation"]))
-
-
-def repeat_cases(cases, repaired, repeats, max_turns):
-    trials = []
-    for case in cases:
-        passed = 0
-        for attempt in range(repeats):
-            trial = run_trial(case, repaired, max_turns)
-            trial.update(case=case["name"], attempt=attempt+1, passed=trial_passed(case,trial))
-            passed += trial["passed"]
-            trials.append(trial)  # Errors/stops are retained in the same denominator.
-            print(case["name"], "ATTEMPT:", attempt+1, "ANSWER:", trial["answer"],
-                  "ERROR:", trial["error"], "PASS" if trial["passed"] else "FAIL")
-        print(case["name"], "SUCCESS FREQUENCY:", passed, "/", repeats)
-    return trials
+def clients():
+    key = os.environ.get("OPEN_AI_KEY")
+    if not key:
+        raise ValueError("Set OPEN_AI_KEY in the lab .env or export it before model calls.")
+    Settings.embed_model = None
+    return (OpenAI(model=MODEL,temperature=0,max_tokens=200,api_key=key),
+            OpenAI(model=MODEL,temperature=0,max_tokens=512,api_key=key))
 
 
 def save_report(filename, report):
-    WORK.mkdir(parents=True, exist_ok=True)
-    report.update(model=MODEL, instruction=INSTRUCTION,
-                  code_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest())
-    path = WORK / filename
-    path.write_text(json.dumps(report, indent=2), encoding="utf-8")
-    print("EVIDENCE:", path)
+    WORK.mkdir(parents=True,exist_ok=True)
+    report.update(generator_model=MODEL,judge_model=MODEL,thresholds=THRESHOLDS,
+                  code_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+                  missing_token_usage="unknown",elapsed_scope="generation and evaluation")
+    path = WORK/filename
+    path.write_text(json.dumps(report,indent=2),encoding="utf-8")
+    print("EVIDENCE:",path)
+
+
+def calibrate(evaluators):
+    case = {"id":"calibration", "context":CONTEXT,
+            "question":"Explain C2's recorded fee, review requirement and release date.",
+            "reference":"C2 has a recorded fee of USD 200 and requires review. The supplied information does not establish a release date."}
+    probes = [
+        ("correct",case["reference"],True),
+        ("wrong amount","C2's recorded fee is USD 999 and review is needed. Its release date is unknown.",False),
+        ("unsupported release","C2's recorded fee is USD 200 and review is needed. It will be released tomorrow.",False),
+        ("unsupported denial","C2's recorded fee is USD 200 and review is needed. It will not be released tomorrow.",False),
+        ("paraphrase","The record lists 200 US dollars for C2, so review is needed. The facts do not establish a release date.",True),
+    ]
+    results = []
+    for label,answer,expected in probes:
+        # The author label stays outside the case passed to the evaluator.
+        for name in ["correctness","grounding"]:
+            try:
+                recorded = metric_record(name,evaluate_answer(evaluators[name],case,answer))
+                match = recorded["status"]=="valid" and recorded["passed"]==expected
+            except NotImplementedError:
+                raise
+            except Exception as error:
+                recorded,match = {"status":"error","error":str(error)},False
+            row = {"probe":label,"prepared_answer":answer,"expected_acceptance":expected,
+                   "metric":name,"judgment":recorded,"agreement":match}
+            results.append(row)
+            print("CALIBRATION:",row)
+    return results
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("checkpoint", nargs="?", choices=["probe","baseline","trace","compare","trials"])
-    parser.add_argument("--container", choices=["C1","C2","C9"], default="C2")
-    parser.add_argument("--repaired", action="store_true", help="Use candidate rule for trace")
-    parser.add_argument("--repeats", type=int, default=2)
-    parser.add_argument("--max-turns", type=int, default=4)
+    parser.add_argument("checkpoint",nargs="?",choices=["cases","generate","evaluate","calibrate","dataset","compare"])
+    parser.add_argument("--case",help="Restrict generation/evaluation to this case ID")
+    parser.add_argument("--repeats",type=int,default=1)
     args = parser.parse_args()
     if args.checkpoint is None:
         parser.print_help()
         return
-    if args.repeats < 1 or args.max_turns < 1:
-        raise ValueError("Repeats and turn limit must be positive.")
-    if args.checkpoint == "probe":
-        probe_grader()
-    elif args.checkpoint == "trace":
-        fee, decision = {"C1":(100,"clear"), "C2":(200,"review"), "C9":(None,"unknown")}[args.container]
-        case = {"name":"trace", "caller":"A", "container_id":args.container, "unavailable":False,
-                "expected_fee":fee, "expected_decision":decision}
-        if args.repaired:
-            candidate_decision(200)  # Surface an unfinished rule before any model call.
-        trial = run_trial(case, args.repaired, args.max_turns, trace=True)
-        print("EXPECTED:", expected_observation(case), "ANSWER:", trial["answer"])
-        save_report("b5-trace.json", {"case":case, "trial":trial, "max_turns":args.max_turns})
-        if trial["error"]:
-            raise RuntimeError(f"Trace incomplete/failed: {trial['error']['type']}. Inspect the saved evidence.")
+    if args.repeats < 1:
+        raise ValueError("Repeats must be positive.")
+    if args.checkpoint == "calibrate":
+        _,judge = clients()
+        save_report("b5-calibration.json",{"probes":calibrate(make_evaluators(judge))})
+        return
+    cases = cases_for_run()
+    if args.checkpoint == "cases":
+        print(json.dumps(cases,indent=2))
+        return
+    if args.checkpoint == "compare":
+        candidate = candidate_instruction()  # Fail visibly before paid work if unfinished.
+        cases.append(dict(HELD_OUT))
+    if args.case:
+        cases = [case for case in cases if case["id"]==args.case]
+        if not cases:
+            raise ValueError("No matching case ID.")
+    generator,judge = clients()
+    if args.checkpoint == "generate":
+        case = cases[0]
+        answer = generate_answer(generator,BASELINE,case["question"],case["context"])
+        print("GENERATED ANSWER:",answer)
+        save_report("b5-generated-answer.json",{"case":case,"answer":answer,"instruction":BASELINE})
+        return
+    evaluators = make_evaluators(judge)
+    if args.checkpoint == "compare":
+        trials = compare_prompts(generator,evaluators,cases,candidate,args.repeats)
+        save_report("b5-compare-prompts.json",{"cases":cases,"prompts":{"baseline":BASELINE,"candidate":candidate},
+                                            "repeats":args.repeats,"trials":trials})
     else:
-        cases = cases_for_run()
-        probe_grader()  # A broken checker must not silently approve a comparison.
-        if args.checkpoint == "baseline":
-            results = direct_cases(cases, False)
-            save_report("b5-baseline.json", {"cases":cases, "results":results, "execution":"offline"})
-        elif args.checkpoint == "compare":
-            candidate_decision(200)
-            print("BASELINE")
-            baseline = direct_cases(cases,False)
-            print("CANDIDATE")
-            candidate = direct_cases(cases,True)
-            print("ADDITIONAL FEE 201:", candidate_decision(201), "EXPECTED: review")
-            save_report("b5-compare.json", {"cases":cases, "baseline":baseline, "candidate":candidate, "execution":"offline"})
-        else:
-            candidate_decision(200)
-            # Same three available/missing decision tasks as the slide comparison.
-            selected = [case for case in cases if case["caller"]=="A" and not case["unavailable"]]
-            if not selected:
-                raise ValueError("No available/missing caller-A cases were selected.")
-            print("BASELINE")
-            baseline = repeat_cases(selected,False,args.repeats,args.max_turns)
-            print("CANDIDATE")
-            candidate = repeat_cases(selected,True,args.repeats,args.max_turns)
-            save_report("b5-trials.json", {"cases":selected, "baseline":baseline, "candidate":candidate,
-                                          "repeats":args.repeats, "max_turns":args.max_turns})
+        selected = cases[:1] if args.checkpoint=="evaluate" else cases
+        trials = [run_case(generator,evaluators,case,BASELINE) for case in selected]
+        save_report("b5-"+args.checkpoint+".json",{"cases":selected,"instruction":BASELINE,"trials":trials})
 
 
 if __name__ == "__main__":

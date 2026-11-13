@@ -42,7 +42,7 @@ class DisputeClaimSubmissionRequest(BaseModel):
     container_identifier: str
     importer_identifier: str
     disputed_amount_usd: float = Field(gt=0)
-    dispute_reason_category: str
+    dispute_reason_category: str = Field(min_length=1, max_length=64)
 
 
 class DisputeClaimAuditResponse(BaseModel):
@@ -55,6 +55,7 @@ class DisputeClaimAuditResponse(BaseModel):
     dispute_reason_category: str
     claim_decision_status: str
     approved_waiver_amount_usd: float
+    manager_override_note: Optional[str] = None
 
 
 class ManualWaiverOverrideRequest(BaseModel):

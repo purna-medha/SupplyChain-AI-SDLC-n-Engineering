@@ -1,3 +1,7 @@
+# Historical alternative-runner verification
+
+These results concern the former application-checking sequence, not the current [generated-answer core](../README.md). Only navigation/counterpart comments were updated after those runs; no alternative runtime was rerun for the refocus.
+
 # B5 alternatives · verification
 
 Verified 6 November 2026. These observations apply to the optional Promptfoo/DeepEval counterparts, not to every behaviour of the wider application.

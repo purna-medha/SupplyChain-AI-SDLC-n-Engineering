@@ -79,4 +79,4 @@ The Markdown deck was refined after teaching review, retaining 34 slides and the
 
 The refined B4/B5 decks rendered to 34/36 PNGs and were inspected through six contact sheets, with selected slides inspected at full size. A fresh read-only review checked teaching progression, source/evidence agreement and conversion parity. Its requested visible event-eligibility clarification was applied. These are teaching-material changes; executable source and recorded model runs are unchanged.
 
-Labs, assessments, new notebooks, staging and commits remain deferred.
+A separate [B4 learner lab draft](../../labs/container_help_desk/B4.md) is now available, with [its own scaffold/completed-copy verification](../../labs/VERIFICATION.md). These snippet execution records remain unchanged. Formal assessments, new notebooks, staging and commits remain deferred.

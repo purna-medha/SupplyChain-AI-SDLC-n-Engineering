@@ -180,7 +180,7 @@ messages=[
 ],
 ```
 
-Keep the question fixed. Compare one sentence with three numbered points.
+**Predict:** keep the question fixed and request three numbered points. What should change? Would either instruction supply C1's current status?
 
 ---
 
@@ -194,7 +194,7 @@ Follow-up:
 
 > How does that differ from detention?
 
-“That” refers to the earlier topic. A fresh request containing only the follow-up does not establish that reference.
+**Predict:** send only the follow-up to the same model. What does “that” refer to, and what earlier information must the application supply?
 
 ---
 
@@ -388,15 +388,16 @@ That answer needs an operational source. Model knowledge and chat history do not
 
 # Lab · A shipping-terminology chatbot
 
-| Time | Extend the understood application |
-| --- | --- |
-| 0–5 min | Confirm the prepared environment and local model |
-| 5–20 min | Run hosted/local calls; change question and instruction |
-| 20–35 min | Add a follow-up; compare with and without history |
-| 35–50 min | Record tokens, elapsed time and estimated API cost |
-| 50–60 min | Compare answers and explain one quality/cost trade-off |
+Working draft: standalone B1 lab.
 
-Use the B1 snippets and setup.
+| Step | Learner implementation |
+| --- | --- |
+| Model call | Return the actual response and usage |
+| Instructions | Build system and user messages |
+| History | Retain the actual reply before a follow-up |
+| Observation | Compare quality, tokens, time and estimated cost |
+
+Hosted/local comparison is optional. Scope and timing remain provisional.
 
 ---
 

@@ -623,5 +623,5 @@ Retain the source, observation time and any failure or output limit.
 Next, B6 supplies document evidence when rows cannot answer the question.
 
 <!--
-Return to the opening question: A's C1 and C4 contribute USD 150. Ask learners to identify source, scope, calculation and evidence in their own words. Labs, assessments and new notebooks remain deferred. Markdown is the authoritative source; its matching Gamma text carries the same visible teaching sequence.
+Return to the opening question: A's C1 and C4 contribute USD 150. Ask learners to identify source, scope, calculation and evidence in their own words. A separate learner lab draft is available at ../labs/container_help_desk/B4.md; formal assessments and new notebooks remain deferred. Markdown is the authoritative source; its matching Gamma text carries the same visible teaching sequence.
 -->

@@ -137,7 +137,7 @@ def test_dispute_claim_rejected_without_exception_log(client):
             "container_identifier": "HLCU5566778",
             "importer_identifier": "IMP-GULF-003",
             "disputed_amount_usd": 200.0,
-            "dispute_reason_category": "WEATHER_HOLD",
+            "dispute_reason_category": "CUSTOMS_SERVER_OUTAGE",
         },
     )
     assert response.status_code == 201
@@ -185,7 +185,13 @@ def test_manager_approve_override_for_escalated_claim(client):
     assert response.status_code == 200
     body = response.json()
     assert body["approved_waiver_amount_usd"] == 600.0
-    assert body["claim_decision_status"] == "AUTO_APPROVED"
+    assert body["claim_decision_status"] == "MANAGER_APPROVED"
+    assert body["manager_override_note"] == "Partial waiver approved by terminal manager"
+    saved = client.get(
+        "/dispute-claims", params={"claim_decision_status_filter": "MANAGER_APPROVED"}
+    ).json()
+    assert len(saved) == 1
+    assert saved[0]["manager_override_note"] == body["manager_override_note"]
 
 
 def test_manager_override_rejected_for_non_escalated_claim(client):
@@ -260,3 +266,154 @@ def test_auto_waiver_decision_state_machine():
     assert evaluate_dispute_claim_decision(300.0, True) == ("AUTO_APPROVED", 300.0)
     assert evaluate_dispute_claim_decision(750.0, True) == ("ESCALATED_TO_MANAGER", 0.0)
     assert evaluate_dispute_claim_decision(200.0, False) == ("REJECTED", 0.0)
+
+
+def test_duplicate_claim_does_not_issue_a_second_waiver(client):
+    payload = {
+        "container_identifier": "MSKU1234567",
+        "importer_identifier": "IMP-GULF-001",
+        "disputed_amount_usd": 300.0,
+        "dispute_reason_category": "CRANE_BREAKDOWN",
+    }
+    assert client.post("/dispute-claims/submit", json=payload).status_code == 201
+    payload["disputed_amount_usd"] = 350.0
+    payload["dispute_reason_category"] = " crane_breakdown "
+    assert client.post("/dispute-claims/submit", json=payload).status_code == 409
+    fee = client.get("/containers/MSKU1234567/demurrage-calculation").json()
+    assert fee["approved_waiver_amount_usd"] == 300.0
+    assert fee["net_payable_demurrage_fee_usd"] == 1200.0
+
+
+def test_separate_claim_reasons_are_allowed(client):
+    for reason in ("CRANE_BREAKDOWN", "CUSTOMS_SERVER_OUTAGE"):
+        response = client.post("/dispute-claims/submit", json={
+            "container_identifier": "MSKU1234567",
+            "importer_identifier": "IMP-GULF-001",
+            "disputed_amount_usd": 100.0,
+            "dispute_reason_category": reason,
+        })
+        assert response.status_code == 201
+    fee = client.get("/containers/MSKU1234567/demurrage-calculation").json()
+    assert fee["approved_waiver_amount_usd"] == 200.0
+
+
+def test_demurrage_response_keeps_the_existing_slim_contract(client):
+    body = client.get("/containers/MSKU1234567/demurrage-calculation").json()
+    assert set(body) == {
+        "container_identifier", "container_dwell_days", "overdue_days_count",
+        "gross_demurrage_fee_usd", "approved_waiver_amount_usd",
+        "net_payable_demurrage_fee_usd", "tier_discount_percentage",
+    }
+
+
+def test_workflows_use_an_explicit_calculation_date(engine):
+    from sqlmodel import Session
+    from supplychainops.port_demurrage_service import (
+        build_operational_summary, calculate_container_demurrage, execute_gate_out,
+    )
+    from supplychainops.port_read_service import fetch_containers_for_importer
+
+    with Session(engine) as session:
+        calculation_date = date(2026, 9, 14)
+        fee = calculate_container_demurrage(session, "MSKU1234567", calculation_date)
+        assert fee["gross_demurrage_fee_usd"] == 0.0
+        rows = fetch_containers_for_importer(
+            session, "IMP-GULF-001", current_calculation_date=calculation_date
+        )
+        assert rows[0]["container_status_label"] == "IN_TERMINAL"
+        summary = build_operational_summary(session, calculation_date)
+        assert summary["at_risk_container_count"] == 0
+        result = execute_gate_out(session, "MSKU1234567", calculation_date)
+        assert result["gate_out_date"] == calculation_date
+        later_fee = calculate_container_demurrage(session, "MSKU1234567", date(2026, 10, 1))
+        assert later_fee["gross_demurrage_fee_usd"] == 0.0
+
+
+def test_claim_evidence_uses_explicit_date(engine):
+    from sqlmodel import Session
+    from supplychainops.port_claims_service import submit_dispute_claim
+
+    with Session(engine) as session:
+        claim = submit_dispute_claim(
+            session, "MSKU1234567", "IMP-GULF-001", 200.0, "CRANE_BREAKDOWN",
+            current_calculation_date=date(2026, 9, 10),
+        )
+        assert claim.claim_decision_status == "REJECTED"
+
+
+@pytest.mark.parametrize("amount,note", [(-1.0, "Reviewed"), (100.0, "   ")])
+def test_manager_override_rejects_invalid_values_in_service(engine, amount, note):
+    from sqlmodel import Session
+    from supplychainops.database_models import Claim
+    from supplychainops.port_claims_service import ClaimValidationError, approve_manager_override
+
+    with Session(engine) as session:
+        claim = Claim(
+            container_identifier="MSKU1234567", importer_identifier="IMP-GULF-001",
+            disputed_amount_usd=750.0, dispute_reason_category="CRANE_BREAKDOWN",
+            claim_decision_status="ESCALATED_TO_MANAGER",
+        )
+        session.add(claim)
+        session.commit()
+        with pytest.raises(ClaimValidationError):
+            approve_manager_override(session, claim.dispute_claim_identifier, amount, note)
+        session.refresh(claim)
+        assert claim.claim_decision_status == "ESCALATED_TO_MANAGER"
+        assert claim.approved_waiver_amount_usd == 0.0
+
+
+def test_reset_removes_legacy_tables_and_keeps_a_recoverable_backup(tmp_path, monkeypatch):
+    import sqlite3
+    from sqlmodel import Session, create_engine, select
+    import scripts.reset_database as reset
+    from supplychainops.database_models import Claim, Container
+
+    database_path = tmp_path / "portops.db"
+    with sqlite3.connect(database_path) as connection:
+        connection.execute("CREATE TABLE carrier (name TEXT)")
+        connection.execute("INSERT INTO carrier VALUES ('original data')")
+        connection.execute("CREATE TABLE tariff (rate REAL)")
+    test_engine = create_engine(f"sqlite:///{database_path}")
+    monkeypatch.setattr(reset, "get_engine", lambda: test_engine)
+    backup_path = reset.seed_database()
+    assert backup_path is not None and backup_path.exists()
+    with sqlite3.connect(backup_path) as connection:
+        assert connection.execute("SELECT name FROM carrier").fetchone() == ("original data",)
+    with sqlite3.connect(database_path) as connection:
+        tables = {row[0] for row in connection.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'"
+        )}
+    assert tables == {
+        "vessel", "importer", "shipment", "container", "terminal_event",
+        "port_exception_log", "claim", "drayage_job",
+    }
+    with Session(test_engine) as session:
+        assert len(session.exec(select(Container)).all()) == 4
+        assert session.get(Claim, 1).manager_override_note is None
+    second_backup = reset.seed_database()
+    assert second_backup != backup_path
+    with Session(test_engine) as session:
+        assert len(session.exec(select(Container)).all()) == 4
+    test_engine.dispose()
+
+
+def test_reset_leaves_existing_database_untouched_when_seeds_are_invalid(tmp_path, monkeypatch):
+    import sqlite3
+    from sqlmodel import create_engine
+    import scripts.reset_database as reset
+
+    database_path = tmp_path / "portops.db"
+    with sqlite3.connect(database_path) as connection:
+        connection.execute("CREATE TABLE marker (value TEXT)")
+        connection.execute("INSERT INTO marker VALUES ('keep me')")
+    invalid_seed = tmp_path / "invalid.csv"
+    invalid_seed.write_text("importer_identifier\nIMP-INCOMPLETE\n")
+    test_engine = create_engine(f"sqlite:///{database_path}")
+    monkeypatch.setattr(reset, "get_engine", lambda: test_engine)
+    monkeypatch.setattr(reset, "SEED_DIRECTORY", tmp_path)
+    monkeypatch.setattr(reset, "SEED_FILE_ORDER", [("invalid.csv", reset.Importer)])
+    with pytest.raises(ValueError):
+        reset.seed_database()
+    with sqlite3.connect(database_path) as connection:
+        assert connection.execute("SELECT value FROM marker").fetchone() == ("keep me",)
+    test_engine.dispose()

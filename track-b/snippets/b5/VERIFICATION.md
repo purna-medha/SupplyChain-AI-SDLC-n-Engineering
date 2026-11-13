@@ -1,79 +1,49 @@
-# B5 · Simplified teaching examples verified 5 November 2026
+# B5 generated-answer evaluation · verified 6 November 2026
 
-The current [nine examples](README.md) replace the earlier five larger runners as the teaching sequence. They contain 20–63 lines each and import no teaching helpers. The [reference folder](reference/README.md) retains the older runners and their separate historical evidence.
+This record covers the [five current examples](README.md), the aligned 36-slide [Markdown](../../slides-md/b5-safety-observability-evaluation.md)/[Gamma](../../slides-gamma/b5-safety-observability-evaluation.txt) deck and [learner lab](../../labs/container_help_desk/B5.md). [Captured evidence](verification-results.json) retains actual answers, raw feedback, source/configuration information and comparison outcomes. The [former nine-example record](reference/application_checks/VERIFICATION.md) is historical application-testing evidence.
 
-## Environment
+## Actual generation and evaluation
 
-The existing locked shared environment was reused without dependency changes: Python 3.12, openai-agents 0.20.0, openai 2.54.0, llama-index-core 0.14.25, llama-index-llms-openai 0.8.3, Pydantic 2.14.2 and python-dotenv 1.2.4. Model-backed examples used actual `gpt-4.1-mini` access and `OPEN_AI_KEY` loaded by `load_dotenv()`. No key was printed. Temperature 0 is set in the trace, judge and repeated-trial examples; the approval example retains the SDK default. These are dated observations, not promised future outputs.
+All five core scripts ran with actual `gpt-4.1-mini` generation and/or judge calls. No prepared successful reply replaced a generation call. Files 01/02 generate one answer before judging it. 03 uses explicitly prepared calibration inputs with independent author labels and real judge calls. 04 generates four development answers and evaluates each under three criteria. 05 generates fresh baseline/candidate answers for the same four development cases and one separately labelled held-out question.
 
-## Offline examples
+Generator/judge clients are separate but use the same model family; errors may be correlated. The generation prompt contains instruction, question and approved context, **not the reference or acceptance label**. References go only to evaluators. The thresholds are explicit teaching choices: correctness >=4 on 1–5, binary grounding=1, normalized relevance=1. Relevance's `passing` field is unset in the installed version, so the score is explicitly thresholded.
 
-| Example | Observed result |
+## Observed answers and judge failures
+
+| Example | Actual observation |
 | --- | --- |
-| 01 · One answer | Shape/type/identity/source checks pass; deliberately wrong amount fails |
-| 02 · Five cases | 4/5 pass; equality at USD 200 exposes the deliberate defect |
-| 03 · Grader probes | All five expected accept/reject judgments match |
-| 08 · Repair | Below-boundary case passes both versions; boundary fails before and passes after; additional USD 201 case returns review in both |
+| 01 · Correctness | Generated an unsupported negative release claim and an unsupported release gate; the judge incorrectly awarded 5/5 |
+| 02 · Grounding | A different generated answer retained uncertainty about release; its grounding judge passed it |
+| 03 · Calibration | Final five-probe run: correctness agreement 5/5, grounding 4/5; grounding falsely accepted the unsupported denial of release tomorrow |
+| 04 · Dataset | Judge acceptances: correctness 4/4, grounding 3/4, relevance 4/4 |
+| 05 · Prompt comparison | All-three acceptance: development baseline 3/4, candidate 4/4; held-out 1/1 under both |
 
-A corrected draft fee of 200 made all 01 checks pass. A deliberately mutated always-true grader in 03 failed its assertion on the wrong-amount probe. These checks used controlled values and no model calls. 01/03 do not evaluate prose meaning. Actual clarity/paraphrase judgment is demonstrated separately in 07.
+01's response included: “the fee will not be released tomorrow. A review must be completed before any release can occur.” The context supplies neither assertion. The judge's feedback nevertheless called it consistent with the reference's uncertainty. This is retained as a false positive, not reported as successful answer quality.
 
-## Actual model-backed examples
+02 is a separate generation and must not be interpreted as a grounding check of 01's answer. In 03, the shorter prepared unsupported-denial answer was rejected by correctness but accepted by grounding. A good calibration judgment on one wording does not erase the observed false pass on another wording.
 
-| Example | Observed result |
-| --- | --- |
-| 04 · SDK trace | Native C2 function arguments were correct; observation already said `fee=200, decision=clear`; final answer copied that incorrect decision |
-| 05 · LlamaIndex trace | Same C2 request and observation; final answer also reported clear |
-| 06 · Action outcome | Approval added one exact new entry; rejection added none; both complete outbox comparisons passed |
-| 07 · Clarity judge | Clear explanation and paraphrase passed; unexplained codes failed, matching all three classroom labels |
-| 09 · Repeated trials | Boundary-only rule repair improved the observed decision-task result from 4/6 to 6/6 |
+04's waiver answer accepted an unsupported user premise. Grounding rejected it while correctness still accepted it at 4. The future-release answer also inferred likelihood beyond the supplied schedule information while both judges accepted it. These cases show why aggregate acceptance is not ground truth.
 
-The 04/05 comparison uses the same source fixtures, question, model, instruction and policy expectation. Neither rebuilds an evaluation framework. SDK spans include IDs/parents and actual function payloads through a small readable console exporter. LlamaIndex tool events supply arguments/observations; its native span handler supplies IDs/parents/timing. No hosted trace-export ingestion was tested or claimed.
+05 retained the same cases, model/settings, context, references, judge configuration and thresholds across prompts. The candidate corrected the waiver premise in that run. One held-out question and one attempt per case do not establish generalization/reliability. No held-out improvement is shown because both versions scored 1/1 there.
 
-09 ran each unchanged case twice per version, creating a new agent/conversation and tool-call list for every trial:
+## Current score/error controls
 
-| Decision case | Baseline successes | Candidate successes |
-| --- | --- | --- |
-| C1, below boundary | 2/2 | 2/2 |
-| C2, at boundary | 0/2 | 2/2 |
-| C9, unknown | 2/2 | 2/2 |
-| Total | 4/6 | 6/6 |
+After the first full live run, five-probe calibration was run separately after adding the unsupported-denial probe. Case formatting was expanded for readability. Review then exposed parser-scale validation gaps and one comparison error-handling gap. The final controls reject missing, invalid, nonfinite/out-of-range scores rather than counting them as passes. 05 now handles each judge error independently so remaining judgments still run. Repeats must be positive.
 
-The sole difference within this final comparison is `fee > 200` versus `fee >= 200`. Its task explicitly requires one final decision word. Passing requires that word and actual tool requests for the requested ID. It does not grade arbitrary natural-language answers or the broader application contract. Two attempts per case leave substantial uncertainty.
+Five targeted controlled-boundary regressions were first observed failing and then passing. They exercise correctness 6/inf, relevance 1.5, invalid agreement, retained denominators and continued judgments after one judge error. These tests replace only model/evaluator IO and make **no model calls**. They validate reporting behavior, not judge semantics or provider reliability. Current full lab/scaffold/control suite: **24 tests passed**. The earlier full model transcripts and separate five-probe run retain their execution-version hashes where captured; final source hashes are separate. No prompt/model/threshold was changed by these control fixes.
 
-An initial development run of 09 returned sentences for C9 despite the intended label-only task. Those attempts failed the unchanged strict checker. The instruction was clarified to explicitly enumerate the allowed single words and prohibit added words/punctuation. Both baseline and candidate were then rerun under that same clarified instruction. The initial transcript is retained separately; the table above uses only the final matched comparison. No answers were silently normalized to turn failures into passes.
+## Current learner lab
 
-## Input, approval and stopping variations
+Temporary completed copies exercised seven checkpoints/variations: offline cases, real generation, one-answer evaluation, two-judge calibration, development dataset, full prompt comparison and a two-attempt selected-case comparison. The delivered five TODO functions remain unimplemented. These actual runs are retained in [lab verification](../../labs/VERIFICATION.md).
 
-Focused runs changed only documented input/limit values, without editing the distributed sources:
+The completed lab's separate comparison **tied** at 3/4 development for both prompts, with held-out 1/1 for both. Its candidate waiver answer passed correctness/grounding but relevance scored 0.5, criticising its refusal to accept the user's unverified premise. That judge sees question/answer, not source context. The threshold stayed at 1; the tie and feedback were preserved. Selected future-case repetition retained all four attempts. These are separate runs from snippet 05 and are not pooled with its counts.
 
-- SDK C1 and C9 variations exposed clear and unknown tool observations respectively, with absent fees left null.
-- LlamaIndex C1 and C9 variations exposed the same observations under the same policy expectations.
-- SDK `max_turns=1` stopped with an explicit incomplete message and `MaxTurnsExceeded`.
-- LlamaIndex `max_iterations=1` surfaced its workflow-limit error.
-- Changed text in 06 was rejected. Both review fixtures created zero new entries and passed their unchanged-state checks.
-- Caller B in 06 likewise created zero new entries under both review fixtures.
-- Repeated trials with `max_turns=1` and one attempt per case retained all six incomplete attempts as failures, with 0/1 per case/version.
+## Environment, teaching and limits
 
-A separate scripted `RuntimeError` at the SDK run boundary in 09 retained twelve error attempts and six 0/2 success-frequency results. That check used a mock and made no model calls; it verifies error handling, not actual provider outage behavior. The source-unavailable case in 02 is also controlled, not a live remote outage.
+Existing Python 3.12.2 shared environment and locked packages were reused: llama-index-core 0.14.25, llama-index-llms-openai 0.8.3 and openai 2.54.0. No dependency/model upgrade was needed. `load_dotenv()` and `OPEN_AI_KEY` supplied credentials; no key was printed or copied into code/evidence. Fixed-context judging requires no vector retrieval; the embedding-disabled/MockEmbedding setup message is not a fake answer or substitute generation.
 
-06 restores the seeded old outbox entry and approval payload between independent trials, then preserves the current trial's state while resuming after review. Its review decisions are evaluation fixtures, not live human approvals. A new payload requires its own exact approval. No external message is sent.
+A fresh read-only review checked code, fairness, source/evidence agreement and teaching progression. Its material score/error findings were fixed with failing-then-passing controlled tests. All 36 slides rendered and were visually inspected through contact sheets, with the final comparison clarification inspected separately. Gamma retains the same visible slide bodies, tables and fenced blocks while dropping Marp metadata, notes and local navigation.
 
-## Resource and score limits
+Generated text, score and feedback all need inspection. Correctness/grounding calibration does not independently validate relevance. Missing usage/cost stays unknown; elapsed evaluation time is not generation-only latency. The examples are small classroom evidence, not statistical reliability estimates, production permissions or delivery guarantees. Earlier Promptfoo/DeepEval wrappers remain counterparts to the former rule/agent sequence, not equivalents of this five-example core. No optional framework was installed or rerun.
 
-04 prints actual token counts and elapsed SDK run time, ending its timer before trace flush/printing. 05 prints selected native span durations; its provider usage is not collected. 07 has additional evaluator model calls. Missing usage/cost remains unknown. Current short examples do not calculate an aggregate dollar cost; B1 introduces that calculation and the longer reference runner retains a fuller example. Nested/overlapping span durations cannot be added as end-to-end time.
-
-The three 07 reference labels are author-assigned classroom examples, not independently validated judge accuracy. GuidelineEvaluator sees query/response, not source context; a clarity pass proves neither source truth nor permission. The older unsupported C3 fee-finalization claim remains an explicitly historical reference observation in the slides, not output attributed to a current short example.
-
-## Files and slide alignment
-
-[verification-results.json](verification-results.json) retains the current source hashes, readable default/variation transcripts, final repeated-run summary and the separately labelled initial instruction result. Earlier runner results remain exclusively in [reference evidence](reference/verification-results.json).
-
-The deck still has 36 slides and the established Marp style. Code excerpts, filenames, current counts and presenter notes were synchronized with the short examples; full-run historical scores are no longer presented as current-core evidence. Current decision-task results are distinguished from the broader deterministic/source/approval cases. Changed slides were rendered and visually inspected. Local links and source syntax were checked.
-
-## Teaching refinement and Gamma copy · 6 November 2026
-
-The 36-slide Markdown deck now follows C2's boundary error through requirements, cases/checker probes, traces, diagnosis, repair and repeated trials. Action outcomes and clarity judgments then extend the method. The existing snippet numbering is retained; the lecture order is 01, 02, 03, 04, 05, 08, 09, 06, 07. A matching [Gamma text copy](../../slides-gamma/b5-safety-observability-evaluation.txt) preserves slide bodies, tables and fenced blocks while removing notes/configuration and local navigation.
-
-The refined B4/B5 decks rendered to 34/36 PNGs and were visually inspected. Fresh read-only review confirmed source/evidence alignment and Gamma parity. Executable sources and the recorded model runs/scores are unchanged; no new model comparison is claimed by this teaching revision.
-
-Labs, assessments and new notebooks remain deferred. No dependency, commit or staging operation was part of this revision.
+Formal assessments, new notebooks, staging and commits remain deferred.

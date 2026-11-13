@@ -1,14 +1,12 @@
-"""Demurrage orchestration — tariff lookup, breakdown, gate-out, KPI aggregation."""
+"""Demurrage calculation, gate-out, and KPI aggregation."""
 
 from datetime import date, datetime, timezone
-from typing import Optional
 
 from sqlmodel import Session, select
 
 from supplychainops.database_models import Claim, Container, TerminalEvent
 from supplychainops.domain_demurrage_calculation_engine import (
     build_demurrage_calculation_breakdown,
-    get_current_calculation_date,
 )
 from supplychainops.port_read_service import ContainerContextNotFoundError, load_container_context
 
@@ -34,16 +32,15 @@ def sum_approved_waivers(session: Session, container_identifier: str) -> float:
 def calculate_container_demurrage(
     session: Session,
     container_identifier: str,
-    current_calculation_date: Optional[date] = None,
+    current_calculation_date: date,
 ) -> dict:
     """Single source of truth for per-container demurrage breakdown."""
     container_context = load_container_context(session, container_identifier)
     container = container_context.container
     importer = container_context.importer
 
-    calculation_date = current_calculation_date or get_current_calculation_date()
     approved_waiver = sum_approved_waivers(session, container_identifier)
-    breakdown = build_demurrage_calculation_breakdown(
+    return build_demurrage_calculation_breakdown(
         container_identifier=container.container_identifier,
         vessel_discharge_date=container.vessel_discharge_date,
         gate_out_date=container.gate_out_date,
@@ -52,31 +49,18 @@ def calculate_container_demurrage(
         tier_2_daily_penalty_rate_usd=container.tier_2_daily_penalty_rate_usd,
         tier_discount_percentage=importer.tier_discount_percentage,
         approved_waiver_amount_usd=approved_waiver,
-        current_calculation_date=calculation_date,
+        current_calculation_date=current_calculation_date,
     )
 
-    # API wire fields only — tier breakdown details stay in the pure engine.
-    return {
-        "container_identifier": breakdown["container_identifier"],
-        "container_dwell_days": breakdown["container_dwell_days"],
-        "overdue_days_count": breakdown["overdue_days_count"],
-        "gross_demurrage_fee_usd": breakdown["gross_demurrage_fee_usd"],
-        "approved_waiver_amount_usd": breakdown["approved_waiver_amount_usd"],
-        "net_payable_demurrage_fee_usd": breakdown["net_payable_demurrage_fee_usd"],
-        "tier_discount_percentage": importer.tier_discount_percentage,
-    }
 
-
-def build_operational_summary(session: Session) -> dict:
-    calculation_date = get_current_calculation_date()
-
+def build_operational_summary(session: Session, current_calculation_date: date) -> dict:
     # --- Per-container demurrage rollup ---
     gross_accrued = 0.0
     at_risk_count = 0
     for container in session.exec(select(Container)).all():
         try:
             breakdown = calculate_container_demurrage(
-                session, container.container_identifier, calculation_date
+                session, container.container_identifier, current_calculation_date
             )
         except ContainerContextNotFoundError:
             # Skip rows with broken shipment, vessel, or importer links.
@@ -104,7 +88,9 @@ def build_operational_summary(session: Session) -> dict:
     }
 
 
-def execute_gate_out(session: Session, container_identifier: str) -> dict:
+def execute_gate_out(
+    session: Session, container_identifier: str, current_calculation_date: date
+) -> dict:
     # Validate container exists and has not already left the terminal.
     container = session.get(Container, container_identifier)
     if container is None:
@@ -113,7 +99,7 @@ def execute_gate_out(session: Session, container_identifier: str) -> dict:
         raise GateOutConflictError("Container already gated out")
 
     # Record gate-out date and terminal audit event.
-    gate_out_date = get_current_calculation_date()
+    gate_out_date = current_calculation_date
     container.gate_out_date = gate_out_date
     session.add(container)
     session.add(

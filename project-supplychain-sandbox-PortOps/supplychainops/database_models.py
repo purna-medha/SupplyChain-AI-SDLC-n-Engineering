@@ -83,6 +83,7 @@ class Claim(SQLModel, table=True):
     dispute_reason_category: str = Field(max_length=64)
     claim_decision_status: str = Field(max_length=32)
     approved_waiver_amount_usd: float = 0.0
+    manager_override_note: Optional[str] = Field(default=None, max_length=256)
 
 
 class DrayageJob(SQLModel, table=True):

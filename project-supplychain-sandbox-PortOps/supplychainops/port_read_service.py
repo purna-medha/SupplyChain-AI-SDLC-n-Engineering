@@ -1,6 +1,7 @@
 """Read-path queries — SELECT only, returns ORM rows or overview dicts."""
 
 from dataclasses import dataclass
+from datetime import date
 from typing import List, Optional
 
 from sqlmodel import Session, select
@@ -17,7 +18,6 @@ from supplychainops.domain_demurrage_calculation_engine import (
     calculate_container_dwell_days,
     calculate_overdue_days_count,
     derive_container_status_label,
-    get_current_calculation_date,
 )
 
 
@@ -68,12 +68,12 @@ def load_container_context(session: Session, container_identifier: str) -> Conta
 def fetch_containers_for_importer(
     session: Session,
     importer_identifier: str,
+    current_calculation_date: date,
     status_filter: Optional[str] = None,
 ) -> List[dict]:
     if session.get(Importer, importer_identifier) is None:
         raise ContainerContextNotFoundError("Importer not found")
 
-    calculation_date = get_current_calculation_date()
     statement = (
         select(Container)
         .join(Shipment, Container.bill_of_lading_number == Shipment.bill_of_lading_number)
@@ -87,7 +87,7 @@ def fetch_containers_for_importer(
         dwell_days = calculate_container_dwell_days(
             container.vessel_discharge_date,
             container.gate_out_date,
-            calculation_date,
+            current_calculation_date,
         )
 
         # Is it past the free-day allowance?

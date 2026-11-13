@@ -1,4 +1,4 @@
-"""Supplied setup and file handling. Learners work in b1.py, b2.py and b3.py."""
+"""Supplied setup and file handling. Learners work in b1.py through b5.py."""
 
 import json
 import os

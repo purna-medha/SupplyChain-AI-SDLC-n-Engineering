@@ -1,169 +1,129 @@
-"""Thin FastAPI route handlers — delegate to service layer."""
+"""HTTP inputs and service calls. Shared error responses are registered in main.py."""
 
-from typing import List, Optional
+from datetime import date
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends
 from sqlmodel import Session
 
+from supplychainops import (
+    port_claims_service as claims,
+    port_demurrage_service as demurrage,
+    port_read_service as reads,
+    validation_schemas as schemas,
+)
 from supplychainops.database_configuration import get_database_session
-from supplychainops.port_claims_service import (
-    ClaimNotFoundError,
-    ClaimValidationError,
-    approve_manager_override,
-    submit_dispute_claim,
-)
-from supplychainops.port_demurrage_service import (
-    GateOutConflictError,
-    build_operational_summary,
-    calculate_container_demurrage,
-    execute_gate_out,
-)
-from supplychainops.port_read_service import (
-    ContainerContextNotFoundError,
-    fetch_claims,
-    fetch_containers_for_importer,
-    fetch_drayage_jobs,
-    fetch_importers,
-)
-from supplychainops.validation_schemas import (
-    ContainerOverviewResponse,
-    DemurrageCalculationBreakdownResponse,
-    DisputeClaimAuditResponse,
-    DisputeClaimSubmissionRequest,
-    DrayageDispatchJobResponse,
-    GateOutExecutionResponse,
-    HealthCheckResponse,
-    ImporterReadResponse,
-    ManualWaiverOverrideRequest,
-    SupplyChainOperationalSummaryMetricsResponse,
-)
 
 router = APIRouter()
 
 
-@router.get("/health", response_model=HealthCheckResponse)
+def get_current_calculation_date() -> date:
+    """Resolve the live date once per request; tests override this dependency."""
+    return date.today()
+
+
+@router.get("/health", response_model=schemas.HealthCheckResponse)
 def health_check():
-    return HealthCheckResponse(status="ok", application_name="SupplyChainOps")
+    return {"status": "ok", "application_name": "SupplyChainOps"}
 
 
-@router.get("/importers", response_model=List[ImporterReadResponse])
+@router.get("/importers", response_model=list[schemas.ImporterReadResponse])
 def list_importers(session: Session = Depends(get_database_session)):
-    return [ImporterReadResponse.model_validate(row) for row in fetch_importers(session)]
+    return reads.fetch_importers(session)
 
 
-@router.get("/containers", response_model=List[ContainerOverviewResponse])
+@router.get("/containers", response_model=list[schemas.ContainerOverviewResponse])
 def list_containers(
-    importer_identifier: str = Query(...),
-    status_filter: Optional[str] = Query(None),
+    importer_identifier: str,
+    status_filter: str | None = None,
     session: Session = Depends(get_database_session),
+    calculation_date: date = Depends(get_current_calculation_date),
 ):
-    try:
-        rows = fetch_containers_for_importer(session, importer_identifier, status_filter)
-    except ContainerContextNotFoundError as exc:
-        raise HTTPException(status_code=404, detail=str(exc)) from exc
-    return [ContainerOverviewResponse(**row) for row in rows]
+    return reads.fetch_containers_for_importer(
+        session, importer_identifier, calculation_date, status_filter
+    )
 
 
 @router.get(
     "/containers/{container_identifier}/demurrage-calculation",
-    response_model=DemurrageCalculationBreakdownResponse,
+    response_model=schemas.DemurrageCalculationBreakdownResponse,
 )
 def get_demurrage_calculation(
     container_identifier: str,
     session: Session = Depends(get_database_session),
+    calculation_date: date = Depends(get_current_calculation_date),
 ):
-    try:
-        breakdown = calculate_container_demurrage(session, container_identifier)
-    except ContainerContextNotFoundError as exc:
-        raise HTTPException(status_code=404, detail=str(exc)) from exc
-    return DemurrageCalculationBreakdownResponse(**breakdown)
+    return demurrage.calculate_container_demurrage(session, container_identifier, calculation_date)
 
 
 @router.post(
     "/containers/{container_identifier}/gate-out-execution",
-    response_model=GateOutExecutionResponse,
+    response_model=schemas.GateOutExecutionResponse,
 )
 def gate_out_container(
     container_identifier: str,
     session: Session = Depends(get_database_session),
+    calculation_date: date = Depends(get_current_calculation_date),
 ):
-    try:
-        result = execute_gate_out(session, container_identifier)
-    except ContainerContextNotFoundError as exc:
-        raise HTTPException(status_code=404, detail=str(exc)) from exc
-    except GateOutConflictError as exc:
-        raise HTTPException(status_code=409, detail=str(exc)) from exc
-    return GateOutExecutionResponse(**result)
+    return demurrage.execute_gate_out(session, container_identifier, calculation_date)
 
 
 @router.post(
-    "/dispute-claims/submit",
-    response_model=DisputeClaimAuditResponse,
-    status_code=status.HTTP_201_CREATED,
+    "/dispute-claims/submit", response_model=schemas.DisputeClaimAuditResponse, status_code=201
 )
 def create_dispute_claim(
-    payload: DisputeClaimSubmissionRequest,
+    payload: schemas.DisputeClaimSubmissionRequest,
     session: Session = Depends(get_database_session),
+    calculation_date: date = Depends(get_current_calculation_date),
 ):
-    try:
-        claim = submit_dispute_claim(
-            session,
-            payload.container_identifier,
-            payload.importer_identifier,
-            payload.disputed_amount_usd,
-            payload.dispute_reason_category,
-        )
-    except ContainerContextNotFoundError as exc:
-        raise HTTPException(status_code=404, detail=str(exc)) from exc
-    except ClaimValidationError as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
-    return DisputeClaimAuditResponse.model_validate(claim)
+    return claims.submit_dispute_claim(
+        session,
+        payload.container_identifier,
+        payload.importer_identifier,
+        payload.disputed_amount_usd,
+        payload.dispute_reason_category,
+        calculation_date,
+    )
 
 
-@router.get("/dispute-claims", response_model=List[DisputeClaimAuditResponse])
+@router.get("/dispute-claims", response_model=list[schemas.DisputeClaimAuditResponse])
 def list_dispute_claims(
-    claim_decision_status_filter: Optional[str] = Query(None),
+    claim_decision_status_filter: str | None = None,
     session: Session = Depends(get_database_session),
 ):
-    claims = fetch_claims(session, claim_decision_status_filter)
-    return [DisputeClaimAuditResponse.model_validate(claim) for claim in claims]
+    return reads.fetch_claims(session, claim_decision_status_filter)
 
 
 @router.put(
     "/dispute-claims/{dispute_claim_identifier}/approve-override",
-    response_model=DisputeClaimAuditResponse,
+    response_model=schemas.DisputeClaimAuditResponse,
 )
 def manager_approve_override(
     dispute_claim_identifier: int,
-    payload: ManualWaiverOverrideRequest,
+    payload: schemas.ManualWaiverOverrideRequest,
     session: Session = Depends(get_database_session),
 ):
-    try:
-        claim = approve_manager_override(
-            session,
-            dispute_claim_identifier,
-            payload.approved_waiver_amount_usd,
-            payload.manager_override_note,
-        )
-    except ClaimNotFoundError as exc:
-        raise HTTPException(status_code=404, detail=str(exc)) from exc
-    except ClaimValidationError as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
-    return DisputeClaimAuditResponse.model_validate(claim)
+    return claims.approve_manager_override(
+        session,
+        dispute_claim_identifier,
+        payload.approved_waiver_amount_usd,
+        payload.manager_override_note,
+    )
 
 
-@router.get("/drayage-dispatch-jobs", response_model=List[DrayageDispatchJobResponse])
+@router.get("/drayage-dispatch-jobs", response_model=list[schemas.DrayageDispatchJobResponse])
 def list_drayage_dispatch_jobs(
-    assigned_driver_name_filter: Optional[str] = Query(None),
+    assigned_driver_name_filter: str | None = None,
     session: Session = Depends(get_database_session),
 ):
-    jobs = fetch_drayage_jobs(session, assigned_driver_name_filter)
-    return [DrayageDispatchJobResponse.model_validate(job) for job in jobs]
+    return reads.fetch_drayage_jobs(session, assigned_driver_name_filter)
 
 
 @router.get(
     "/analytics/operational-summary",
-    response_model=SupplyChainOperationalSummaryMetricsResponse,
+    response_model=schemas.SupplyChainOperationalSummaryMetricsResponse,
 )
-def operational_summary(session: Session = Depends(get_database_session)):
-    return SupplyChainOperationalSummaryMetricsResponse(**build_operational_summary(session))
+def operational_summary(
+    session: Session = Depends(get_database_session),
+    calculation_date: date = Depends(get_current_calculation_date),
+):
+    return demurrage.build_operational_summary(session, calculation_date)

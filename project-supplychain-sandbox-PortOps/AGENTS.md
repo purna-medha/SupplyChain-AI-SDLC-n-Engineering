@@ -2,25 +2,26 @@
 
 For a detailed source-derived map of workflows, files, seeds, API contracts,
 tests, and known implementation limits, read [CODEBASE_GUIDE.md](CODEBASE_GUIDE.md).
-The root [AGENTS.md](../AGENTS.md) and
-[repository guide](../docs/REPOSITORY_GUIDE.md) explain workspace conventions and
-the distinction between this current port application and the proposed
-shipment-centered redesign.
+The [capstone description](Capstone_details.md) defines the learner workflow
+and distinguishes implemented behavior from optional extensions.
 
 ## For non-technical readers
 
 SupplyChainOps is a practice environment for managing shipping containers at a
 busy port. It tracks how long containers remain at the terminal, calculates
 storage charges when they stay too long, handles requests to review those
-charges, and helps organize onward truck deliveries. It is designed to make
-port operations and the reasons behind each decision easier to understand.
+charges, records containers leaving the terminal, and displays existing onward
+trucking jobs. Trucking jobs can be viewed and filtered by driver. It is
+designed to make port operations and the reasons behind each decision easier
+to understand.
 
 ## Purpose and stack
 
 SupplyChainOps (PortOps) is a deterministic FastAPI, SQLModel/SQLite, and
 Streamlit training sandbox for Jebel Ali container-terminal dwell, step-tariff
-demurrage, dispute claims, and drayage dispatch. Read `PROJECT_PROMPT.md` and
-`README.md` before changing its calculations or workflow.
+demurrage, dispute claims, gate-out, and read-only drayage job visibility.
+Read `PROJECT_PROMPT.md` and `README.md` before changing its calculations or
+workflow.
 
 ## Layered architecture
 
@@ -40,12 +41,17 @@ demurrage, dispute claims, and drayage dispatch. Read `PROJECT_PROMPT.md` and
 ## Domain invariants
 
 - Demurrage must use the supplied pure dwell and step-tariff calculation
-  functions. Container-held tariff rates are locked at discharge; do not
-  recreate separate tariff or carrier tables.
+  functions. Use the tariff rates stored on each container. Seed data supplies
+  these as the rates agreed at discharge; the application has no discharge-time
+  rate-selection or locking workflow. Do not recreate separate tariff or
+  carrier tables.
 - Claims must follow the auto-waiver state machine and verified exception-log
-  rules. A manager override is valid only for the allowed claim state.
+  rules. A manager override is valid only for an escalated claim; persist its
+  note and use `MANAGER_APPROVED`. Reject a second claim for the same container
+  and normalized reason with HTTP 409.
 - Preserve deterministic calculation-date handling so dwell, fees, and tests
-  stay reproducible.
+  stay reproducible. Resolve the date once through the API dependency and pass
+  it explicitly to services and pure calculations; tests override that dependency.
 - Keep the eight-table model intact: vessel (including carrier), importer,
   shipment, container, terminal event, port exception log, claim, and drayage
   job.
@@ -54,7 +60,8 @@ demurrage, dispute claims, and drayage dispatch. Read `PROJECT_PROMPT.md` and
 
 - CSV seed inputs live in `data/seed/`; `data/supplychainops.db` is generated.
   Regenerate it with `python scripts/reset_database.py`, rather than editing
-  the database by hand.
+  the database by hand. Reset validates seeds, saves a timestamped `.bak` copy,
+  and recreates only the eight current tables, removing legacy tables.
 - Add focused coverage to `tests/test_end_to_end_workflow.py` when changing
   workflows, pure math, validation, or HTTP behavior. Retain the fixed-date
   fixture pattern for date-sensitive tests.
@@ -65,5 +72,5 @@ demurrage, dispute claims, and drayage dispatch. Read `PROJECT_PROMPT.md` and
   uv run python scripts/reset_database.py
   uv run pytest tests/ -v
   uv run uvicorn supplychainops.main:app --reload --port 8002
-  uv run streamlit run ui/streamlit_dashboard.py
+  uv run python -m streamlit run ui/streamlit_dashboard.py
   ```
