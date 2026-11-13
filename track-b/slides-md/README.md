@@ -1,17 +1,17 @@
 # Track B · Teaching slides
 
-Use the [course map](../README.md) for module order, status and deck links.
-
-These Marp Markdown files are the authoritative slide sources. Code illustrates concepts already introduced in text and diagrams. Presenter notes are HTML comments.
+These Markdown files are the authoritative teaching sources for the frozen November 2026 snapshot. Use the [course map](../README.md) for order and deck links. Code illustrates concepts introduced in the text and diagrams; presenter notes are HTML comments.
 
 - Keep each slide focused on one teaching step.
 - Explain the requirement before showing the mechanism.
 - Ask learners to predict an outcome before running selected examples.
-- Use current files in [snippets](../snippets/README.md). An **inline illustration** is a conceptual probe rather than another distributed script.
+- Use the linked [snippets](../snippets/README.md); inline illustrations are conceptual probes, not additional distributed programs.
 - Treat operational records, fees and policies as synthetic classroom data.
 
-B4 is a revised 34-slide teaching draft following its [outline](../B4-OUTLINE.md), with six standalone examples covering schema, scoped reads, text-to-SQL, business meaning, execution boundaries and agent integration, plus [verification](../snippets/b4/VERIFICATION.md). B5 is a revised 36-slide teaching draft following its [outline](../B5-OUTLINE.md), with five standalone examples that generate and evaluate actual answers, inspect judge mistakes and compare prompts, plus [verification](../snippets/b5/VERIFICATION.md). B6 still needs curriculum scope review.
+B4 has 34 slides and six core examples following its [outline](../B4-OUTLINE.md). B5 has 36 slides and five generated-answer examples following its [outline](../B5-OUTLINE.md), plus two linked tracing references. B6 has 37 slides and seven worked RAG examples; it has no learner lab in this package.
 
-[B1–B5 standalone lab drafts](../labs/README.md) are available. B4/B5 provide independent checkpoints aligned with these decks. Formal assessments remain deferred; older module lab guides have been removed.
+[B1–B5 learner labs](../labs/README.md) are distributed with unfinished functions for participants to implement. Formal assessments and completed learner solutions are excluded. Timing estimates remain unvalidated by an instructor dry run.
 
-The [older decks](../archive/module-slide-decks/README.md) are local historical copies. [Gamma exports](../slides-gamma/README.md) cover B0–B5. B4/B5 copies follow the refined teaching sequence; refresh the corresponding copy after visible slide edits.
+[Gamma exports](../slides-gamma/README.md) cover B0–B5. They retain visible content from the Markdown sources; regenerate the corresponding copy after editing a deck. Local authoring archives are not distributed.
+
+[Supplied PowerPoint files](../slides-powerpoint/README.md) for B1–B5 are included unchanged; they do not replace the Markdown sources.

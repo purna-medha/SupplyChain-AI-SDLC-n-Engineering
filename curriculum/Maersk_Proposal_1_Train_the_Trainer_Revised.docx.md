@@ -1,3 +1,5 @@
+> Historical proposal/background. The [client snapshot guide](../README.md) and [release record](../RELEASE.md) define the actual delivered files and exclusions; this proposal is not a completion record.
+
 # **Maersk AI TTT Enablement Program**
 
 Building internal capability for AI-Augmented Development and Agentic AI Application Building

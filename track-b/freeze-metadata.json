@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-13",
+  "scope": "Client freeze metadata; earlier live-run hashes remain historical. B2 source restored to slide contract and checked with actual SDK tool invocation under controlled model IO. Navigation/docs changes do not rerun model judgments.",
+  "current_sources": {
+    "track-b/snippets/b5/README.md": {
+      "sha256": "e2924ecc5eb0b9caa0a5da2ee07ff4f3f839899481fb3027712b616a144f023c"
+    },
+    "track-b/B5-OUTLINE.md": {
+      "sha256": "3023aec1eb395619f0201a13a67a0bb1f69043390e094d614b7316f9671f7c85"
+    },
+    "track-b/snippets/b5/VERIFICATION.md": {
+      "sha256": "10b993c081878a262588c7cbb05132ed29a1470f21ee485cf51fa1cb8d53fbf6"
+    },
+    "track-b/labs/VERIFICATION.md": {
+      "sha256": "149f051f6faa857917bc7fc21b29b204660f2664bba6427d72b3696d2801e50b"
+    },
+    "track-b/snippets/b2/02_openai_agent_with_tool.py": {
+      "sha256": "5820a501f6c84d39c306aba14fa547b36a641cb73e94d9157dd5504cc40a4087"
+    }
+  },
+  "live_model_calls": "Not rerun for freeze."
+}

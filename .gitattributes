@@ -1,0 +1,8 @@
+* text=auto
+
+# Keep repository administration out of client source archives.
+.gitattributes export-ignore
+.gitignore export-ignore
+.github export-ignore
+planning-batch-2 export-ignore
+docs export-ignore

@@ -1,6 +1,6 @@
 # Standalone lab verification · 6 November 2026
 
-Current pack: B1–B5 learner drafts. B4's database lab is unchanged. B5 now evaluates actual generated answers: cases, generation, evaluator configuration/invocation and a candidate prompt. Its former rule-testing lab is a [supporting reference](container_help_desk/B5-APPLICATION-CHECKS-REFERENCE.md), with [historical verification](reference/VERIFICATION-APPLICATION-CHECKS.md).
+Current pack: B1–B5 learner drafts. B4's database lab is unchanged. B5 evaluates actual generated answers: cases, generation, evaluator configuration/invocation and a candidate prompt. The earlier rule-testing lab and its historical verification files have been removed.
 
 ## Current checks
 
@@ -10,11 +10,11 @@ From the repository root:
 track-b/.venv/bin/python -m unittest discover -s track-b/labs/tests -v
 ```
 
-**24 tests passed.** These cover existing B1–B3 behavior, B4 scope/policy/query failure, preserved application-reference controls, the current B5 runner and five new snippet-control regressions. The new regressions were observed failing before the guard/error-handling fixes and passing afterward. They use controlled model/evaluator IO and make no real model calls; they verify application behavior, not judge accuracy or a provider outage.
+**20 teaching tests passed on 13 November 2026** after removing the retired lab and moving future-delivery quickstarts to planning. The current suite covers B1–B3 behavior, B4 scope/policy/query failure, B4/B5 checkpoint handling, the current B5 runner and snippet-control regressions. The four tests dedicated to the retired rule-testing lab have been removed. The seven future-delivery quickstart access checks were moved outside this client snapshot and passed separately during relocation. Tests use controlled model/evaluator IO and make no real model calls; they verify application behavior, not judge accuracy or a provider outage.
 
 Current B5 runner checks establish that references are not forwarded to generation, invalid/missing/nonfinite/out-of-range scores cannot pass, normalized relevance is handled without a `passing` field, one judge error does not erase later judgments, every generation failure remains in both comparison versions, and unfinished learner work stops as a TODO.
 
-The delivered B4 and B5 starters each retain **five unimplemented functions**. Formal assessments and B6's lab remain deferred. [Current structured evidence](verification-b4-b5.json) contains hashes, actual run reports and limits.
+The delivered B4 and B5 starters each retain **five unimplemented functions**. Formal assessments and B6's lab remain deferred. [Structured evidence](verification-b4-b5.json) preserves the 6 November source hashes, actual run reports and limits, with a separate entry for the current cleanup checks.
 
 ## Revised B5 actual-model checks
 

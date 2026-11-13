@@ -1,3 +1,5 @@
+> Historical proposal/background. The [client snapshot guide](../README.md) and [release record](../RELEASE.md) define the actual delivered files and exclusions; this proposal is not a completion record.
+
 # THE MODERN AI DEVELOPER — v4
 
 **AI-Assisted Engineering for Production Teams** — 3-day intensive for Maersk engineering teams.

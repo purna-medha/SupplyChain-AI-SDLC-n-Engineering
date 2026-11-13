@@ -3,5 +3,7 @@ __pycache__/
 outputs/
 .env
 *.pyc
+nano_bank.db
+nano_bank.db-*
 slides-html
 authoring

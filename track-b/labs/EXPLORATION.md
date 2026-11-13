@@ -3,7 +3,7 @@
 Keep the application small. Use **predict → change one thing → run → inspect
 → explain** to investigate the mechanism already implemented.
 
-The 30–40-minute module lab includes implementation and exploration. Choose
+Each module's lab budget includes implementation and exploration. Choose
 two questions from the module guide, rather than completing the whole question
 bank. Use the remaining questions for discussion, faster participants or later
 practice. Prepare dependencies and service access before starting the clock.
@@ -43,17 +43,17 @@ only a successful command or an answer that sounds plausible.
 - [B1: instructions, history and operating observations](container_help_desk/B1.md#explore-the-same-lab--choose-two)
 - [B2: capability, observations and MCP ownership](container_help_desk/B2.md#explore-the-same-lab--choose-two)
 - [B3: workflow, retained context and review](container_help_desk/B3.md#explore-the-same-lab--choose-two)
+- [B4: row grain, bound values, query evidence and execution limits](container_help_desk/B4.md#explore-the-same-lab--choose-two)
+- [B5: generated-answer judgments, false passes, matched prompts and held-out cases](container_help_desk/B5.md#explore-the-same-lab--choose-two)
 
-## Questions to attach when the later labs are built
+## Questions for the later B6 lab
 
-These are design prompts, not claims that the B4/B6/B5 lab packs are complete.
-Attach each to a concrete command/change in its eventual starter.
+The B4/B5 prompts now have concrete commands in their guides. B6's prompt
+remains a design note until its lab is built.
 
 | Module | Same-lab exploration prompts | Evidence to inspect |
 | --- | --- | --- |
-| B4 | Why can a query run successfully and return the wrong total? What happens when two containers have equal fees? Does a smaller returned row count imply less database work? | Joined rows, declared row grain, independent expected total and execution limits |
 | B6 | Did retrieval find relevant evidence or merely return similar text? Does increasing top-k improve this answer? Can reranking recover a passage absent from its candidate pool? | Actual retrieved passages, source/metadata scope, candidate membership and supported claims |
-| B5 | Can a schema-valid answer contain a wrong fact? Which trace step explains the failure? Does the same case set improve after one repair? | Independent expectations, actual inputs/outputs/effects and identical-case before/after results |
 
 For optional B0 practice, use the existing Python snippets: why can a value
 conflict with its type hint and still run; how does a missing dictionary key

@@ -1,89 +1,102 @@
-### Executive Summary
+# PortOps capstone: explain and resolve a container charge
 
-**SupplyChainOps** serves as an enterprise digital twin uniting maritime import terminal operations (**PortOps**) and inland drayage trucking dispatch (**FleetOps**) into a single operational system. Modeled on container shipping workflows at major global maritime hubs like Jebel Ali Port (DP World / Maersk), the platform connects ocean import logistics, container dwell time tracking, step-tariff demurrage penalty math, automated dispute waiver processing, and warehouse transport SLA monitoring across cargo importers, terminal operators, and drayage dispatchers.
+## The scenario
 
----
+An importer has a container waiting at a terminal. Its free storage allowance
+has expired and daily demurrage charges are accruing. The importer needs to
+understand the bill, request a waiver when a verified port exception exists,
+and record the container leaving the terminal.
 
-### Core Business Problem & Industry Context
+The supplied application uses deterministic Python rules, SQLite storage,
+FastAPI endpoints and a Streamlit dashboard. Its importer and operations tabs
+are two views of the same data; they are not authenticated user roles.
 
-When ocean cargo containers arrive at a port berth, importers receive a fixed "Free Time" window (typically 5 days) to clear customs and retrieve their cargo. Containers sitting past this free allowance incur heavy daily penalty fees called **Demurrage & Detention (D&D)**, ranging from $150 to $300 per day.
+## What the application implements
 
-This environment creates three major operational friction points:
+1. List an importer's containers and show dwell days and derived status.
+2. Calculate step-tariff fees, commercial discounts, approved waivers and net
+   payable charges.
+3. Submit a claim, check container ownership, verify terminal/date exception
+   evidence, and approve, reject or escalate the claim.
+4. Let a manager approve an escalated claim, storing the approval note.
+5. Record gate-out and a terminal event; stop further fee accrual.
+6. Show fee/risk totals, claim history and read-only trucking jobs.
 
-* **Unearned Penalty Inflation:** Importers absorb millions in accrued demurrage fees caused by delays outside their control.
+The eight tables are vessel, importer, shipment, container, terminal event,
+port exception log, claim and drayage job. Carrier details belong to vessels;
+daily tariff rates and free-day allowances belong to containers. The seeds
+supply rates representing those agreed at discharge; the application has no
+discharge-time rate-selection or locking workflow.
 
+## Business rules
 
-* **Dispute Friction:** 20% to 30% of demurrage fees are disputed because delays are frequently port-side bottlenecks (e.g., terminal crane breakdowns, customs system crashes, or weather holds) rather than importer negligence. Manually cross-examining claim narratives against port logs is slow and labor-intensive.
+Dwell days are the nonnegative number of days from discharge to gate-out, or
+the calculation date for a container still at the terminal. Overdue days are
+dwell days minus the container's free allowance, clamped to zero.
 
+The first five overdue days use tier 1; subsequent days use tier 2. Multiply
+the resulting charge by `1 - tier_discount_percentage`, then subtract approved
+waivers and clamp net payable to zero. The field named `gross_demurrage_fee_usd`
+is the amount after the commercial discount and before waivers.
 
-* **Inland Delivery Disconnect:** Once a container gates out of the port, lack of visibility into inland drayage truck dispatching causes transit route SLA breaches and warehouse receiving delays.
+The discount is stored as a fraction on the importer. In the seed data,
+Standard has 0.00, Gold 0.10 and Platinum 0.20. Calculations read that stored
+fraction directly; they do not derive a discount from the tier name.
+Rates and free days come from each container, not a runtime carrier/tariff lookup.
 
+| Claim evidence and amount | Outcome | Waiver |
+| --- | --- | --- |
+| No exception at the same terminal overlapping the dwell window | `REJECTED` | Zero |
+| Verified exception and amount below $500 | `AUTO_APPROVED` | Disputed amount |
+| Verified exception and amount of $500 or more | `ESCALATED_TO_MANAGER` | Zero pending review |
+| Manager approves an escalated claim | `MANAGER_APPROVED` | Approved amount, from zero through disputed amount |
 
+A manager note is trimmed, must contain 1–256 characters, and is stored.
+Only an escalated claim can be overridden, and it cannot be approved twice.
+A container may have one claim per reason, including rejected claims. Reasons
+are trimmed and uppercased; a repeat returns HTTP 409 without another waiver.
 
----
+For this exercise, evidence matches terminal and inclusive dates only. The
+submitted reason is recorded but does not have to match the exception category.
+`excused_penalty_days_count` is stored but does not determine the waiver.
 
-### Dual Operational User Views
+## A walkthrough with fixed-date expectations
 
-The application coordinates two distinct business roles over a shared operational dataset:
+Tests use **2026-09-22**. Live requests use today's date, so open-container
+fees vary. The dashboard and API expose no calculation-date selector or request
+parameter. Resetting the database restores the seed data but does not change
+the live calculation date. To reproduce these amounts, use tests that override
+`get_current_calculation_date`, as shown in `tests/conftest.py`.
 
-#### 1. Importer & Freight Forwarder Portal (Customer View)
+At the fixed date, starting from the seed baseline:
 
-* **Active Container Tracking:** Allows importers (e.g., Al-Futtaim Logistics) to view live container discharge dates, remaining free-day allowances, and current dwell status.
+1. Inspect `MSKU1234567` for `IMP-GULF-001`: 13 dwell days, five free days,
+   eight overdue days. Its charge is `5 × $150 + 3 × $250 = $1,500`.
+2. Submit a $350 crane-breakdown claim. The terminal has overlapping exception
+   evidence, so the claim is auto-approved and net payable becomes $1,150.
+3. Submit the same container/reason again: expect 409 and no additional waiver.
+4. Reset the baseline, submit a $750 claim, then approve a $600 manager waiver
+   with a note. Expect `MANAGER_APPROVED`, the stored note, and $900 net payable.
+5. Record gate-out. Advancing the calculation date must no longer increase
+   dwell days or gross fees. Later approved waivers can still change net payable.
+   A second gate-out returns 409.
 
+Use `HLCU5566778` to investigate missing terminal evidence. Its baseline weather
+claim is already rejected, so use a different reason for a new submission.
 
-* **Real-Time Fee Transparency:** Displays live calculated gross demurrage fees itemized by cargo type and fee rate tiers.
+## Boundaries and optional extensions
 
+Trucking jobs can be listed and filtered by driver. Truck assignments, delivery
+updates, SLA penalties and automatic dispatch after gate-out are not implemented.
+Gate-out does not check payment, customs clearance or dispatch eligibility.
 
-* **Dispute Claim Submission:** Enables importers to submit formal dispute claims for delay exceptions (e.g., claiming a 2-day terminal crane outage) and receive instant resolution updates.
+Claims for different reasons can accumulate waivers, with no cap against the
+accrued charge. Net payable is clamped to zero. Duplicate checking is intended
+for sequential classroom use, not concurrent submissions. The sandbox has no
+authentication, approval actor/timestamp history, claim reopening or production
+schema migrations.
 
-
-
-#### 2. Port Operations & Logistics Workspace (Internal View)
-
-* **Macro Revenue & Risk Dashboard:** Enables port managers to monitor top-level KPIs including Gross Accrued Demurrage, Approved Credit Waivers, Net Receivable Revenue, and At-Risk Containers nearing free-time expiry.
-
-
-* **Dispute Audit Queue:** Provides finance teams with a workspace to cross-examine claims against immutable port exception logs and execute manual credit waiver overrides.
-
-
-* **Fleet Drayage Dispatching:** Coordinates truck assignments from port gates to destination warehouses, tracking driver assignments and delivery SLA target hours.
-
-
-
----
-
-### Key Business Rules & Deterministic Logic
-
-* **Container Dwell & Overdue Tracking:** Computes dwell days as the difference between the Gate-Out Date (or current date) and the Vessel Discharge Date. Overdue days accumulate once dwell time exceeds the carrier's granted free days.
-
-
-* **Tiered Step-Tariff Penalty Math:** Applies escalating daily penalty rates on overdue days (e.g., Days 1–5 overdue = $150/day; Days 6+ overdue = $300/day). Gross fees are adjusted based on the importer's commercial tier discount (Standard: 0%, Gold: 10%, Platinum: 20%).
-
-
-* **Automated Dispute State Machine:**
-* **Auto-Approved:** If the dispute reason matches a recorded entry in immutable terminal exception logs during the container's dwell period **AND** the disputed amount is under $500.00, a 100% credit waiver is automatically issued.
-
-
-* **Escalated to Manager:** If a matching port outage log exists but the disputed amount is $\ge \$500.00$, the claim is routed to the manager approval queue.
-
-
-* **Rejected:** If no matching port exception log is found, the claim is rejected ($0.00 waiver).
-
-
-
-
-* **Drayage Transit SLA Penalty:** Calculates financial penalties at $50.00 per hour for actual inland transit times that exceed agreed SLA target delivery windows.
-
-
-
----
-
-### Business Value & Strategic Impact
-
-* **Eliminates Unearned Penalties:** Automates verification of port-side outages, ensuring importers are only penalized for genuine delays.
-
-
-* **Accelerates Dispute Resolution:** Replaces manual email back-and-forth by auto-resolving up to 80% of routine cargo claims under preset financial thresholds.
-
-
-* **Synchronizes Logistics Operations:** Bridges ocean gate-out events directly with inland trucking dispatch, reducing warehouse receiving delays and protecting transit SLAs.
+Possible extensions include reason/category evidence matching, financial waiver
+caps, authenticated approvals, drayage updates and SLA calculations. An
+AI-engineering capstone can add tools, grounded explanations and evaluations
+over the supplied API; no AI behavior is included in the baseline.

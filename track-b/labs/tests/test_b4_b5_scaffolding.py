@@ -1,16 +1,12 @@
 """Instructor checks for supplied B4/B5 scaffolding, not learner answers."""
 
-import asyncio
-import contextlib
 import importlib
-import io
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
 from types import SimpleNamespace
 import unittest
-from unittest.mock import patch
 
 from sqlalchemy import inspect, text
 from sqlalchemy.exc import DatabaseError
@@ -77,51 +73,6 @@ class NewLabChecks(unittest.TestCase):
         self.assertEqual(empty["rows"], [])
         self.assertEqual(null["rows"], [[None]])
 
-    def test_final_text_without_a_tool_observation_cannot_pass(self):
-        lab = importlib.import_module("b5_application_checks_reference")
-        case={"name":"boundary", "caller":"A", "container_id":"C2", "unavailable":False,
-              "expected_fee":200, "expected_decision":"review"}
-        # Replace only external execution and unfinished learner hooks. The supplied
-        # observation/ID/stop checks run for real and must reject ungrounded text.
-        result=SimpleNamespace(final_output="review", context_wrapper=SimpleNamespace(usage=SimpleNamespace(input_tokens=0,output_tokens=0)))
-        with patch.object(lab,"make_agent",return_value=object()), patch.object(lab,"configure_sdk"), \
-             patch.object(lab.Runner,"run_sync",return_value=result), patch.object(lab,"grade_observation",return_value=True):
-            first=lab.run_trial(case,False,4)
-            second=lab.run_trial(case,False,4)
-            self.assertEqual(first["calls"], [])
-            self.assertEqual(second["calls"], [])
-            self.assertIsNone(first["observation"])
-            self.assertFalse(lab.trial_passed(case,first))
-
-    def test_every_stopped_trial_remains_in_the_repeated_result(self):
-        lab=importlib.import_module("b5_application_checks_reference")
-        from agents import MaxTurnsExceeded
-        case={"name":"boundary", "caller":"A", "container_id":"C2", "unavailable":False,
-              "expected_fee":200, "expected_decision":"review"}
-        with patch.object(lab,"make_agent",return_value=object()), patch.object(lab,"configure_sdk"), \
-             patch.object(lab.Runner,"run_sync",side_effect=MaxTurnsExceeded("test turn bound")):
-            with contextlib.redirect_stdout(io.StringIO()):
-                trials=lab.repeat_cases([case],False,2,1)
-        self.assertEqual(len(trials),2)
-        self.assertTrue(all(trial["error"]["type"]=="MaxTurnsExceeded" for trial in trials))
-        self.assertTrue(all(not trial["passed"] for trial in trials))
-
-    def test_grader_probes_expose_boolean_numeric_equality(self):
-        lab = importlib.import_module("b5_application_checks_reference")
-        def lax_grader(expected, actual):
-            return all(key in actual and actual[key] == value for key, value in expected.items())
-        with patch.object(lab, "grade_observation", side_effect=lax_grader), contextlib.redirect_stdout(io.StringIO()):
-            with self.assertRaisesRegex(RuntimeError, "boolean"):
-                lab.probe_grader()
-
-    def test_grader_probes_distinguish_missing_field_from_present_null(self):
-        lab = importlib.import_module("b5_application_checks_reference")
-        def missing_field_grader(expected, actual):
-            return (type(actual.get("fee")) is type(expected["fee"])
-                    and all(actual.get(key) == value for key, value in expected.items()))
-        with patch.object(lab, "grade_observation", side_effect=missing_field_grader), contextlib.redirect_stdout(io.StringIO()):
-            with self.assertRaisesRegex(RuntimeError, "absent-fee"):
-                lab.probe_grader()
 
 
 if __name__ == "__main__":

@@ -43,6 +43,10 @@ uv pip install -r requirements-teaching.txt
 
 Also run `uv pip install -r requirements-rag.txt`. B6 examples and older references read **OPENAI_API_KEY**; add that variable to `snippets/.env` with the same key. Run their documented `python snippets/...` commands with this environment active.
 
-B5 uses `OPEN_AI_KEY` and the shared environment. All five current core examples make actual generation and/or evaluator calls; their run guide identifies the prepared calibration inputs separately. No observability account or MCP server is required. See the [B5 run guide](snippets/b5/README.md) and [verification record](snippets/b5/VERIFICATION.md). Earlier offline rule checks and tracing examples remain references.
+B5 uses `OPEN_AI_KEY` and the shared environment. All five current core examples make actual generation and/or evaluator calls; their run guide identifies the prepared calibration inputs separately. No observability account or MCP server is required. See the [B5 run guide](snippets/b5/README.md) and [verification record](snippets/b5/VERIFICATION.md). Only the two SDK/LlamaIndex tracing references linked by the B5 slides remain in its reference folder.
 
 B4 also uses the shared environment and `OPEN_AI_KEY`. Its six core examples build their own disposable databases; no server is needed. Four run offline, while the question-to-SQL and agent examples make actual model calls. See the [B4 run guide](snippets/b4/README.md). Earlier API and reviewed-write demonstrations remain optional references.
+
+## Client snapshot
+
+The [release record](../RELEASE.md) lists the freeze checks. B6 has a worked-example path but no learner lab or Gamma copy. Lab TODOs are intentional participant work; formal assessments and next-delivery experiments are excluded. Use [model configuration](../MODEL_SETUP.md) for the exact credential names.

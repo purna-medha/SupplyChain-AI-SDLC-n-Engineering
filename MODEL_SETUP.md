@@ -1,83 +1,30 @@
-# Shared model interface for Maersk courseware
+# Model configuration for the delivered examples
 
-All newly authored Maersk lessons use an **OpenAI-compatible API**. Choose hosted OpenAI or a local LiteLLM gateway backed by Ollama. The lesson code stays the same; endpoint, key and model names change. This standard applies to Track B, its PortOps AI reference extension, and future Track A model examples. Envestnet and the original non-AI PortOps project remain source references.
+Follow [Track B setup](track-b/SETUP.md) first. The delivered scripts specify their model and client directly; they do not implement a universal gateway or `COURSE_MODEL` configuration.
 
-## One configuration contract
+| Examples | Credential | Environment and model path |
+| --- | --- | --- |
+| B1–B5 core | `OPEN_AI_KEY` | Locked Track B environment. B1 uses LiteLLM; B2/B3 use SDK/framework clients; B4/B5 use the clients shown in their files. Most examples select GPT-4.1-mini explicitly. |
+| B1 local model | No hosted key for the local request | Ollama must be running with the model in the [B1 guide](track-b/snippets/b1/README.md#before-the-local-example). |
+| B6 core | `OPENAI_API_KEY` | Separate B6 environment; LlamaIndex OpenAI-like chat and embedding adapters configured in each file. Chat uses GPT-4.1-mini; embeddings use text-embedding-3-small. |
+| Older optional references | Check the file/run guide | Some retain `OPENAI_API_KEY`; they are not evidence of a shared gateway contract. |
+| Labs/notebooks | `OPEN_AI_KEY` | Their own setup guides load local or parent `.env` files without overriding exported values. |
+| PortOps | None | Deterministic application without LLM dependencies. |
 
-| Variable | Meaning |
-| --- | --- |
-| `OPENAI_API_BASE` | API base ending in `/v1`, not `/chat/completions` |
-| `OPENAI_API_KEY` | Key for that API endpoint; gateway key for local LiteLLM |
-| `COURSE_MODEL` | Chat model with LiteLLM's `openai/` routing prefix |
-| `COURSE_EMBED_MODEL` | Embedding model name, with no LiteLLM prefix |
-| `COURSE_COMPARE_MODEL` | Optional second chat model, also with `openai/` prefix |
+## Prepare credentials
 
-The prefix selects the OpenAI-compatible protocol in LiteLLM; it does not mean the underlying model must be hosted by OpenAI. LlamaIndex and the reference HTTP client remove that routing prefix before sending a model name to the endpoint.
-
-## Option A: hosted OpenAI
-
-Set these in the terminal running the lessons. Replace the placeholders with model IDs available to your account. Set the real key through your shell or secret manager rather than committing it.
+From `track-b`, copy the supplied template and replace its placeholders locally:
 
 ```bash
-export OPENAI_API_BASE='https://api.openai.com/v1'
-export OPENAI_API_KEY='<your-key>'
-export COURSE_MODEL='openai/<your-chat-model-id>'
-export COURSE_EMBED_MODEL='<your-embedding-model-id>'
+cp snippets/.env.example snippets/.env
 ```
 
-Choose a chat model supporting Chat Completions and native tool calling for B2/B3/B6. RAG needs an embeddings model in addition to the chat model. The two are different capabilities; do not put the chat model ID in the embedding setting.
+B1–B5 read `OPEN_AI_KEY`. If running B6, set `OPENAI_API_KEY` too; both may contain the same approved key. Exported environment variables also work. Python examples call `load_dotenv()` to find a local or parent file. Do not put real keys in source, notebook outputs or verification reports.
 
-## Option B: local Ollama behind LiteLLM
+Hosted generation and judging consume API usage. Model access, endpoint compatibility and current billing must be checked in the account used for delivery. B1's comparison deliberately selects a second model in its source; edit that model explicitly when adapting the example.
 
-The route is **lesson → OpenAI-compatible LiteLLM endpoint → Ollama**. Ollama serves the models; LiteLLM presents the common API. First install Ollama and pull a chat model with tool support plus an embedding model that fit your machine. This repository does not download weights or start servers automatically.
+## Boundaries
 
-Install the gateway in its own environment to keep server dependencies separate from lesson dependencies:
+The current files do not read `COURSE_MODEL`, `COURSE_EMBED_MODEL` or `COURSE_COMPARE_MODEL`. No LiteLLM gateway configuration or PortOps AI service is distributed. Adapting to a local gateway or another provider is a separate exercise requiring code/configuration changes and verification of chat, tool and embedding capabilities.
 
-```bash
-python3 -m venv .venv-gateway
-source .venv-gateway/bin/activate
-python -m pip install 'litellm[proxy]>=1.97,<2'
-```
-
-In the gateway terminal, replace both model placeholders with the exact locally installed model tags. The route prefixes are intentional:
-
-```bash
-export OLLAMA_API_BASE='http://127.0.0.1:11434'
-export OLLAMA_CHAT_ROUTE='ollama_chat/<installed-chat-tag>'
-export OLLAMA_EMBED_ROUTE='ollama/<installed-embedding-tag>'
-export LITELLM_MASTER_KEY='<your-local-gateway-key>'
-litellm --config model-config/litellm-ollama.yaml --host 127.0.0.1 --port 4000
-```
-
-Ollama must already be running. In the separate lesson terminal, select the teaching environment and set:
-
-```bash
-export OPENAI_API_BASE='http://127.0.0.1:4000/v1'
-export OPENAI_API_KEY='<same-local-gateway-key>'
-export COURSE_MODEL='openai/course-chat'
-export COURSE_EMBED_MODEL='course-embed'
-```
-
-The gateway key protects the gateway; it is not a hosted OpenAI credential. Tool support must be checked on the actual selected model; a capability flag or schema cannot manufacture it. Do not enable parameter dropping to hide incompatibilities.
-
-For B1's two-model comparison, configure a second chat alias in the gateway or choose a second hosted model, then set `COURSE_COMPARE_MODEL`. Reusing one alias twice measures repeated calls, not two models.
-
-## How examples use the interface
-
-B1–B5 call `litellm.completion(model=os.environ['COURSE_MODEL'], ...)`. LiteLLM reads the shared endpoint/key environment variables. B6 uses LlamaIndex's `OpenAILike` and `OpenAILikeEmbedding` adapters with the same values explicitly supplied. No native Ollama or implicit default OpenAI embedding adapter is hidden in a lesson.
-
-The optional `track-b/portops_ai` reference sends the same Chat Completions JSON over HTTP using these settings. Its constructor remains usable by tests, but its environment configuration uses the shared contract.
-
-## Before a classroom session
-
-Run the first model-call card and inspect actual text, then run B6's embeddings/retrieval card and inspect actual ranked nodes. B2's proposal/dispatch card verifies the next protocol capability. Record the exact backend/model tags used. A successful text response alone does not prove embeddings or tools work.
-
-Rebuild a vector index when changing embedding models: document and query vectors must share a compatible space. A chat model change does not automatically require re-embedding documents.
-
-`COURSEWARE_OFFLINE=1` explicitly skips network-dependent cards. It never substitutes successful model text or vectors. Offline structural checks and prepared evaluation fixtures are not live model validation.
-
-## Implementation references
-
-- [LiteLLM gateway configuration](https://docs.litellm.ai/docs/proxy/configs)
-- [LiteLLM Ollama routes and tool support](https://docs.litellm.ai/docs/providers/ollama)
-- [LlamaIndex OpenAI-like embeddings](https://developers.llamaindex.ai/python/framework-api-reference/embeddings/openai_like/)
+See [B1–B5 setup](track-b/SETUP.md), [B6 setup](track-b/SETUP.md#later-modules), [lab setup](track-b/labs/container_help_desk/README.md#prepare-once) and [notebook setup](track-b/notebooks/README.md#prepare-the-notebook-environment).

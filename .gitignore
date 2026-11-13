@@ -5,3 +5,22 @@ model-config
 .env
 archive
 docs
+/track-a/references-extra/
+.deepeval
+.github
+.ruff_cache
+
+# Local authoring and future-delivery work; excluded from the client snapshot.
+/planning-batch-2/
+
+# Generated Python/runtime files are recreated from source.
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv*/
+.env*
+!.env.example
+node_modules/
+
+# Release archives are written outside the source tree.
+/release-artifacts/

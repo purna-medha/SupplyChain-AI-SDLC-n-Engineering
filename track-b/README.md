@@ -1,22 +1,23 @@
 # Track B · AI application engineering
 
-Start with [SETUP.md](SETUP.md). This is the course map; folder READMEs explain how to use each material.
+Delivered November 2026 teaching snapshot, frozen on 13 November 2026. Start with [SETUP.md](SETUP.md); folder guides explain each material.
 
-| Order | Module | Focus | Materials | Status |
-| --- | --- | --- | --- | --- |
-| Prep | B0 | Python foundations | [Slides](slides-md/b0-python-foundations.md) · [Snippets](snippets/b0/README.md) | Optional preparation |
-| 1 | B1 | Models, conversations, tokens and cost | [Slides](slides-md/b1-llm-applications.md) · [Snippets](snippets/b1/README.md) | Revised draft |
-| 2 | B2 | Tools, agents and MCP | [Slides](slides-md/b2-tools-and-mcp.md) · [Snippets](snippets/b2/README.md) | Revised draft |
-| 3 | B3 | Workflows, specialists, state and approval | [Slides](slides-md/b3-agentic-workflows.md) · [Snippets](snippets/b3/README.md) | Revised draft |
-| 4 | B4 | Querying enterprise data with AI agents | [Slides](slides-md/b4-enterprise-data.md) · [Snippets](snippets/b4/README.md) | Revised teaching draft; live examples verified |
-| 5 | B6 | RAG and agentic RAG | [Slides](slides-md/b6-rag-and-agentic-rag.md) · [Snippets](snippets/b6/README.md) | Scope review pending |
-| 6 | B5 | Generated-answer evaluation and prompt improvement | [Slides](slides-md/b5-safety-observability-evaluation.md) · [Snippets](snippets/b5/README.md) | Five actual-generation/judgment examples; aligned lab draft |
+| Order | Module | Focus | Materials |
+| --- | --- | --- | --- |
+| Prep | B0 | Python foundations | [Slides](slides-md/b0-python-foundations.md) · [Snippets](snippets/b0/README.md) |
+| 1 | B1 | Models, conversations, tokens and cost | [Slides](slides-md/b1-llm-applications.md) · [Snippets](snippets/b1/README.md) |
+| 2 | B2 | Tools, agents and MCP | [Slides](slides-md/b2-tools-and-mcp.md) · [Snippets](snippets/b2/README.md) |
+| 3 | B3 | Workflows, specialists, state and approval | [Slides](slides-md/b3-agentic-workflows.md) · [Snippets](snippets/b3/README.md) |
+| 4 | B4 | Querying enterprise data with AI agents | [Slides](slides-md/b4-enterprise-data.md) · [Snippets](snippets/b4/README.md) |
+| 5 | B6 | RAG and agentic RAG | [Slides](slides-md/b6-rag-and-agentic-rag.md) · [Snippets](snippets/b6/README.md) |
+| 6 | B5 | Generated-answer evaluation and prompt improvement | [Slides](slides-md/b5-safety-observability-evaluation.md) · [Snippets](snippets/b5/README.md) |
 
-Module IDs are retained: teach B6 before B5. [B4](B4-OUTLINE.md) and [B5](B5-OUTLINE.md) have one-hour teaching drafts and standalone learner lab drafts. Formal assessments remain deferred. B6 still needs scope review and a lab.
+Module IDs are retained: teach **B6 before B5**. B0 is optional preparation. [B4](B4-OUTLINE.md) and [B5](B5-OUTLINE.md) include teaching outlines and independent learner labs.
 
-- **Explore:** [B1–B3 notebooks](notebooks/README.md), with complete experiments.
-- **Practise:** [B1–B5 standalone lab drafts](labs/README.md), with unfinished learner functions. B4/B5 align with the refined slides; B6 and the PortOps variant are not included.
-- **Present:** [Gamma copies for B0–B5](slides-gamma/README.md).
-- **Reference:** [Archived older decks](archive/module-slide-decks/README.md), preserved locally.
+- **Explore:** [B1–B3 notebooks](notebooks/README.md), with complete experiments and empty distributed outputs.
+- **Practise:** [B1–B5 learner labs](labs/README.md), with intentional unfinished learner functions. They require no PortOps backend.
+- **Present:** [Gamma copies for B0–B5](slides-gamma/README.md) and [five supplied PowerPoints for B1–B5](slides-powerpoint/README.md), included unchanged.
 
-Provisional module assessments, outlines and older module lab guides have been removed. Formal assessment and lab finalization follow curriculum approval.
+B6 is included as a deck and seven worked examples; a B6 learner lab and Gamma copy are not supplied. Formal assessments, completed learner solutions, final lab timing validation and future evaluation redesigns are outside this freeze. Authoring archives and next-delivery experiments are excluded from the client package.
+
+See the [release record](../RELEASE.md) for verified paths and limits; the broader curriculum proposals do not imply additional delivered assets.

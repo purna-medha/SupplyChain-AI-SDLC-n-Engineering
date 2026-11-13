@@ -1,0 +1,36 @@
+{
+  "date": "2026-11-13",
+  "scope": "Supplied PowerPoint files preserved unchanged at user request.",
+  "powerpoints": [
+    {
+      "file": "track-b/slides-powerpoint/B1-LLMs-in-a-Simple-Application (1).pptx",
+      "slides": 33,
+      "sha256": "9837e2337850fdb7ce97fc2c181cf1265e4e56344754cbb22ef065a2ad5d725f",
+      "validation": "ZIP integrity and all XML parts parsed; supplied file unchanged; no visual-render verification."
+    },
+    {
+      "file": "track-b/slides-powerpoint/B2 - Tools-Agents-and-MCP (1).pptx",
+      "slides": 31,
+      "sha256": "66a29df31c93ba1be93841a0a110e130993bfcc341262547ba90146730208df7",
+      "validation": "ZIP integrity and all XML parts parsed; supplied file unchanged; no visual-render verification."
+    },
+    {
+      "file": "track-b/slides-powerpoint/B3 - Agents-That-Manage-a-Task (1).pptx",
+      "slides": 36,
+      "sha256": "a789bece10f41e4d9c4043834b60b1c7c3962ca6bcc6c3e0375fd64a7a71f138",
+      "validation": "ZIP integrity and all XML parts parsed; supplied file unchanged; no visual-render verification."
+    },
+    {
+      "file": "track-b/slides-powerpoint/B4-Querying-Enterprise-Data-with-AI-Agents.pptx",
+      "slides": 34,
+      "sha256": "d1e66c8c85a1ae1872d34dc7335004cdbfa55d5dcd2e1724d642f5f1a5a93214",
+      "validation": "ZIP integrity and all XML parts parsed; supplied file unchanged; no visual-render verification."
+    },
+    {
+      "file": "track-b/slides-powerpoint/B5 - Evaluating-and-Improving-AI-Applications.pptx",
+      "slides": 36,
+      "sha256": "04122f649c548782d0042532832c5a459ef6a79c7702c69249cbd668f7a2bf94",
+      "validation": "ZIP integrity and all XML parts parsed; supplied file unchanged; no visual-render verification."
+    }
+  ]
+}

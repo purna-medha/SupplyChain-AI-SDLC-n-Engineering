@@ -1,5 +1,7 @@
 # B5 · Evaluate generated LLM answers
 
+This folder contains the five examples used by the current B5 slides and the two linked tracing references. Future-delivery experiments are outside this client snapshot.
+
 **Start with [01 · Evaluate one generated answer](#01-evaluate-one-generated-answer).** Follow one answer from generation to judgment before running a dataset.
 
 By the end, you can evaluate actual generated text for correctness, grounding and relevance, inspect judge mistakes, and compare prompts on unchanged cases.
@@ -99,6 +101,6 @@ Fixed-context evaluation needs no vector retrieval. LlamaIndex's embedding-disab
 - [36-slide deck](../../slides-md/b5-safety-observability-evaluation.md), [Gamma text](../../slides-gamma/b5-safety-observability-evaluation.txt) and [teaching outline](../../B5-OUTLINE.md).
 - [B5 learner lab](../../labs/container_help_desk/B5.md): case design, real generation, evaluation, calibration and prompt comparison.
 - [Current verification](VERIFICATION.md): actual answers, judge disagreements and comparison records.
-- [Supporting references](reference/README.md): earlier rule tests, SDK/LlamaIndex tracing and action-outcome checks. [Earlier Promptfoo/DeepEval counterparts](alternatives/README.md) concern that former sequence; they are not equivalents of the five new generation examples.
+- [Tracing references](reference/README.md): the two SDK/LlamaIndex examples linked from the slides.
 
 Formal assessments and new notebooks remain deferred.

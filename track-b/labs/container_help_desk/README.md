@@ -1,10 +1,10 @@
-# Container help desk · standalone lab draft
+# Container help desk · learner lab starters
 
 A port operations trainee needs help with shipping terminology. Later they
 need recorded status and fee information for a customer enquiry, followed by
 a factual update that a colleague can review.
 
-This working draft uses a container-help-desk setting throughout B1–B5. The records are synthetic;
+This delivered learner pack uses a container-help-desk setting throughout B1–B5. The records are synthetic;
 the USD 100 fee is a supplied classroom value, not a recreated PortOps tariff.
 
 | Module | Instructions | Edit |
@@ -99,8 +99,7 @@ B5 writes `work/b5-generated-answer.json`, `b5-evaluate.json`,
 Each checkpoint replaces its own report, retaining actual text, references,
 judge feedback/status and configuration. Generation/judge failures remain
 visible. Only B5's `cases` checkpoint is offline. B4 needs no persistent file
-or server. The prior [rule-testing lab](B5-APPLICATION-CHECKS-REFERENCE.md)
-remains a supporting reference.
+or server.
 
 Only this standalone version is currently distributed. The timing target still
 needs an instructor dry run; see the [course map](../../README.md).

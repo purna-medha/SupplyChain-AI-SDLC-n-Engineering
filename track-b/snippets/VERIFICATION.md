@@ -52,3 +52,7 @@ The HTTP server handled calls from both agent clients. The stdio pair returned a
 | python-dotenv | 1.2.4 |
 | tiktoken | 0.14.0 |
 | pydantic | 2.14.2 |
+
+## Client freeze · 13 November 2026
+
+The B2 SDK file was restored from a classroom experiment to the one-tool example shown in the slides. A controlled runtime check invoked the actual SDK-wrapped lookup for C1/C2/C9 and verified the slide-aligned configuration; the unfinished-tool variant failed this check before correction. No live model request was made. The earlier live-run observations above remain historical. See the [release record](../../RELEASE.md).
