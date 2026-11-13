@@ -49,4 +49,4 @@ B4 also uses the shared environment and `OPEN_AI_KEY`. Its six core examples bui
 
 ## Client snapshot
 
-The [release record](../RELEASE.md) lists the freeze checks. B6 has a worked-example path but no learner lab or Gamma copy. Lab TODOs are intentional participant work; formal assessments and next-delivery experiments are excluded. Use [model configuration](../MODEL_SETUP.md) for the exact credential names.
+The [release record](../RELEASE.md) lists the freeze checks. B6 has a worked-example path but no learner lab. Lab TODOs are intentional participant work; formal assessments and next-delivery experiments are excluded. Use [model configuration](../MODEL_SETUP.md) for the exact credential names.

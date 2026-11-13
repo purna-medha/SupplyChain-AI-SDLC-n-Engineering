@@ -24,3 +24,6 @@ node_modules/
 
 # Release archives are written outside the source tree.
 /release-artifacts/
+
+# Local presentation-authoring copies; keep final Markdown/PPTX delivery assets.
+/track-b/slides-gamma/

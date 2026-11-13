@@ -9,7 +9,6 @@ Snapshot: **13 November 2026**. This inventory describes the materials in the cl
 | Track A | Five Markdown decks, 163 slides; [index](track-a/README.md) |
 | Track B | Six core decks, 207 slides; optional B0 adds one deck and 38 slides; [course map](track-b/README.md) |
 | Total | 12 decks, 408 slides including B0; 11 core decks, 370 slides excluding B0 |
-| Gamma-ready text | Six copies for B0–B5, 208 slides; [paste guide](track-b/slides-gamma/README.md) |
 | Supplied PowerPoints | Five unchanged B1–B5 presentations, 170 slides; [index](track-b/slides-powerpoint/README.md) |
 | Core Python snippets | 35 numbered examples across B1–B6; [run guides](track-b/snippets/README.md) |
 | Python preparation | 14 B0 snippets plus optional API extension |
@@ -17,7 +16,7 @@ Snapshot: **13 November 2026**. This inventory describes the materials in the cl
 | Learner labs | Five independent Container Help Desk starters for B1–B5; [guide](track-b/labs/README.md) |
 | Reference application | Deterministic PortOps FastAPI/SQLite/Streamlit application, eight seed tables and tests; [setup](project-supplychain-sandbox-PortOps/README.md) |
 
-There is no all-deck PowerPoint ZIP, `codealongs/` folder or separate PortOps AI extension in this release. Five supplied B1–B5 PowerPoints are preserved as-is. Markdown decks are authoritative; Gamma copies are derived text for presentation import. The supplied PowerPoints were checked structurally, not certified as text-identical or visually revalidated.
+There is no all-deck PowerPoint ZIP, `codealongs/` folder or separate PortOps AI extension in this release. Five supplied B1–B5 PowerPoints are preserved as-is. Markdown decks are authoritative; local Gamma authoring copies are excluded from the client snapshot. The supplied PowerPoints were checked structurally, not certified as text-identical or visually revalidated.
 
 ## Learning progression
 
@@ -31,10 +30,10 @@ B5's five standalone LlamaIndex examples match its slides and learner lab. Two s
 
 [Track B setup](track-b/SETUP.md) specifies the locked B1–B5 environment and separate B6 requirements. [Model configuration](MODEL_SETUP.md) explains the actual key names used by these files. Labs and notebooks document their own environments. PortOps needs no model key.
 
-The release checks cover offline execution, the PortOps and lab suites, source/notebook parsing, local links and Gamma/source alignment. Dated verification records retain earlier live model observations and judge disagreements. A passing API call is not evidence of answer quality; no live model or fresh dependency-installation claim is implied by the offline freeze checks.
+The release checks cover offline execution, the PortOps and lab suites, source/notebook parsing, local links. Dated verification records retain earlier live model observations and judge disagreements. A passing API call is not evidence of answer quality; no live model or fresh dependency-installation claim is implied by the offline freeze checks.
 
 ## Explicit boundaries
 
-B1–B5 labs retain unfinished learner functions; these are not completed solutions or formal assessments. B6 has no learner lab or Gamma copy. Trainer teachbacks, SME readiness assessment, production integration, a common AI capstone implementation and the broader Train the Trainer proposal are outside this source release. Existing 30–60-minute lab budgets remain estimates.
+B1–B5 labs retain unfinished learner functions; these are not completed solutions or formal assessments. B6 has no learner lab. Trainer teachbacks, SME readiness assessment, production integration, a common AI capstone implementation and the broader Train the Trainer proposal are outside this source release. Existing 30–60-minute lab budgets remain estimates.
 
 Earlier curricula and the Train the Trainer proposal are background documents. This snapshot does not claim that every proposed asset, duration or enablement stage was delivered. Future refinements do not block preservation of this completed teaching assignment.

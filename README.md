@@ -1,6 +1,6 @@
 # Maersk AI Engineering · client snapshot
 
-Teaching materials for the completed November 2026 assignment, frozen on **13 November 2026**. Release tag: `maersk-client-freeze-2026-11-13`.
+Teaching materials for the completed November 2026 assignment, frozen on **13 November 2026**. Release tag: `maersk-client-freeze-2026-11-13-r2`.
 
 ## Start here
 
@@ -19,13 +19,13 @@ Track B order is **B1 → B2 → B3 → B4 → B6 → B5**. B0 is optional Pytho
 
 ## Scope of this snapshot
 
-The package includes 12 Markdown decks and 408 slides including optional B0, six Gamma-ready copies for B0–B5, five supplied PowerPoints for B1–B5, 35 core B1–B6 Python snippets, 14 B0 snippets, three exploration notebooks, B1–B5 learner lab starters and the deterministic PortOps application with CSV seeds and tests. B5 retains the five generated-answer examples and two tracing references linked by its slides.
+The package includes 12 Markdown decks and 408 slides including optional B0, five supplied PowerPoints for B1–B5, 35 core B1–B6 Python snippets, 14 B0 snippets, three exploration notebooks, B1–B5 learner lab starters and the deterministic PortOps application with CSV seeds and tests. B5 retains the five generated-answer examples and two tracing references linked by its slides.
 
-Lab TODO functions are intentional participant work. B6 has seven worked examples and a deck; it has no learner lab or Gamma copy. Formal module assessments, completed learner solutions, assessed trainer teachbacks, a separate Track A checkpoint repository and a production AI capstone are not delivered by this source package. Lab timing estimates have not been validated by an instructor dry run.
+Lab TODO functions are intentional participant work. B6 has seven worked examples and a deck; it has no learner lab. Formal module assessments, completed learner solutions, assessed trainer teachbacks, a separate Track A checkpoint repository and a production AI capstone are not delivered by this source package. Lab timing estimates have not been validated by an instructor dry run.
 
 All operational examples use synthetic records. PortOps is a training baseline without AI behavior; its live calculations use today's date while tests use a fixed date.
 
-Future-delivery experiments, local credentials, virtual environments, generated databases, bytecode and authoring archives are excluded from the client snapshot. Historical curriculum proposals are supplied as background and do not expand the delivered scope above.
+Intermediate outlines, local Gamma authoring copies, future-delivery experiments, local credentials, virtual environments, generated databases, bytecode and authoring archives are excluded from the client snapshot. Historical curriculum proposals are supplied as background and do not expand the delivered scope above.
 
 ## Verification
 

@@ -98,7 +98,7 @@ Fixed-context evaluation needs no vector retrieval. LlamaIndex's embedding-disab
 
 ## Continue
 
-- [36-slide deck](../../slides-md/b5-safety-observability-evaluation.md), [Gamma text](../../slides-gamma/b5-safety-observability-evaluation.txt) and [teaching outline](../../B5-OUTLINE.md).
+- [36-slide deck](../../slides-md/b5-safety-observability-evaluation.md).
 - [B5 learner lab](../../labs/container_help_desk/B5.md): case design, real generation, evaluation, calibration and prompt comparison.
 - [Current verification](VERIFICATION.md): actual answers, judge disagreements and comparison records.
 - [Tracing references](reference/README.md): the two SDK/LlamaIndex examples linked from the slides.

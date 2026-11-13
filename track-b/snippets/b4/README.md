@@ -130,7 +130,7 @@ These small demonstrations do not establish production isolation or reliability.
 
 ## Teaching and further reading
 
-- [34-slide deck](../../slides-md/b4-enterprise-data.md), [Gamma text](../../slides-gamma/b4-enterprise-data.txt) and [module outline](../../B4-OUTLINE.md).
+- [34-slide deck](../../slides-md/b4-enterprise-data.md).
 - [Optional SQL/API/write references](reference/README.md). B3's approval ideas carry into separately controlled writes; the longer demonstrations remain here.
 - [Next module: B6 · RAG](../b6/README.md), before B5 evaluation.
 - [B4 learner lab](../../labs/container_help_desk/B4.md): five unfinished functions and independent checkpoints.

@@ -54,6 +54,6 @@ The first run may download packages. `--with` supplies FastAPI/Uvicorn without c
 
 Before B1, explain a message dictionary, named arguments and attribute access.
 
-- [Slides](../../slides-md/b0-python-foundations.md) · [Gamma copy](../../slides-gamma/b0-python-foundations.txt)
+- [Slides](../../slides-md/b0-python-foundations.md)
 - [B1 snippet guide](../b1/README.md) · [Shared setup](../../SETUP.md)
 - [Verification and example limits](VERIFICATION.md)

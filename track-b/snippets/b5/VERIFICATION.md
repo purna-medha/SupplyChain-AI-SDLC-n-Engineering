@@ -1,6 +1,6 @@
 # B5 generated-answer evaluation · verified 6 November 2026
 
-This record covers the [five current examples](README.md), the aligned 36-slide [Markdown](../../slides-md/b5-safety-observability-evaluation.md)/[Gamma](../../slides-gamma/b5-safety-observability-evaluation.txt) deck and [learner lab](../../labs/container_help_desk/B5.md). [Captured evidence](verification-results.json) retains actual answers, raw feedback, source/configuration information and comparison outcomes. Historical application-testing source and evidence are retained locally outside this client snapshot.
+This record covers the [five current examples](README.md), the aligned 36-slide [Markdown deck](../../slides-md/b5-safety-observability-evaluation.md) and [learner lab](../../labs/container_help_desk/B5.md). [Captured evidence](verification-results.json) retains actual answers, raw feedback, source/configuration information and comparison outcomes. Historical application-testing source and evidence are retained locally outside this client snapshot.
 
 ## Actual generation and evaluation
 
@@ -50,4 +50,4 @@ Formal assessments, new notebooks, staging and commits remain deferred.
 
 ## Client freeze metadata · 13 November 2026
 
-Navigation and outline wording were updated for the client snapshot. Historical hashes in the 6 November evidence remain unchanged; [freeze metadata](../../freeze-metadata.json) identifies the current documentation. The five example programs and their slide content were not changed by this cleanup, and model judgments were not rerun. Current offline checks and release boundaries are recorded in [RELEASE.md](../../../RELEASE.md).
+Navigation was updated; intermediate authoring outlines and local Gamma copies were excluded from the client snapshot. Historical hashes in the 6 November evidence remain unchanged; [freeze metadata](../../freeze-metadata.json) identifies the current documentation and deck sources. The five example programs and their slide content were not changed by this cleanup, and model judgments were not rerun. Current offline checks and release boundaries are recorded in [RELEASE.md](../../../RELEASE.md).

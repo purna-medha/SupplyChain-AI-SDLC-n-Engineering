@@ -1,6 +1,6 @@
 # B4 query examples · verification, 6 November 2026
 
-This record covers the [six current examples](README.md), [34-slide deck](../../slides-md/b4-enterprise-data.md) and [approved outline](../../B4-OUTLINE.md). [Captured results](verification-results.json) preserve source hashes, commands and transcripts. The API/write examples have a separate [historical record](reference/integrations/VERIFICATION.md).
+This record covers the [six current examples](README.md) and [34-slide deck](../../slides-md/b4-enterprise-data.md). Historical evidence also recorded authoring outlines, which are not distributed in the client snapshot. [Captured results](verification-results.json) preserve source hashes, commands and transcripts. The API/write examples have a separate [historical record](reference/integrations/VERIFICATION.md).
 
 ## Environment and execution
 
@@ -75,7 +75,7 @@ A fresh read-only review found no critical or important issue and independently 
 
 ## Teaching refinement and Gamma copy · 6 November 2026
 
-The Markdown deck was refined after teaching review, retaining 34 slides and the existing Marp style. Plain SQL and engine/connection/result explanations now precede bound-query code; source/analytics fixtures and the join example's event requirement are visible. Enterprise extensions are consolidated. The matching [Gamma text](../../slides-gamma/b4-enterprise-data.txt) retains the slide bodies, tables and fenced blocks, with presenter notes/configuration and local illustration navigation removed.
+The Markdown deck was refined after teaching review, retaining 34 slides and the existing Marp style. Plain SQL and engine/connection/result explanations now precede bound-query code; source/analytics fixtures and the join example's event requirement are visible. Enterprise extensions are consolidated. The then-local Gamma authoring text retained the slide bodies, tables and fenced blocks, with presenter notes/configuration and local illustration navigation removed.
 
 The refined B4/B5 decks rendered to 34/36 PNGs and were inspected through six contact sheets, with selected slides inspected at full size. A fresh read-only review checked teaching progression, source/evidence agreement and conversion parity. Its requested visible event-eligibility clarification was applied. These are teaching-material changes; executable source and recorded model runs are unchanged.
 

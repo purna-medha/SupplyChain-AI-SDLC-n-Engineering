@@ -18,7 +18,7 @@ A business question, an approved database path and a checked answer
 Schema · SQLAlchemy Core · LlamaIndex · Agent tools
 
 <!--
-60-minute lecture: slides 2–17, 28 minutes; 18–26, 19 minutes; 27–34, 13 minutes. Explain concepts before opening their complete examples. Slides 31/32 are brief optional enterprise extensions. Run selected examples; variations support further exploration. All records/callers/fees are synthetic. Course order: B1 → B2 → B3 → B4 → B6 → B5. Source: ../B4-OUTLINE.md. Execution observations: ../snippets/b4/VERIFICATION.md. No HTTP service is needed for the six core files.
+60-minute lecture: slides 2–17, 28 minutes; 18–26, 19 minutes; 27–34, 13 minutes. Explain concepts before opening their complete examples. Slides 31/32 are brief optional enterprise extensions. Run selected examples; variations support further exploration. All records/callers/fees are synthetic. Course order: B1 → B2 → B3 → B4 → B6 → B5. Execution observations: ../snippets/b4/VERIFICATION.md. No HTTP service is needed for the six core files.
 -->
 
 ---
@@ -623,5 +623,5 @@ Retain the source, observation time and any failure or output limit.
 Next, B6 supplies document evidence when rows cannot answer the question.
 
 <!--
-Return to the opening question: A's C1 and C4 contribute USD 150. Ask learners to identify source, scope, calculation and evidence in their own words. A separate learner lab draft is available at ../labs/container_help_desk/B4.md; formal assessments and new notebooks remain deferred. Markdown is the authoritative source; its matching Gamma text carries the same visible teaching sequence.
+Return to the opening question: A's C1 and C4 contribute USD 150. Ask learners to identify source, scope, calculation and evidence in their own words. A separate learner lab draft is available at ../labs/container_help_desk/B4.md; formal assessments and new notebooks remain deferred. Markdown is the authoritative slide source.
 -->

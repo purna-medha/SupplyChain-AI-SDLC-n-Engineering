@@ -65,7 +65,7 @@ Inspect schemas, read a caller-scoped record with bound parameters, generate SQL
 
 Build and inspect a document-grounded answer pipeline. Examine chunks, metadata, actual embedding retrieval, hybrid ranking, reranking, query rewriting and a bounded agent using retrieval as a tool. The seven worked examples use synthetic port notes independently of PortOps.
 
-A B6 learner lab, formal assessment and Gamma copy are not included. Chat and embedding adapters are explicitly configured in the source; B6 uses a separate environment and `OPENAI_API_KEY` as documented in setup.
+A B6 learner lab and formal assessment are not included. Chat and embedding adapters are explicitly configured in the source; B6 uses a separate environment and `OPENAI_API_KEY` as documented in setup.
 
 ### B5 · Evaluate generated answers and compare prompts
 
@@ -79,7 +79,7 @@ The delivered path is five small LlamaIndex examples using the approved fee snap
 - [B1–B5 learner starters](../track-b/labs/README.md): independent Container Help Desk exercises with intentionally unfinished functions; earlier modules need not be completed first.
 - [PortOps capstone baseline](../project-supplychain-sandbox-PortOps/Capstone_details.md): deterministic dwell/demurrage, claims, gate-out and read-only trucking visibility. No AI behavior is implemented.
 - [Supplied PowerPoints](../track-b/slides-powerpoint/README.md): five B1–B5 presentation files preserved unchanged.
-- [Gamma-ready copies](../track-b/slides-gamma/README.md): B0–B5 presentation-import text derived from the authoritative Markdown decks.
+- Markdown decks are the authoritative slide sources; intermediate outlines and local Gamma authoring copies are not included.
 
 ## Exclusions and verification boundaries
 

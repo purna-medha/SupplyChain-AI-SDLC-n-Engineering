@@ -1,21 +1,57 @@
 {
   "date": "2026-11-13",
-  "scope": "Client freeze metadata; earlier live-run hashes remain historical. B2 source restored to slide contract and checked with actual SDK tool invocation under controlled model IO. Navigation/docs changes do not rerun model judgments.",
+  "scope": "Client freeze metadata; earlier live-run hashes remain historical. B2 source restored to slide contract and checked with actual SDK tool invocation under controlled model IO. Navigation/docs changes do not rerun model judgments. Intermediate B4/B5 authoring outlines are excluded; their names/hashes in dated verification JSON are historical provenance, not distributed-file references. Gamma authoring files remain local but are untracked and excluded from the revised client package.",
   "current_sources": {
     "track-b/snippets/b5/README.md": {
-      "sha256": "e2924ecc5eb0b9caa0a5da2ee07ff4f3f839899481fb3027712b616a144f023c"
-    },
-    "track-b/B5-OUTLINE.md": {
-      "sha256": "3023aec1eb395619f0201a13a67a0bb1f69043390e094d614b7316f9671f7c85"
+      "sha256": "babbbf1753f69146b7620bc00e48f1bd02e162d4db892fcd7252ae95048b65da"
     },
     "track-b/snippets/b5/VERIFICATION.md": {
-      "sha256": "10b993c081878a262588c7cbb05132ed29a1470f21ee485cf51fa1cb8d53fbf6"
+      "sha256": "3f30663789c51b1b7dab4b5ec231d58c5eebbaf32044f98be05f8c82d318dc91"
     },
     "track-b/labs/VERIFICATION.md": {
       "sha256": "149f051f6faa857917bc7fc21b29b204660f2664bba6427d72b3696d2801e50b"
     },
     "track-b/snippets/b2/02_openai_agent_with_tool.py": {
       "sha256": "5820a501f6c84d39c306aba14fa547b36a641cb73e94d9157dd5504cc40a4087"
+    },
+    "track-b/README.md": {
+      "sha256": "2b3fe7e0e512c2763ae85ad5cd1cb412d012a4b2ef2c32021330b50782bcc2cf"
+    },
+    "track-b/slides-md/README.md": {
+      "sha256": "e119ac0d411f18fa4366a0d8d9f167c03626fc8b6dc7aa5bf3c55d9e1fac1f1a"
+    },
+    "track-b/snippets/b4/README.md": {
+      "sha256": "5d1a84b282a52a1cc22dcdad243274f609ed09b14360859f62c4607f9b1320af"
+    },
+    "track-b/snippets/b4/VERIFICATION.md": {
+      "sha256": "f8d90efe17208a8180e491b4572319eaab137e46f015c390efc167c60adf06a1"
+    },
+    "track-b/snippets/b4/reference/integrations/VERIFICATION.md": {
+      "sha256": "072f75f53d740be1b04ad8b887a4da01ea55e007c09b1e493929052a719e316c"
+    },
+    "track-b/slides-md/b4-enterprise-data.md": {
+      "sha256": "1ee62f63f4063a9efe31428549d7558b11e98f81dc2016cdbc8f830256622ce4"
+    },
+    "track-b/slides-md/b5-safety-observability-evaluation.md": {
+      "sha256": "f5f7edba825c72f6e22faaca3491ad67befd8ef3e6befb13812b908a34535716"
+    },
+    "curriculum/Maersk_Track_A_and_B_Curriculum_v5.docx.md": {
+      "sha256": "147676ee10b5db0be9e21f10fa0ad7b1815395ecfbd1c87a0c55a0903555b7da"
+    },
+    "track-b/snippets/b0/README.md": {
+      "sha256": "0ca038fd333ddf33b9276bd5fa999f93ea26eb9687e425283d5b73ef9bb493ca"
+    },
+    "track-b/SETUP.md": {
+      "sha256": "a89ee53ae2d3668531e6e425b066259a5d8856b6f5798dbb0827937ddd3ec078"
+    },
+    "MAERSK_AI_ENGINEERING_SUMMARY.md": {
+      "sha256": "5585fd60ee74f4aedf1e88faf14c25fcf788149f1b42ee73451c641475f90c5d"
+    },
+    "RELEASE.md": {
+      "sha256": "8c8d51e27f14841f47f92f6e1296325f9ff27aa5658844cc9a1c7a6816426b84"
+    },
+    "README.md": {
+      "sha256": "25047f780513d0cd6feba267cf1d17794734a8c4c1939e31ed4c5c8577477e2c"
     }
   },
   "live_model_calls": "Not rerun for freeze."

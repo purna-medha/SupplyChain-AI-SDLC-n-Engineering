@@ -12,12 +12,12 @@ Delivered November 2026 teaching snapshot, frozen on 13 November 2026. Start wit
 | 5 | B6 | RAG and agentic RAG | [Slides](slides-md/b6-rag-and-agentic-rag.md) · [Snippets](snippets/b6/README.md) |
 | 6 | B5 | Generated-answer evaluation and prompt improvement | [Slides](slides-md/b5-safety-observability-evaluation.md) · [Snippets](snippets/b5/README.md) |
 
-Module IDs are retained: teach **B6 before B5**. B0 is optional preparation. [B4](B4-OUTLINE.md) and [B5](B5-OUTLINE.md) include teaching outlines and independent learner labs.
+Module IDs are retained: teach **B6 before B5**. B0 is optional preparation. B4 and B5 include final teaching decks and independent learner labs; intermediate authoring outlines are excluded.
 
 - **Explore:** [B1–B3 notebooks](notebooks/README.md), with complete experiments and empty distributed outputs.
 - **Practise:** [B1–B5 learner labs](labs/README.md), with intentional unfinished learner functions. They require no PortOps backend.
-- **Present:** [Gamma copies for B0–B5](slides-gamma/README.md) and [five supplied PowerPoints for B1–B5](slides-powerpoint/README.md), included unchanged.
+- **Present:** the Markdown teaching decks linked above and [five supplied PowerPoints for B1–B5](slides-powerpoint/README.md), included unchanged.
 
-B6 is included as a deck and seven worked examples; a B6 learner lab and Gamma copy are not supplied. Formal assessments, completed learner solutions, final lab timing validation and future evaluation redesigns are outside this freeze. Authoring archives and next-delivery experiments are excluded from the client package.
+B6 is included as a deck and seven worked examples; a B6 learner lab is not supplied. Formal assessments, completed learner solutions, final lab timing validation and future evaluation redesigns are outside this freeze. Intermediate outlines, local Gamma authoring copies, authoring archives and next-delivery experiments are excluded from the client package.
 
 See the [release record](../RELEASE.md) for verified paths and limits; the broader curriculum proposals do not imply additional delivered assets.

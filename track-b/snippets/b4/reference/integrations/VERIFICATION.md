@@ -2,7 +2,7 @@
 
 Historical record for the prior API-focused examples retained in this folder. It does not verify the [current core](../../README.md). Statements below describe that earlier version.
 
-This record covers the revised [seven short examples](README.md), their [small HTTP source](service.py), the [34-slide deck](../../../../slides-md/b4-enterprise-data.md) and [module outline](../../../../B4-OUTLINE.md). They teach the mechanisms independently; they do not claim a single integrated production workflow.
+This record covers the revised [seven short examples](README.md), their [small HTTP source](service.py), the [34-slide deck](../../../../slides-md/b4-enterprise-data.md). Historical authoring outlines are not distributed in the client snapshot. They teach the mechanisms independently; they do not claim a single integrated production workflow.
 
 ## Environment
 

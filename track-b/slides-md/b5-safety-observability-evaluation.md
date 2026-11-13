@@ -18,7 +18,7 @@ Actual answers, independent expectations and inspected judgments
 Correctness · Grounding · Relevance · Prompt comparison
 
 <!--
-60 minutes: slides 2–15, 20 minutes; 16–25, 20 minutes; 26–36, 20 minutes. Core order: five standalone snippets 01–05. Generate actual answers, inspect judgments and judge mistakes, then compare prompts under fixed criteria. Run selected demonstrations; full comparisons make multiple generation/judge calls. All records/policies are synthetic. Source: ../B5-OUTLINE.md; actual 6 November observations: ../snippets/b5/VERIFICATION.md. B5 follows B6. Agent tracing, deterministic rules and action checks are supporting references, not the core LLM-quality task.
+60 minutes: slides 2–15, 20 minutes; 16–25, 20 minutes; 26–36, 20 minutes. Core order: five standalone snippets 01–05. Generate actual answers, inspect judgments and judge mistakes, then compare prompts under fixed criteria. Run selected demonstrations; full comparisons make multiple generation/judge calls. All records/policies are synthetic. Actual 6 November observations: ../snippets/b5/VERIFICATION.md. B5 follows B6. Agent tracing, deterministic rules and action checks are supporting references, not the core LLM-quality task.
 -->
 
 ---
@@ -606,5 +606,5 @@ Inspect the judges as well as the model. Retain changed-case answers, regression
 **Explain:** what would you do when a judge passes an answer whose release claim exceeds the context?
 
 <!--
-Answer cue: identify the unsupported claim, inspect reference/context and judge feedback, add a labelled probe, and revise/recheck the evaluator if needed. Rerun both prompt versions if evaluation criteria change. The five core snippets, Markdown deck, Gamma text and lab follow this generated-answer evaluation sequence.
+Answer cue: identify the unsupported claim, inspect reference/context and judge feedback, add a labelled probe, and revise/recheck the evaluator if needed. Rerun both prompt versions if evaluation criteria change. The five core snippets, Markdown deck and lab follow this generated-answer evaluation sequence.
 -->
